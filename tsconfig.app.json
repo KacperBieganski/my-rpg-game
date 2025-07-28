@@ -23,5 +23,16 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "public/assets/tilesets/House1.tsx",
+    "public/assets/tilesets/House2.tsx",
+    "public/assets/tilesets/House3.tsx",
+    "public/assets/tilesets/landscapes2.tsx",
+    "public/assets/tilesets/Tower.tsx",
+    "public/assets/tilesets/trees#1.tsx",
+    "public/assets/tilesets/trees#2.tsx",
+    "public/assets/tilesets/trees#3.tsx",
+    "public/assets/tilesets/water.tsx"
+  ]
 }

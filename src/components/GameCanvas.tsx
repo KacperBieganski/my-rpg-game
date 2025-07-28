@@ -15,7 +15,7 @@ const GameCanvas = () => {
       parent: container.current,
       physics: {
         default: "arcade",
-        arcade: { gravity: { x: 0, y: 0 }, debug: false },
+        arcade: { gravity: { x: 0, y: 0 }, debug: true },
       },
       scene: [GameScene],
     };
