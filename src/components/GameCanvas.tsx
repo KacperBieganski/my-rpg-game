@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
-import GameScene from "../scenes/GameScene";
+import GameScene from "../game/GameScene";
 
 const GameCanvas = () => {
   const container = useRef<HTMLDivElement>(null);
