@@ -6,17 +6,32 @@ export class NPC {
   scene: Phaser.Scene;
   health: number = 100;
   private maxHealth: number = 100;
-
   private changeDirectionTimer: Phaser.Time.TimerEvent;
   private lastPosition: Phaser.Math.Vector2;
   private stuckTime: number = 0;
-
   private healthBarBg: Phaser.GameObjects.Rectangle;
   private healthBar: Phaser.GameObjects.Rectangle;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  private isFollowing: boolean = false;
+  private attackToggle: boolean = false;
+  private isAttacking: boolean = false;
+  private attackCooldown: boolean = false;
+  private speed: number = 100;
+  private detectionRange: number = 200;
+  private attackRange: number = 50;
+  private damage: number = 10;
+  private attackRate: number = 1000;
+  private player: Phaser.Physics.Arcade.Sprite;
+
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    player: Phaser.Physics.Arcade.Sprite
+  ) {
     this.scene = scene;
-    this.sprite = scene.physics.add.sprite(x, y, "warrior_idle");
+    this.player = player;
+    this.sprite = scene.physics.add.sprite(x, y, "Red_warrior_idle");
     this.sprite.setScale(0.7);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
@@ -35,7 +50,6 @@ export class NPC {
       loop: true,
     });
 
-    // Pasek zdrowia
     this.healthBarBg = scene.add
       .rectangle(x, y - 50, 50, 6, 0x000000)
       .setOrigin(0.5);
@@ -45,32 +59,70 @@ export class NPC {
   }
 
   pickRandomDirection() {
-    const directions = [
-      new Phaser.Math.Vector2(1, 0),
-      new Phaser.Math.Vector2(-1, 0),
-      new Phaser.Math.Vector2(0, 1),
-      new Phaser.Math.Vector2(0, -1),
-      new Phaser.Math.Vector2(0, 0),
-    ];
-    this.direction = Phaser.Utils.Array.GetRandom(directions);
+    if (!this.isFollowing && !this.isAttacking) {
+      const directions = [
+        new Phaser.Math.Vector2(1, 0),
+        new Phaser.Math.Vector2(-1, 0),
+        new Phaser.Math.Vector2(0, 1),
+        new Phaser.Math.Vector2(0, -1),
+        new Phaser.Math.Vector2(0, 0),
+      ];
+      this.direction = Phaser.Utils.Array.GetRandom(directions);
+    }
   }
 
   update() {
-    const PLAYER_SPEED = 200;
-    const speed = PLAYER_SPEED / 2;
-
-    // Ustaw prędkość
-    this.sprite.setVelocity(this.direction.x * speed, this.direction.y * speed);
-
-    // Animacja
-    if (this.direction.length() > 0) {
-      this.sprite.anims.play("run", true);
-      this.sprite.setFlipX(this.direction.x < 0);
-    } else {
-      this.sprite.anims.play("idle", true);
+    if (this.isAttacking) {
+      this.updateHealthBar();
+      return;
     }
 
-    // Sprawdzanie czy NPC się ruszył
+    if (!this.player || !this.player.body) {
+      return;
+    }
+
+    const distanceToPlayer = Phaser.Math.Distance.Between(
+      this.sprite.x,
+      this.sprite.y,
+      this.player.x,
+      this.player.y
+    );
+
+    if (distanceToPlayer <= this.detectionRange) {
+      this.isFollowing = true;
+
+      if (distanceToPlayer <= this.attackRange) {
+        this.sprite.setVelocity(0, 0);
+        this.attackPlayer();
+      } else {
+        const direction = new Phaser.Math.Vector2(
+          this.player.x - this.sprite.x,
+          this.player.y - this.sprite.y
+        ).normalize();
+
+        this.direction = direction;
+        this.sprite.setVelocity(
+          this.direction.x * this.speed,
+          this.direction.y * this.speed
+        );
+        this.sprite.anims.play("Red_NPC_run", true);
+        this.sprite.setFlipX(this.direction.x < 0);
+      }
+    } else {
+      this.isFollowing = false;
+      this.sprite.setVelocity(
+        (this.direction.x * this.speed) / 2,
+        (this.direction.y * this.speed) / 2
+      );
+
+      if (this.direction.length() > 0) {
+        this.sprite.anims.play("Red_NPC_run", true);
+        this.sprite.setFlipX(this.direction.x < 0);
+      } else {
+        this.sprite.anims.play("Red_NPC_idle", true);
+      }
+    }
+
     const currentPosition = new Phaser.Math.Vector2(
       this.sprite.x,
       this.sprite.y
@@ -80,7 +132,7 @@ export class NPC {
       this.lastPosition
     );
 
-    if (this.direction.length() > 0) {
+    if (this.direction.length() > 0 && !this.isFollowing) {
       if (distance < 1) {
         this.stuckTime += this.scene.game.loop.delta;
         if (this.stuckTime > 200) {
@@ -93,8 +145,43 @@ export class NPC {
     }
 
     this.lastPosition.copy(currentPosition);
-
     this.updateHealthBar();
+  }
+
+  private attackPlayer() {
+    if (this.attackCooldown || this.isAttacking) return;
+
+    this.isAttacking = true;
+    this.attackCooldown = true;
+
+    this.sprite.setFlipX(this.player.x < this.sprite.x);
+    const anim = this.attackToggle ? "Red_NPC_attack1" : "Red_NPC_attack2";
+    this.attackToggle = !this.attackToggle;
+
+    this.sprite.anims.play(anim, true);
+
+    this.scene.time.delayedCall(300, () => {
+      if (this.sprite.active) {
+        const distance = Phaser.Math.Distance.Between(
+          this.sprite.x,
+          this.sprite.y,
+          this.player.x,
+          this.player.y
+        );
+
+        if (distance <= this.attackRange) {
+          this.player.emit("npcAttack", this.damage);
+        }
+      }
+    });
+
+    this.sprite.once("animationcomplete", () => {
+      this.isAttacking = false;
+    });
+
+    this.scene.time.delayedCall(this.attackRate, () => {
+      this.attackCooldown = false;
+    });
   }
 
   private updateHealthBar() {

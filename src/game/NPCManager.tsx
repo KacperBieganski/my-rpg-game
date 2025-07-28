@@ -1,14 +1,21 @@
 import Phaser from "phaser";
 import { NPC } from "./NPC";
+import { Player } from "./Player";
 
 export class NPCManager {
   private npcs: NPC[] = [];
   private scene: Phaser.Scene;
   private spawnsLayer: Phaser.Tilemaps.TilemapLayer;
+  private player: Player;
 
-  constructor(scene: Phaser.Scene, spawnsLayer: Phaser.Tilemaps.TilemapLayer) {
+  constructor(
+    scene: Phaser.Scene,
+    spawnsLayer: Phaser.Tilemaps.TilemapLayer,
+    player: Player
+  ) {
     this.scene = scene;
     this.spawnsLayer = spawnsLayer;
+    this.player = player;
   }
 
   spawnNPCs(count: number = 10) {
@@ -29,7 +36,7 @@ export class NPCManager {
       const worldX = this.spawnsLayer.tileToWorldX(randomTile.x) + 16;
       const worldY = this.spawnsLayer.tileToWorldY(randomTile.y) + 16;
 
-      const npc = new NPC(this.scene, worldX, worldY);
+      const npc = new NPC(this.scene, worldX, worldY, this.player.sprite);
       this.npcs.push(npc);
     }
   }

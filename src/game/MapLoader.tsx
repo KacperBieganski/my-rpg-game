@@ -6,9 +6,9 @@ export function loadMap(scene: Phaser.Scene) {
   const tilesets = {
     landscapes: map.addTilesetImage("landscapes2", "landscapes2"),
     water: map.addTilesetImage("water", "water"),
-    trees1: map.addTilesetImage("trees#1", "trees#1"),
-    trees2: map.addTilesetImage("trees#2", "trees#2"),
-    trees3: map.addTilesetImage("trees#3", "trees#3"),
+    trees1: map.addTilesetImage("trees#1", "trees#1", 32, 32, 0, 0),
+    trees2: map.addTilesetImage("trees#2", "trees#2", 32, 32, 0, 0),
+    trees3: map.addTilesetImage("trees#3", "trees#3", 32, 32, 0, 0),
     tower: map.addTilesetImage("Tower", "Tower"),
     house1: map.addTilesetImage("House1", "House1"),
     house2: map.addTilesetImage("House2", "House2"),
