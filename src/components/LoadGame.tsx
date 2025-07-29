@@ -1,13 +1,30 @@
-import React from "react";
+import GameState from "../game/GameState";
 
-type Props = { onBack: () => void };
+const LoadGame = ({ onBack }: { onBack: () => void }) => {
+  const saves = JSON.parse(localStorage.getItem("gameSaves") || "[]");
 
-const LoadGame: React.FC<Props> = ({ onBack }) => (
-  <div className="menu-container">
-    <h2>Wczytaj Grę</h2>
-    {/* tutaj w przyszłości lista zapisu */}
-    <button onClick={onBack}>Powrót</button>
-  </div>
-);
+  const loadSlot = (slotId: number) => {
+    const success = GameState.loadFromSlot(slotId);
+    if (success) {
+      // otworz gre z wczytanym stanem
+    }
+  };
+
+  return (
+    <div className="menu-container">
+      <h2>Wczytaj Grę</h2>
+      <div className="menu-buttons">
+        {saves.map((slot: any, index: number) => (
+          <button key={index} onClick={() => loadSlot(index)}>
+            {slot
+              ? `Zapis ${index + 1}: ${slot.date}`
+              : `Puste miejsce ${index + 1}`}
+          </button>
+        ))}
+        <button onClick={onBack}>Powrót</button>
+      </div>
+    </div>
+  );
+};
 
 export default LoadGame;

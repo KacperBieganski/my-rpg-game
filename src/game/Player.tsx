@@ -25,11 +25,22 @@ export class Player {
   private regenRate: number = 5; // punkty zdrowia na sekundę
   private regenDelay: number = 8000; // 8 sekund opóźnienia
 
+  // dane do zapisu
+  getSaveData() {
+    return {
+      x: this.sprite.x,
+      y: this.sprite.y,
+      health: this.health,
+      level: 1,
+    };
+  }
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.scene = scene;
     this.sprite = scene.physics.add.sprite(x, y, "Blue_warrior_idle");
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setScale(0.7);
+    this.sprite.setDepth(5);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(50, 60);
@@ -38,10 +49,12 @@ export class Player {
     // Health bar
     this.healthBarBg = scene.add
       .rectangle(x, y - 50, 50, 6, 0x000000)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(10);
     this.healthBar = scene.add
       .rectangle(x, y - 50, 50, 4, 0xff0000)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(11);
 
     // Input setup
     this.cursors = scene.input.keyboard!.createCursorKeys();
@@ -168,7 +181,7 @@ export class Player {
         this.sprite.y
       );
       if (dist < hitBox.radius) {
-        npc.takeDamage(20);
+        npc.takeDamage(20, this.sprite.x, this.sprite.y);
       }
     });
 

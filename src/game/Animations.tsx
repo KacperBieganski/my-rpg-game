@@ -81,3 +81,42 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
     repeat: 0,
   });
 }
+
+export function createDecorationAnimations(scene: Phaser.Scene) {
+  scene.anims.create({
+    key: "tree1",
+    frames: scene.anims.generateFrameNumbers("tree1", {
+      start: 0,
+      end: 7,
+    }),
+    frameRate: 8,
+    repeat: -1,
+  });
+  scene.anims.create({
+    key: "tree2",
+    frames: scene.anims.generateFrameNumbers("tree2", {
+      start: 0,
+      end: 7,
+    }),
+    frameRate: 8,
+    repeat: -1,
+  });
+  scene.anims.create({
+    key: "tree3",
+    frames: scene.anims.generateFrameNumbers("tree3", {
+      start: 0,
+      end: 7,
+    }),
+    frameRate: 8,
+    repeat: -1,
+  });
+  scene.anims.create({
+    key: "tree4",
+    frames: scene.anims.generateFrameNumbers("tree4", {
+      start: 0,
+      end: 7,
+    }),
+    frameRate: 8,
+    repeat: -1,
+  });
+}

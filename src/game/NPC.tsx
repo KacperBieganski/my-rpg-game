@@ -19,9 +19,11 @@ export class NPC {
   private speed: number = 100;
   private detectionRange: number = 200;
   private attackRange: number = 50;
-  private damage: number = 10;
+  private damage: number = 5;
   private attackRate: number = 1000;
   private player: Phaser.Physics.Arcade.Sprite;
+  private lastAttackerX: number = 0;
+  private lastAttackerY: number = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -33,6 +35,7 @@ export class NPC {
     this.player = player;
     this.sprite = scene.physics.add.sprite(x, y, "Red_warrior_idle");
     this.sprite.setScale(0.7);
+    this.sprite.setDepth(4);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(50, 60);
@@ -52,10 +55,12 @@ export class NPC {
 
     this.healthBarBg = scene.add
       .rectangle(x, y - 50, 50, 6, 0x000000)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(10);
     this.healthBar = scene.add
       .rectangle(x, y - 50, 50, 4, 0xff0000)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(11);
   }
 
   pickRandomDirection() {
@@ -193,16 +198,66 @@ export class NPC {
   }
 
   destroy() {
-    this.sprite.destroy();
-    this.changeDirectionTimer.destroy();
-    this.healthBar.destroy();
-    this.healthBarBg.destroy();
+    if (this.sprite.active) {
+      this.sprite.destroy();
+    }
+    if (this.changeDirectionTimer) {
+      this.changeDirectionTimer.destroy();
+    }
+    if (this.healthBar) {
+      this.healthBar.destroy();
+    }
+    if (this.healthBarBg) {
+      this.healthBarBg.destroy();
+    }
   }
 
-  takeDamage(amount: number) {
+  takeDamage(amount: number, attackerX?: number, attackerY?: number) {
+    // Sprawdź czy NPC jeszcze istnieje
+    if (!this.sprite.active) {
+      return;
+    }
+
     this.health -= amount;
+
+    const knockbackForce = 5;
+
+    // Zapisz pozycję atakującego dla efektu odrzutu
+    if (attackerX !== undefined && attackerY !== undefined) {
+      this.lastAttackerX = attackerX;
+      this.lastAttackerY = attackerY;
+    }
+
+    // Efekt odrzutu
+    const knockbackDirection = new Phaser.Math.Vector2(
+      this.sprite.x - this.lastAttackerX,
+      this.sprite.y - this.lastAttackerY
+    )
+      .normalize()
+      .scale(30)
+      .scale(knockbackForce);
+
+    this.sprite.setVelocity(knockbackDirection.x, knockbackDirection.y);
+
+    // Efekt wizualny przy otrzymywaniu obrażeń
+    this.sprite.setTint(0xff0000);
+
+    // Opóźnione czyszczenie efektów
+    const damageTimer = this.scene.time.delayedCall(200, () => {
+      if (this.sprite.active) {
+        this.sprite.clearTint();
+        this.sprite.setVelocity(0);
+      }
+    });
+
+    // Jeśli zdrowie <= 0, zniszcz po krótkim opóźnieniu
     if (this.health <= 0) {
-      this.destroy();
+      this.scene.time.delayedCall(100, () => {
+        if (this.sprite.active) {
+          this.destroy();
+          damageTimer.remove();
+        }
+      });
     }
   }
 }

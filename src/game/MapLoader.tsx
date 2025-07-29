@@ -6,13 +6,15 @@ export function loadMap(scene: Phaser.Scene) {
   const tilesets = {
     landscapes: map.addTilesetImage("landscapes2", "landscapes2"),
     water: map.addTilesetImage("water", "water"),
-    trees1: map.addTilesetImage("trees#1", "trees#1", 32, 32, 0, 0),
-    trees2: map.addTilesetImage("trees#2", "trees#2", 32, 32, 0, 0),
-    trees3: map.addTilesetImage("trees#3", "trees#3", 32, 32, 0, 0),
-    tower: map.addTilesetImage("Tower", "Tower"),
-    house1: map.addTilesetImage("House1", "House1"),
-    house2: map.addTilesetImage("House2", "House2"),
-    house3: map.addTilesetImage("House3", "House3"),
+    tree1: map.addTilesetImage("Tree1", "Tree1", 32, 32, 0, 0),
+    tree2: map.addTilesetImage("Tree2", "Tree2", 32, 32, 0, 0),
+    tree3: map.addTilesetImage("Tree3", "Tree3", 32, 32, 0, 0),
+    tree4: map.addTilesetImage("Tree4", "Tree4", 32, 32, 0, 0),
+    redTower: map.addTilesetImage("RedTower", "RedTower"),
+    redcastle: map.addTilesetImage("RedCastle", "RedCastle"),
+    redHouse1: map.addTilesetImage("RedHouse1", "RedHouse1"),
+    redHouse2: map.addTilesetImage("RedHouse2", "RedHouse2"),
+    redHouse3: map.addTilesetImage("RedHouse3", "RedHouse3"),
   };
 
   const layer = (name: string, tiles: Phaser.Tilemaps.Tileset[]) =>
@@ -22,50 +24,60 @@ export function loadMap(scene: Phaser.Scene) {
   const spawns = layer("spawns", []);
   const blocked = layer("blocked", []);
   const ground = layer("ground", [tilesets.landscapes!]);
-  const ground2 = layer("ground#2", [
-    tilesets.landscapes!,
-    tilesets.trees1!,
-    tilesets.trees2!,
-    tilesets.trees3!,
-    tilesets.tower!,
-    tilesets.house1!,
-    tilesets.house2!,
-    tilesets.house3!,
+  const groundBack = layer("ground_back", [tilesets.landscapes!]);
+  const elevated1 = layer("elevated_1", [tilesets.landscapes!]);
+  const elevated2 = layer("elevated_2", [tilesets.landscapes!]);
+  const decorationsFront = layer("decorations_front", [
+    tilesets.redTower!,
+    tilesets.redcastle!,
+    tilesets.redHouse1!,
+    tilesets.redHouse2!,
+    tilesets.redHouse3!,
+    tilesets.tree1!,
+    tilesets.tree2!,
+    tilesets.tree3!,
+    tilesets.tree4!,
   ]);
-  const elevated1 = layer("elevated#1", [tilesets.landscapes!]);
-  const elevated2 = layer("elevated#2", [tilesets.landscapes!]);
-  const decorations = layer("decorations", [
-    tilesets.trees1!,
-    tilesets.trees2!,
-    tilesets.trees3!,
-    tilesets.tower!,
-    tilesets.house1!,
-    tilesets.house2!,
-    tilesets.house3!,
-  ]);
-  const decorations2 = layer("decorations#2", [
-    tilesets.trees1!,
-    tilesets.trees2!,
-    tilesets.trees3!,
-    tilesets.tower!,
-    tilesets.house1!,
-    tilesets.house2!,
-    tilesets.house3!,
+  const decorationsBack = layer("decorations_back", [
+    tilesets.redTower!,
+    tilesets.redcastle!,
+    tilesets.redHouse1!,
+    tilesets.redHouse2!,
+    tilesets.redHouse3!,
+    tilesets.tree1!,
+    tilesets.tree2!,
+    tilesets.tree3!,
+    tilesets.tree4!,
   ]);
 
   if (
     !elevated1 ||
     !water ||
     !spawns ||
-    !decorations ||
-    !decorations2 ||
+    !ground ||
+    !groundBack ||
+    !elevated2 ||
+    !decorationsFront ||
+    !decorationsBack ||
     !blocked
   ) {
     throw new Error("Nie znaleziono warstwy w mapie.");
   }
 
+  // Ustaw kolizje
   blocked.setCollisionByExclusion([-1]);
   elevated1.setCollisionByExclusion([-1]);
+
+  // Ustaw głębokości warstw
+  water.setDepth(0);
+  ground.setDepth(1);
+  groundBack.setDepth(2);
+  decorationsBack.setDepth(3);
+  // NPC depth 4
+  // Gracz depth 5
+  elevated1.setDepth(6);
+  elevated2.setDepth(7);
+  decorationsFront.setDepth(8);
 
   return { map, spawns, elevated1, blocked };
 }
