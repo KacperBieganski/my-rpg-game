@@ -48,6 +48,26 @@ export class AssetLoader {
       "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack2.png",
       { frameWidth: 192, frameHeight: 192 }
     );
+
+    scene.load.spritesheet(
+      "Blue_archer_idle",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Idle.png",
+      { frameWidth: 192, frameHeight: 192 }
+    );
+    scene.load.spritesheet(
+      "Blue_archer_run",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Run.png",
+      { frameWidth: 192, frameHeight: 192 }
+    );
+    scene.load.spritesheet(
+      "Blue_archer_shoot",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Shoot.png",
+      { frameWidth: 192, frameHeight: 192 }
+    );
+    scene.load.image(
+      "arrow",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Arrow.png"
+    );
   }
 
   private static loadEnemyAssets(scene: Phaser.Scene): void {

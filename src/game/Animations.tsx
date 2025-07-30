@@ -2,7 +2,7 @@ import Phaser from "phaser";
 
 export function createPlayerAnimations(scene: Phaser.Scene) {
   scene.anims.create({
-    key: "player_idle",
+    key: "player_warrior_idle",
     frames: scene.anims.generateFrameNumbers("Blue_warrior_idle", {
       start: 0,
       end: 7,
@@ -12,7 +12,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
   });
 
   scene.anims.create({
-    key: "player_run",
+    key: "player_warrior_run",
     frames: scene.anims.generateFrameNumbers("Blue_warrior_run", {
       start: 0,
       end: 5,
@@ -22,7 +22,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
   });
 
   scene.anims.create({
-    key: "player_attack1",
+    key: "player_warrior_attack1",
     frames: scene.anims.generateFrameNumbers("Blue_warrior_attack1", {
       start: 0,
       end: 3,
@@ -32,10 +32,40 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
   });
 
   scene.anims.create({
-    key: "player_attack2",
+    key: "player_warrior_attack2",
     frames: scene.anims.generateFrameNumbers("Blue_warrior_attack2", {
       start: 0,
       end: 3,
+    }),
+    frameRate: 10,
+    repeat: 0,
+  });
+
+  scene.anims.create({
+    key: "player_archer_idle",
+    frames: scene.anims.generateFrameNumbers("Blue_archer_idle", {
+      start: 0,
+      end: 5,
+    }),
+    frameRate: 8,
+    repeat: -1,
+  });
+
+  scene.anims.create({
+    key: "player_archer_run",
+    frames: scene.anims.generateFrameNumbers("Blue_archer_run", {
+      start: 0,
+      end: 3,
+    }),
+    frameRate: 10,
+    repeat: -1,
+  });
+
+  scene.anims.create({
+    key: "player_archer_shoot",
+    frames: scene.anims.generateFrameNumbers("Blue_archer_shoot", {
+      start: 0,
+      end: 7,
     }),
     frameRate: 10,
     repeat: 0,
@@ -79,44 +109,5 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
     }),
     frameRate: 10,
     repeat: 0,
-  });
-}
-
-export function createDecorationAnimations(scene: Phaser.Scene) {
-  scene.anims.create({
-    key: "tree1",
-    frames: scene.anims.generateFrameNumbers("tree1", {
-      start: 0,
-      end: 7,
-    }),
-    frameRate: 8,
-    repeat: -1,
-  });
-  scene.anims.create({
-    key: "tree2",
-    frames: scene.anims.generateFrameNumbers("tree2", {
-      start: 0,
-      end: 7,
-    }),
-    frameRate: 8,
-    repeat: -1,
-  });
-  scene.anims.create({
-    key: "tree3",
-    frames: scene.anims.generateFrameNumbers("tree3", {
-      start: 0,
-      end: 7,
-    }),
-    frameRate: 8,
-    repeat: -1,
-  });
-  scene.anims.create({
-    key: "tree4",
-    frames: scene.anims.generateFrameNumbers("tree4", {
-      start: 0,
-      end: 7,
-    }),
-    frameRate: 8,
-    repeat: -1,
   });
 }

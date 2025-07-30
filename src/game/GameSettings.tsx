@@ -1,0 +1,37 @@
+export const DefaultGameSettings = {
+  player: {
+    position: { x: 800, y: 1400 },
+    level: 1,
+    experience: 0,
+    warrior: {
+      health: 200,
+      maxHealth: 200,
+      regenRate: 5,
+      regenDelay: 5000,
+      speed: 200,
+      attackDamage: 20,
+      attackRange: 80,
+      attackRate: 500,
+    },
+    archer: {
+      health: 70,
+      maxHealth: 70,
+      regenRate: 5,
+      regenDelay: 5000,
+      speed: 220,
+      attackDamage: 10,
+      attackRange: 300,
+      attackRate: 800,
+    },
+  },
+  npc: {
+    health: 100,
+    maxHealth: 100,
+    speed: 100,
+    damage: 5,
+    detectionRange: 200,
+    attackRange: 50,
+    attackRate: 1000,
+    knockbackForce: 5,
+  },
+};

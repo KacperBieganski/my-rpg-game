@@ -1,11 +1,12 @@
 import Phaser from "phaser";
+import { DefaultGameSettings } from "./GameSettings";
 
 export class NPC {
   sprite: Phaser.Physics.Arcade.Sprite;
   direction: Phaser.Math.Vector2;
   scene: Phaser.Scene;
-  health: number = 100;
-  private maxHealth: number = 100;
+  health: number = DefaultGameSettings.npc.health;
+  private maxHealth: number = DefaultGameSettings.npc.maxHealth;
   private changeDirectionTimer: Phaser.Time.TimerEvent;
   private lastPosition: Phaser.Math.Vector2;
   private stuckTime: number = 0;
@@ -16,11 +17,11 @@ export class NPC {
   private attackToggle: boolean = false;
   private isAttacking: boolean = false;
   private attackCooldown: boolean = false;
-  private speed: number = 100;
-  private detectionRange: number = 200;
-  private attackRange: number = 50;
-  private damage: number = 5;
-  private attackRate: number = 1000;
+  private speed: number = DefaultGameSettings.npc.speed;
+  private detectionRange: number = DefaultGameSettings.npc.detectionRange;
+  private attackRange: number = DefaultGameSettings.npc.attackRange;
+  private damage: number = DefaultGameSettings.npc.damage;
+  private attackRate: number = DefaultGameSettings.npc.attackRate;
   private player: Phaser.Physics.Arcade.Sprite;
   private lastAttackerX: number = 0;
   private lastAttackerY: number = 0;
@@ -67,9 +68,11 @@ export class NPC {
     if (!this.isFollowing && !this.isAttacking) {
       const directions = [
         new Phaser.Math.Vector2(1, 0),
+        new Phaser.Math.Vector2(1, 1),
         new Phaser.Math.Vector2(-1, 0),
         new Phaser.Math.Vector2(0, 1),
         new Phaser.Math.Vector2(0, -1),
+        new Phaser.Math.Vector2(-1, -1),
         new Phaser.Math.Vector2(0, 0),
       ];
       this.direction = Phaser.Utils.Array.GetRandom(directions);
@@ -220,7 +223,7 @@ export class NPC {
 
     this.health -= amount;
 
-    const knockbackForce = 5;
+    const knockbackForce = DefaultGameSettings.npc.knockbackForce;
 
     // Zapisz pozycję atakującego dla efektu odrzutu
     if (attackerX !== undefined && attackerY !== undefined) {

@@ -2,18 +2,22 @@ import Phaser from "phaser";
 import { Player } from "./Player";
 import { loadMap } from "./MapLoader";
 import { AssetLoader } from "./AssetLoader";
-import {
-  createPlayerAnimations,
-  //createDecorationAnimations,
-} from "./Animations";
+import { createPlayerAnimations } from "./Animations";
 import { NPCManager } from "./NPCManager";
 
 export default class GameScene extends Phaser.Scene {
   private player!: Player;
   private npcManager!: NPCManager;
+  private characterClass: "warrior" | "archer" = "warrior";
 
   constructor() {
     super({ key: "GameScene" });
+  }
+
+  init(data: { characterClass: "warrior" | "archer" }) {
+    if (data && data.characterClass) {
+      this.characterClass = data.characterClass;
+    }
   }
 
   preload() {
@@ -25,13 +29,13 @@ export default class GameScene extends Phaser.Scene {
 
     // Animacje
     createPlayerAnimations(this);
-    //createDecorationAnimations(this);
 
     // Player
     this.player = new Player(
       this,
       map.widthInPixels / 2,
-      map.heightInPixels / 2
+      map.heightInPixels / 2,
+      this.characterClass
     );
 
     // Kolizje

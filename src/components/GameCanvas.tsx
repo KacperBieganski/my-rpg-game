@@ -2,7 +2,11 @@ import { useEffect, useRef } from "react";
 import Phaser from "phaser";
 import GameScene from "../game/GameScene";
 
-const GameCanvas = () => {
+type Props = {
+  characterClass: "warrior" | "archer";
+};
+
+const GameCanvas: React.FC<Props> = ({ characterClass }) => {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -10,8 +14,8 @@ const GameCanvas = () => {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: 25 * 32, // 800px
-      height: 18 * 32, // 576px
+      width: 25 * 32,
+      height: 18 * 32,
       parent: container.current,
       physics: {
         default: "arcade",
@@ -21,8 +25,12 @@ const GameCanvas = () => {
     };
 
     const game = new Phaser.Game(config);
-    return () => game.destroy(true);
-  }, []);
+    game.scene.start("GameScene", { characterClass });
+
+    return () => {
+      game.destroy(true);
+    };
+  }, [characterClass]);
 
   return <div id="game-container" ref={container} />;
 };

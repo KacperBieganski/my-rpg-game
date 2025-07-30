@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import { NPC } from "./NPC";
+import { DefaultGameSettings } from "./GameSettings";
 
 export class Player {
   public sprite: Phaser.Physics.Arcade.Sprite;
-  health: number = 100;
-  private maxHealth: number = 100;
+  health: number;
+  private maxHealth: number;
   private scene: Phaser.Scene;
   private attackCooldown = false;
   private attackToggle = false;
@@ -17,27 +18,39 @@ export class Player {
     D: Phaser.Input.Keyboard.Key;
     SPACE: Phaser.Input.Keyboard.Key;
   };
-
   private healthBarBg: Phaser.GameObjects.Rectangle;
   private healthBar: Phaser.GameObjects.Rectangle;
   private lastDamageTime: number = 0;
   private healthRegenTimer: Phaser.Time.TimerEvent;
-  private regenRate: number = 5; // punkty zdrowia na sekundę
-  private regenDelay: number = 8000; // 8 sekund opóźnienia
+  private regenRate: number;
+  private regenDelay: number;
+  private characterClass: "warrior" | "archer";
+  private arrows?: Phaser.Physics.Arcade.Group;
+  private lastArrowTime: number = 0;
 
-  // dane do zapisu
-  getSaveData() {
-    return {
-      x: this.sprite.x,
-      y: this.sprite.y,
-      health: this.health,
-      level: 1,
-    };
-  }
-
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    characterClass: "warrior" | "archer" = "warrior"
+  ) {
     this.scene = scene;
-    this.sprite = scene.physics.add.sprite(x, y, "Blue_warrior_idle");
+    this.characterClass = characterClass;
+    const spawnX = DefaultGameSettings.player.position.x;
+    const spawnY = DefaultGameSettings.player.position.y;
+
+    // Initialize based on class
+    const classSettings = DefaultGameSettings.player[this.characterClass];
+    this.health = classSettings.health;
+    this.maxHealth = classSettings.maxHealth;
+    this.regenRate = classSettings.regenRate;
+    this.regenDelay = classSettings.regenDelay;
+
+    const textureKey =
+      this.characterClass === "warrior"
+        ? "Blue_warrior_idle"
+        : "player_archer_idle";
+    this.sprite = scene.physics.add.sprite(spawnX, spawnY, textureKey);
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setScale(0.7);
     this.sprite.setDepth(5);
@@ -45,6 +58,12 @@ export class Player {
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(50, 60);
     body.setOffset(74, 70);
+
+    // Create arrow group for archer
+    this.arrows = this.scene.physics.add.group();
+    if (this.characterClass !== "archer") {
+      this.arrows.clear(true, true); // Clear and destroy all children
+    }
 
     // Health bar
     this.healthBarBg = scene.add
@@ -95,7 +114,7 @@ export class Player {
       return;
     }
 
-    const PLAYER_SPEED = 200;
+    const PLAYER_SPEED = DefaultGameSettings.player[this.characterClass].speed;
     let vx = 0;
     let vy = 0;
 
@@ -109,17 +128,76 @@ export class Player {
     if (length > 0) {
       vx = (vx / length) * PLAYER_SPEED;
       vy = (vy / length) * PLAYER_SPEED;
-      this.sprite.anims.play("player_run", true);
-      // Flip sprite based on movement direction
+      this.sprite.anims.play(
+        this.characterClass === "warrior"
+          ? "player_warrior_run"
+          : "player_archer_run",
+        true
+      );
       if (vx !== 0) {
         this.sprite.setFlipX(vx < 0);
       }
     } else {
-      this.sprite.anims.play("player_idle", true);
+      this.sprite.anims.play(
+        this.characterClass === "warrior"
+          ? "player_warrior_idle"
+          : "player_archer_idle",
+        true
+      );
     }
 
     this.sprite.setVelocity(vx, vy);
     this.updateHealthBar();
+  }
+
+  private shootArrow(target: NPC) {
+    if (!this.arrows || this.scene.time.now - this.lastArrowTime < 300) return;
+
+    this.lastArrowTime = this.scene.time.now;
+    const arrow = this.arrows.create(
+      this.sprite.x,
+      this.sprite.y,
+      "arrow"
+    ) as Phaser.Physics.Arcade.Sprite;
+    arrow.setScale(0.5);
+    arrow.setRotation(
+      Phaser.Math.Angle.Between(
+        this.sprite.x,
+        this.sprite.y,
+        target.sprite.x,
+        target.sprite.y
+      )
+    );
+
+    this.scene.physics.moveTo(
+      arrow,
+      target.sprite.x,
+      target.sprite.y,
+      DefaultGameSettings.player.archer.attackRange * 2
+    );
+
+    // Collision detection
+    this.scene.physics.add.overlap(
+      arrow,
+      target.sprite,
+      () => {
+        target.takeDamage(
+          DefaultGameSettings.player.archer.attackDamage,
+          this.sprite.x,
+          this.sprite.y
+        );
+        arrow.destroy();
+      },
+      undefined,
+      this
+    );
+
+    // Destroy arrow if it goes out of bounds
+    this.scene.time.delayedCall(1000, () => {
+      if (arrow.active) {
+        arrow.destroy();
+      }
+    });
   }
 
   private updateHealthBar() {
@@ -159,42 +237,64 @@ export class Player {
     const nearestEnemy = this.findNearestEnemy();
     if (!nearestEnemy) return;
 
+    const classSettings = DefaultGameSettings.player[this.characterClass];
+    const dist = Phaser.Math.Distance.Between(
+      this.sprite.x,
+      this.sprite.y,
+      nearestEnemy.sprite.x,
+      nearestEnemy.sprite.y
+    );
+
+    if (dist > classSettings.attackRange) return;
+
     this.isAttacking = true;
     this.attackCooldown = true;
 
     // Face the nearest enemy
     this.sprite.setFlipX(nearestEnemy.sprite.x < this.sprite.x);
 
-    const attackRange = 80;
-    const hitBox = new Phaser.Geom.Circle(
-      this.sprite.x,
-      this.sprite.y,
-      attackRange
-    );
-
-    const npcs = (this.scene as any).npcManager.getNPCs() as NPC[];
-    npcs.forEach((npc) => {
-      const dist = Phaser.Math.Distance.Between(
-        npc.sprite.x,
-        npc.sprite.y,
+    if (this.characterClass === "warrior") {
+      const hitBox = new Phaser.Geom.Circle(
         this.sprite.x,
-        this.sprite.y
+        this.sprite.y,
+        classSettings.attackRange
       );
-      if (dist < hitBox.radius) {
-        npc.takeDamage(20, this.sprite.x, this.sprite.y);
-      }
-    });
 
-    const anim = this.attackToggle ? "player_attack1" : "player_attack2";
-    this.attackToggle = !this.attackToggle;
-    this.sprite.setVelocity(0);
-    this.sprite.anims.play(anim, true);
+      const npcs = (this.scene as any).npcManager.getNPCs() as NPC[];
+      npcs.forEach((npc) => {
+        const dist = Phaser.Math.Distance.Between(
+          npc.sprite.x,
+          npc.sprite.y,
+          this.sprite.x,
+          this.sprite.y
+        );
+        if (dist < hitBox.radius) {
+          npc.takeDamage(
+            classSettings.attackDamage,
+            this.sprite.x,
+            this.sprite.y
+          );
+        }
+      });
+
+      const anim = this.attackToggle
+        ? "player_warrior_attack1"
+        : "player_warrior_attack2";
+      this.attackToggle = !this.attackToggle;
+      this.sprite.setVelocity(0);
+      this.sprite.anims.play(anim, true);
+    } else {
+      // Archer attack
+      this.sprite.setVelocity(0);
+      this.sprite.anims.play("player_archer_shoot", true);
+      this.shootArrow(nearestEnemy);
+    }
 
     this.sprite.once("animationcomplete", () => {
       this.isAttacking = false;
     });
 
-    this.scene.time.delayedCall(500, () => {
+    this.scene.time.delayedCall(classSettings.attackRate, () => {
       this.attackCooldown = false;
     });
   }
@@ -202,8 +302,6 @@ export class Player {
   // metoda do regeneracji zdrowia
   private regenerateHealth() {
     const currentTime = this.scene.time.now;
-
-    // Jeśli minęło 5 sekund od ostatnich obrażeń i zdrowie nie jest pełne
     if (
       currentTime - this.lastDamageTime > this.regenDelay &&
       this.health < this.maxHealth
