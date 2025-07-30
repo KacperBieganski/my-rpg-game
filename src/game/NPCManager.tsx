@@ -1,17 +1,17 @@
 import Phaser from "phaser";
 import { NPC } from "./NPC";
-import { Player } from "./Player";
+import { PlayerBase } from "./player/PlayerBase";
 
 export class NPCManager {
   private npcs: NPC[] = [];
   private scene: Phaser.Scene;
   private spawnsLayer: Phaser.Tilemaps.TilemapLayer;
-  private player: Player;
+  private player: PlayerBase;
 
   constructor(
     scene: Phaser.Scene,
     spawnsLayer: Phaser.Tilemaps.TilemapLayer,
-    player: Player
+    player: PlayerBase
   ) {
     this.scene = scene;
     this.spawnsLayer = spawnsLayer;

@@ -27,7 +27,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 3,
     }),
-    frameRate: 10,
+    frameRate: 12,
     repeat: 0,
   });
 
@@ -37,7 +37,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 3,
     }),
-    frameRate: 10,
+    frameRate: 12,
     repeat: 0,
   });
 
@@ -67,7 +67,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 7,
     }),
-    frameRate: 10,
+    frameRate: 25,
     repeat: 0,
   });
 
@@ -97,7 +97,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 3,
     }),
-    frameRate: 10,
+    frameRate: 12,
     repeat: 0,
   });
 
@@ -107,7 +107,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 3,
     }),
-    frameRate: 10,
+    frameRate: 12,
     repeat: 0,
   });
 }

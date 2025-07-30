@@ -1,12 +1,13 @@
 import Phaser from "phaser";
-import { Player } from "./Player";
 import { loadMap } from "./MapLoader";
 import { AssetLoader } from "./AssetLoader";
 import { createPlayerAnimations } from "./Animations";
 import { NPCManager } from "./NPCManager";
+import { DefaultGameSettings } from "../game/GameSettings";
+import { PlayerFactory } from "./player/PlayerFactory";
 
 export default class GameScene extends Phaser.Scene {
-  private player!: Player;
+  private player!: import("./player/PlayerBase").PlayerBase;
   private npcManager!: NPCManager;
   private characterClass: "warrior" | "archer" = "warrior";
 
@@ -27,14 +28,17 @@ export default class GameScene extends Phaser.Scene {
   create() {
     const { map, spawns, elevated1, blocked } = loadMap(this);
 
+    //  referencje do warstw kolizyjnych
+    (this as any).elevated1 = elevated1;
+    (this as any).blocked = blocked;
+
     // Animacje
     createPlayerAnimations(this);
 
-    // Player
-    this.player = new Player(
+    this.player = PlayerFactory.createPlayer(
       this,
-      map.widthInPixels / 2,
-      map.heightInPixels / 2,
+      DefaultGameSettings.player.position.x,
+      DefaultGameSettings.player.position.y,
       this.characterClass
     );
 
