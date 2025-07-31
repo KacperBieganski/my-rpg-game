@@ -14,12 +14,9 @@ const GameScreen: React.FC<Props> = ({ onBack, characterClass }) => {
     <div className="game-and-ui-wrapper">
       <GameCanvas characterClass={characterClass} />
       <div className="game-ui">
-        <p className="ui-item">HP: 100</p>
-        <p className="ui-item">LVL: 1</p>
-        <button
-          className="ui-item menu-button"
-          onClick={() => setShowMenu(true)}
-        >
+        {/* <p className="ui-item">HP: 100</p>
+        <p className="ui-item">LVL: 1</p> */}
+        <button className="ui-item" onClick={() => setShowMenu(true)}>
           Menu
         </button>
       </div>

@@ -257,6 +257,7 @@ export class NPC {
     if (this.health <= 0) {
       this.scene.time.delayedCall(100, () => {
         if (this.sprite.active) {
+          this.sprite.emit("npcKilled", DefaultGameSettings.npc.expGain);
           this.destroy();
           damageTimer.remove();
         }

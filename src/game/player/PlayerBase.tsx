@@ -5,7 +5,7 @@ import { DefaultGameSettings } from "../GameSettings";
 export abstract class PlayerBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
   health: number;
-  protected maxHealth: number;
+  maxHealth: number;
   protected scene: Phaser.Scene;
   protected attackCooldown = false;
   protected isAttacking = false;
@@ -23,6 +23,9 @@ export abstract class PlayerBase {
   protected healthRegenTimer: Phaser.Time.TimerEvent;
   protected regenRate: number;
   protected regenDelay: number;
+  public level: number;
+  public experience: number;
+  public nextLevelExp: number = 100;
 
   constructor(
     scene: Phaser.Scene,
@@ -36,6 +39,8 @@ export abstract class PlayerBase {
     this.maxHealth = settings.maxHealth;
     this.regenRate = settings.regenRate;
     this.regenDelay = settings.regenDelay;
+    this.level = DefaultGameSettings.player.level;
+    this.experience = DefaultGameSettings.player.experience;
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
     this.sprite.setCollideWorldBounds(true);
@@ -156,6 +161,8 @@ export abstract class PlayerBase {
       );
 
       if (this.health < this.maxHealth) {
+        this.health = Math.min(this.health + this.regenRate, this.maxHealth);
+        this.sprite.emit("healthChanged");
         this.sprite.setTint(0x00ff00);
         this.scene.time.delayedCall(200, () => {
           this.sprite.clearTint();
@@ -166,6 +173,7 @@ export abstract class PlayerBase {
 
   takeDamage(amount: number) {
     this.health -= amount;
+    this.sprite.emit("healthChanged");
     this.lastDamageTime = this.scene.time.now;
     this.health = Math.max(this.health, 0);
 
@@ -178,6 +186,31 @@ export abstract class PlayerBase {
       this.sprite.setTint(0xff0000);
       this.sprite.setVelocity(0, 0);
     }
+  }
+
+  public addExperience(amount: number) {
+    this.experience += amount;
+    this.checkLevelUp();
+    this.sprite.emit("statsChanged");
+  }
+
+  private checkLevelUp() {
+    while (this.experience >= this.nextLevelExp) {
+      this.experience -= this.nextLevelExp;
+      this.levelUp();
+    }
+  }
+
+  private levelUp() {
+    this.level++;
+    this.nextLevelExp = Math.floor(this.nextLevelExp * 1.2); // Zwiększ próg o 20%
+
+    // Ulepsz statystyki gracza
+    this.maxHealth = Math.floor(this.maxHealth * 1.1);
+    this.health = this.maxHealth;
+
+    this.sprite.emit("levelUp");
+    this.sprite.emit("statsChanged");
   }
 
   destroy() {

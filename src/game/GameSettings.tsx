@@ -43,5 +43,6 @@ export const DefaultGameSettings = {
     attackRange: 50,
     attackRate: 1000,
     knockbackForce: 5,
+    expGain: 20,
   },
 };
