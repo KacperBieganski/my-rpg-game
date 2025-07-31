@@ -23,6 +23,16 @@ export const DefaultGameSettings = {
       attackRange: 300,
       attackRate: 800,
     },
+    lancer: {
+      health: 100,
+      maxHealth: 100,
+      regenRate: 5,
+      regenDelay: 5000,
+      speed: 200,
+      attackDamage: 15,
+      attackRange: 150,
+      attackRate: 600,
+    },
   },
   npc: {
     health: 100,

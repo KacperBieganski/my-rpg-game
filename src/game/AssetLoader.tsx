@@ -28,6 +28,7 @@ export class AssetLoader {
   }
 
   private static loadPlayerAssets(scene: Phaser.Scene): void {
+    // Warrior
     scene.load.spritesheet(
       "Blue_warrior_idle",
       "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Idle.png",
@@ -49,6 +50,7 @@ export class AssetLoader {
       { frameWidth: 192, frameHeight: 192 }
     );
 
+    // Archer
     scene.load.spritesheet(
       "Blue_archer_idle",
       "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Idle.png",
@@ -67,6 +69,43 @@ export class AssetLoader {
     scene.load.image(
       "arrow",
       "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Arrow.png"
+    );
+
+    // Lancer
+    scene.load.spritesheet(
+      "Blue_lancer_idle",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_Idle.png",
+      { frameWidth: 320, frameHeight: 320 }
+    );
+    scene.load.spritesheet(
+      "Blue_lancer_run",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_Run.png",
+      { frameWidth: 320, frameHeight: 320 }
+    );
+    scene.load.spritesheet(
+      "Blue_lancer_down_attack",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_Down_Attack.png",
+      { frameWidth: 320, frameHeight: 320 }
+    );
+    scene.load.spritesheet(
+      "Blue_lancer_downright_attack",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_DownRight_Attack.png",
+      { frameWidth: 320, frameHeight: 320 }
+    );
+    scene.load.spritesheet(
+      "Blue_lancer_right_attack",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_Right_Attack.png",
+      { frameWidth: 320, frameHeight: 320 }
+    );
+    scene.load.spritesheet(
+      "Blue_lancer_up_attack",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_Up_Attack.png",
+      { frameWidth: 320, frameHeight: 320 }
+    );
+    scene.load.spritesheet(
+      "Blue_lancer_upright_attack",
+      "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_UpRight_Attack.png",
+      { frameWidth: 320, frameHeight: 320 }
     );
   }
 

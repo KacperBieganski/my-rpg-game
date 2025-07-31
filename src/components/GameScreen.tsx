@@ -4,20 +4,18 @@ import GameMenuModal from "./GameMenuModal";
 
 type Props = {
   onBack: () => void;
-  characterClass: "warrior" | "archer";
+  characterClass: "warrior" | "archer" | "lancer";
 };
 
 const GameScreen: React.FC<Props> = ({ onBack, characterClass }) => {
-  const [playerHealth, setPlayerHealth] = useState(100);
-  const [playerLevel, setPlayerLevel] = useState(1);
   const [showMenu, setShowMenu] = useState(false);
 
   return (
     <div className="game-and-ui-wrapper">
       <GameCanvas characterClass={characterClass} />
       <div className="game-ui">
-        <p className="ui-item">HP: {playerHealth}</p>
-        <p className="ui-item">LVL: {playerLevel}</p>
+        <p className="ui-item">HP: 100</p>
+        <p className="ui-item">LVL: 1</p>
         <button
           className="ui-item menu-button"
           onClick={() => setShowMenu(true)}

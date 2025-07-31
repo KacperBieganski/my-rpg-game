@@ -185,7 +185,7 @@ export abstract class PlayerBase {
   }
 
   abstract attack(): void;
-  protected abstract getCharacterType(): "warrior" | "archer";
+  protected abstract getCharacterType(): "warrior" | "archer" | "lancer";
   protected abstract getIdleAnimation(): string;
   protected abstract getRunAnimation(): string;
 }

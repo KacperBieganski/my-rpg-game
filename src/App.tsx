@@ -10,16 +10,16 @@ export type View = "menu" | "game" | "load" | "options";
 
 function App() {
   const [view, setView] = useState<View>("menu");
-  const [characterClass, setCharacterClass] = useState<"warrior" | "archer">(
-    "warrior"
-  );
+  const [characterClass, setCharacterClass] = useState<
+    "warrior" | "archer" | "lancer"
+  >("warrior");
   const [showClassModal, setShowClassModal] = useState(false);
 
   const handleNewGame = () => {
     setShowClassModal(true);
   };
 
-  const handleClassSelect = (cls: "warrior" | "archer") => {
+  const handleClassSelect = (cls: "warrior" | "archer" | "lancer") => {
     setCharacterClass(cls);
     setShowClassModal(false);
     setView("game");

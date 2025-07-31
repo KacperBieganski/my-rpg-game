@@ -3,7 +3,7 @@ import Phaser from "phaser";
 import GameScene from "../game/GameScene";
 
 type Props = {
-  characterClass: "warrior" | "archer";
+  characterClass: "warrior" | "archer" | "lancer";
 };
 
 const GameCanvas: React.FC<Props> = ({ characterClass }) => {

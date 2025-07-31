@@ -9,13 +9,13 @@ import { PlayerFactory } from "./player/PlayerFactory";
 export default class GameScene extends Phaser.Scene {
   private player!: import("./player/PlayerBase").PlayerBase;
   private npcManager!: NPCManager;
-  private characterClass: "warrior" | "archer" = "warrior";
+  private characterClass: "warrior" | "archer" | "lancer" = "warrior";
 
   constructor() {
     super({ key: "GameScene" });
   }
 
-  init(data: { characterClass: "warrior" | "archer" }) {
+  init(data: { characterClass: "warrior" | "archer" | "lancer" }) {
     if (data && data.characterClass) {
       this.characterClass = data.characterClass;
     }

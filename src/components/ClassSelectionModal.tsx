@@ -1,7 +1,7 @@
 import React from "react";
 
 type Props = {
-  onSelect: (characterClass: "warrior" | "archer") => void;
+  onSelect: (characterClass: "warrior" | "archer" | "lancer") => void;
   onClose: () => void;
 };
 
@@ -9,19 +9,25 @@ const ClassSelectionModal: React.FC<Props> = ({ onSelect, onClose }) => {
   // Style dla wyświetlenia pierwszej ramki sprite sheetu
   const warriorSpriteStyle = {
     width: "192px",
-    height: "192px",
+    height: "162px",
     backgroundImage:
       "url('/assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Idle.png')",
-    backgroundPosition: "0 10", // Pierwsza ramka
     imageRendering: "pixelated" as const,
   };
 
   const archerSpriteStyle = {
     width: "192px",
-    height: "192px",
+    height: "162px",
     backgroundImage:
       "url('/assets/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Idle.png')",
-    backgroundPosition: "0 0", // Pierwsza ramka
+    imageRendering: "pixelated" as const,
+  };
+
+  const lancerSpriteStyle = {
+    width: "320px",
+    height: "162px",
+    backgroundImage:
+      "url('/assets/Tiny Swords (Free Pack)/Units/Blue Units/Lancer/Lancer_Idle.png')",
     imageRendering: "pixelated" as const,
   };
 
@@ -41,6 +47,17 @@ const ClassSelectionModal: React.FC<Props> = ({ onSelect, onClose }) => {
           <div className="class-option">
             <div className="character-sprite" style={archerSpriteStyle} />
             <button onClick={() => onSelect("archer")}>Łucznik</button>
+            <div className="class-description">
+              Zwinny strzelec atakujący z dystansu
+            </div>
+          </div>
+
+          <div className="class-option">
+            <div
+              className="character-sprite lancer-sprite"
+              style={lancerSpriteStyle}
+            />
+            <button onClick={() => onSelect("lancer")}>Lancer</button>
             <div className="class-description">
               Zwinny strzelec atakujący z dystansu
             </div>
