@@ -5,14 +5,23 @@ export class UIComponent {
   private scene: Phaser.Scene;
   private player: PlayerBase;
 
+  // Stałe pozycji
+  private readonly UI_MARGIN_LEFT = 20;
+  private readonly HEALTH_BAR_Y = 20;
+  private readonly EXP_BAR_Y = 50;
+  private readonly LEVEL_TEXT_Y = 80;
+  private readonly BAR_WIDTH = 200;
+  private readonly HEALTH_BAR_HEIGHT = 20;
+  private readonly EXP_BAR_HEIGHT = 10;
+
   // Elementy UI
   private healthBar!: Phaser.GameObjects.Graphics;
   private healthBarBg!: Phaser.GameObjects.Graphics;
+  private healthText!: Phaser.GameObjects.Text;
   private expBar!: Phaser.GameObjects.Graphics;
   private expBarBg!: Phaser.GameObjects.Graphics;
-  private levelIcon!: Phaser.GameObjects.Image;
-  private healthIcon!: Phaser.GameObjects.Image;
   private levelText!: Phaser.GameObjects.Text;
+  private expText!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, player: PlayerBase) {
     this.scene = scene;
@@ -29,47 +38,79 @@ export class UIComponent {
   }
 
   private createHealthUI(): void {
+    // Tło paska zdrowia
     this.healthBarBg = this.scene.add
       .graphics()
       .fillStyle(0x000000, 0.5)
-      .fillRoundedRect(60, 20, 200, 20, 5)
+      .fillRoundedRect(
+        this.UI_MARGIN_LEFT,
+        this.HEALTH_BAR_Y,
+        this.BAR_WIDTH,
+        this.HEALTH_BAR_HEIGHT,
+        5
+      )
       .setScrollFactor(0)
       .setDepth(1000);
 
+    // Pasek zdrowia
     this.healthBar = this.scene.add
       .graphics()
       .setScrollFactor(0)
       .setDepth(1001);
 
-    this.healthIcon = this.scene.add
-      .image(30, 30, "ui_heart")
+    // Tekst zdrowia
+    this.healthText = this.scene.add
+      .text(
+        this.UI_MARGIN_LEFT + this.BAR_WIDTH + 10,
+        this.HEALTH_BAR_Y - 1,
+        "",
+        {
+          font: "14px Arial",
+          color: "#FFFFFF",
+          backgroundColor: "#00000055",
+          padding: { x: 5, y: 2 },
+        }
+      )
       .setScrollFactor(0)
-      .setDepth(1000)
-      .setScale(0.9);
+      .setDepth(1001);
   }
 
   private createExpUI(): void {
+    // Tło paska doświadczenia
     this.expBarBg = this.scene.add
       .graphics()
       .fillStyle(0x000000, 0.5)
-      .fillRoundedRect(60, 50, 200, 10, 3)
+      .fillRoundedRect(
+        this.UI_MARGIN_LEFT,
+        this.EXP_BAR_Y,
+        this.BAR_WIDTH,
+        this.EXP_BAR_HEIGHT,
+        3
+      )
       .setScrollFactor(0)
       .setDepth(1000);
 
+    // Pasek doświadczenia
     this.expBar = this.scene.add.graphics().setScrollFactor(0).setDepth(1001);
+
+    // Tekst doświadczenia
+    this.expText = this.scene.add
+      .text(this.UI_MARGIN_LEFT + this.BAR_WIDTH + 10, this.EXP_BAR_Y - 3, "", {
+        font: "14px Arial",
+        color: "#FFFFFF",
+        backgroundColor: "#00000055",
+        padding: { x: 5, y: 2 },
+      })
+      .setScrollFactor(0)
+      .setDepth(1001);
   }
 
   private createLevelUI(): void {
-    this.levelIcon = this.scene.add
-      .image(30, 60, "ui_level")
-      .setScrollFactor(0)
-      .setDepth(1000)
-      .setScale(0.7);
-
+    // Tekst poziomu
     this.levelText = this.scene.add
-      .text(60, 65, "", {
+      .text(this.UI_MARGIN_LEFT, this.LEVEL_TEXT_Y, "", {
         font: "18px MedievalSharp",
-        color: "#FFD700",
+        color: "#FFFFFF",
         stroke: "#000",
         strokeThickness: 3,
       })
@@ -97,7 +138,7 @@ export class UIComponent {
       0,
       1
     );
-    const width = 200 * healthPercent;
+    const width = this.BAR_WIDTH * healthPercent;
     const color =
       healthPercent < 0.3
         ? 0xff0000
@@ -108,16 +149,18 @@ export class UIComponent {
     this.healthBar
       .clear()
       .fillStyle(color, 1)
-      .fillRoundedRect(60, 20, width, 20, 5);
+      .fillRoundedRect(
+        this.UI_MARGIN_LEFT,
+        this.HEALTH_BAR_Y,
+        width,
+        this.HEALTH_BAR_HEIGHT,
+        5
+      );
 
-    if (healthPercent < 0.3) {
-      this.healthIcon.setTint(0xff0000);
-      this.healthIcon.setScale(0.9);
-      this.scene.time.delayedCall(200, () => {
-        this.healthIcon.setTint(0xffffff);
-        this.healthIcon.setScale(0.8);
-      });
-    }
+    // Aktualizuj tekst zdrowia
+    this.healthText.setText(
+      `${Math.floor(this.player.health)}/${this.player.maxHealth}`
+    );
   }
 
   private updateExpUI(): void {
@@ -126,49 +169,36 @@ export class UIComponent {
       0,
       1
     );
-    const width = 200 * expPercent;
+    const width = this.BAR_WIDTH * expPercent;
 
     this.expBar
       .clear()
       .fillStyle(0x4d8dff, 1)
-      .fillRoundedRect(60, 50, width, 10, 3);
+      .fillRoundedRect(
+        this.UI_MARGIN_LEFT,
+        this.EXP_BAR_Y,
+        width,
+        this.EXP_BAR_HEIGHT,
+        3
+      );
 
-    if (expPercent > 0) {
-      this.expBar.setAlpha(0.8);
-      this.scene.time.delayedCall(100, () => this.expBar.setAlpha(1));
-    }
+    // Aktualizuj tekst doświadczenia
+    this.expText.setText(
+      `${this.player.experience}/${this.player.nextLevelExp}`
+    );
   }
 
   private updateLevelUI(): void {
-    this.levelText.setText(`LVL ${this.player.level}`);
-
-    if (this.player.experience === 0) {
-      this.levelIcon.setScale(0.9);
-      this.levelText.setScale(1.1);
-      this.levelText.setColor("#FFFFFF");
-
-      this.scene.tweens.add({
-        targets: [this.levelIcon, this.levelText],
-        scale: 1,
-        duration: 500,
-        ease: "Back.easeOut",
-      });
-
-      this.scene.tweens.add({
-        targets: this.levelText,
-        color: "#FFD700",
-        duration: 1000,
-      });
-    }
+    this.levelText.setText(`Lvl ${this.player.level}`);
   }
 
   public destroy(): void {
     this.healthBar.destroy();
     this.healthBarBg.destroy();
+    this.healthText.destroy();
     this.expBar.destroy();
     this.expBarBg.destroy();
-    this.levelIcon.destroy();
-    this.healthIcon.destroy();
     this.levelText.destroy();
+    this.expText.destroy();
   }
 }

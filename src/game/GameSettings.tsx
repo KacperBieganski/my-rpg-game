@@ -19,7 +19,7 @@ export const DefaultGameSettings = {
       regenRate: 5,
       regenDelay: 5000,
       speed: 200,
-      attackDamage: 10,
+      attackDamage: 20,
       attackRange: 300,
       attackRate: 800,
     },

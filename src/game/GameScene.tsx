@@ -25,13 +25,6 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     AssetLoader.preload(this);
-    this.load.image("ui_heart", "assets/ui/heart.png");
-    this.load.image("ui_level", "assets/ui/level.png");
-    this.load.bitmapFont(
-      "medievalFont",
-      "assets/fonts/medieval.png",
-      "assets/fonts/medieval.fnt"
-    );
   }
 
   create() {
@@ -60,6 +53,10 @@ export default class GameScene extends Phaser.Scene {
     this.npcManager.spawnNPCs(10);
     this.physics.add.collider(this.npcManager.getGroup(), elevated1);
     this.physics.add.collider(this.npcManager.getGroup(), blocked);
+
+    this.events.on("npcKilled", (exp: number) => {
+      this.player.addExperience(exp);
+    });
 
     // Inicjalizacja UI
     this.ui = new UIComponent(this, this.player);

@@ -17,8 +17,6 @@ export abstract class PlayerBase {
     D: Phaser.Input.Keyboard.Key;
     SPACE: Phaser.Input.Keyboard.Key;
   };
-  protected healthBarBg: Phaser.GameObjects.Rectangle;
-  protected healthBar: Phaser.GameObjects.Rectangle;
   protected lastDamageTime: number = 0;
   protected healthRegenTimer: Phaser.Time.TimerEvent;
   protected regenRate: number;
@@ -51,15 +49,6 @@ export abstract class PlayerBase {
     body.setSize(50, 60);
     body.setOffset(74, 70);
 
-    this.healthBarBg = scene.add
-      .rectangle(x, y - 50, 50, 6, 0x000000)
-      .setOrigin(0.5)
-      .setDepth(10);
-    this.healthBar = scene.add
-      .rectangle(x, y - 50, 50, 4, 0xff0000)
-      .setOrigin(0.5)
-      .setDepth(11);
-
     this.cursors = scene.input.keyboard!.createCursorKeys();
     this.wasdKeys = {
       W: scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
@@ -87,7 +76,6 @@ export abstract class PlayerBase {
   update() {
     if (this.isAttacking) {
       this.sprite.setVelocity(0, 0);
-      this.updateHealthBar();
       return;
     }
 
@@ -114,15 +102,6 @@ export abstract class PlayerBase {
     }
 
     this.sprite.setVelocity(vx, vy);
-    this.updateHealthBar();
-  }
-
-  protected updateHealthBar() {
-    const { x, y } = this.sprite;
-    const healthPercent = Phaser.Math.Clamp(this.health / this.maxHealth, 0, 1);
-    this.healthBar.setPosition(x, y - 50);
-    this.healthBar.setSize(50 * healthPercent, 4);
-    this.healthBarBg.setPosition(x, y - 50);
   }
 
   protected findNearestEnemy(): NPC | null {
