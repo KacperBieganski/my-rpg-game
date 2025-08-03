@@ -58,4 +58,9 @@ export class NPCManager {
   getNPCs(): NPC[] {
     return this.npcs;
   }
+
+  destroy() {
+    this.npcs.forEach((npc) => npc.sprite.destroy());
+    this.npcs = [];
+  }
 }

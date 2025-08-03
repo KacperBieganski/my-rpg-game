@@ -8,7 +8,7 @@ export default class MainMenu {
 
   constructor(scene: GameScene) {
     this.scene = scene;
-    this.create();
+    this.scene.time.delayedCall(0, () => this.create());
   }
 
   static preload(scene: Phaser.Scene) {

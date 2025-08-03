@@ -1,10 +1,10 @@
 import Phaser from "phaser";
 import GameScene from "../GameScene";
-import MainMenu from "./MainMenu";
 
 export default class InGameMenu {
   private scene: GameScene;
   private menuContainer!: Phaser.GameObjects.Container;
+  private isVisible: boolean = false;
 
   constructor(scene: GameScene) {
     this.scene = scene;
@@ -13,24 +13,20 @@ export default class InGameMenu {
   }
 
   private create() {
-    // Utwórz kontener dla menu
+    // Utwórz pusty kontener
     this.menuContainer = this.scene.add
       .container(0, 0)
       .setDepth(10000)
       .setScrollFactor(0);
+  }
 
-    // Oblicz środek ekranu
-    const centerX = this.scene.cameras.main.width / 2;
-    const centerY = this.scene.cameras.main.height / 2;
-
-    // Tło menu
+  private buildMenuContents(centerX: number, centerY: number) {
     const bg = this.scene.add
       .rectangle(centerX, centerY, 300, 300, 0x000000, 0.8)
       .setStrokeStyle(2, 0xffffff)
       .setOrigin(0.5)
       .setScrollFactor(0);
 
-    // Tytuł menu
     const title = this.scene.add
       .text(centerX, centerY - 80, "Menu Gry", {
         fontSize: "24px",
@@ -39,7 +35,6 @@ export default class InGameMenu {
       .setOrigin(0.5)
       .setScrollFactor(0);
 
-    // Przycisk Wznów grę
     const resumeBtn = this.scene.add
       .text(centerX, centerY - 20, "Wznów grę", {
         fontSize: "20px",
@@ -50,7 +45,6 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.hide());
 
-    // Przycisk Zapisz grę
     const saveBtn = this.scene.add
       .text(centerX, centerY + 30, "Zapisz grę", {
         fontSize: "20px",
@@ -61,7 +55,6 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.saveGame());
 
-    // Przycisk Menu główne
     const mainMenuBtn = this.scene.add
       .text(centerX, centerY + 80, "Menu główne", {
         fontSize: "20px",
@@ -72,24 +65,32 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.returnToMainMenu());
 
-    // Dodaj elementy do kontenera
+    // Dodaj do kontenera
     this.menuContainer.add([bg, title, resumeBtn, saveBtn, mainMenuBtn]);
   }
 
   public show() {
     const cam = this.scene.cameras.main;
-    this.menuContainer.setPosition(cam.scrollX, cam.scrollY);
+    const centerX = cam.width / 2;
+    const centerY = cam.height / 2;
+
+    // Wyczyść i zbuduj menu dynamicznie (dla poprawnej pozycji)
+    this.menuContainer.removeAll(true);
+    this.buildMenuContents(centerX, centerY);
+
     this.menuContainer.setVisible(true);
     this.scene.togglePause(true);
+    this.isVisible = true;
   }
 
   public hide() {
     this.menuContainer.setVisible(false);
     this.scene.togglePause(false);
+    this.isVisible = false;
   }
 
   public toggle() {
-    if (this.menuContainer.visible) {
+    if (this.isVisible) {
       this.hide();
     } else {
       this.show();

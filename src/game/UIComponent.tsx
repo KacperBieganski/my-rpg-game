@@ -149,11 +149,6 @@ export class UIComponent {
       this.updateExpUI();
       this.updateLevelUI();
     });
-
-    // Listen for ESC key press
-    this.scene.input.keyboard?.on("keydown-ESC", () => {
-      this.scene.events.emit("toggleGameMenu");
-    });
   }
 
   private updateAllUI(): void {

@@ -29,11 +29,15 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    new MainMenu(this);
+    this.inGameMenu = undefined as any;
     this.setupEventListeners();
+    new MainMenu(this);
   }
 
   private setupEventListeners() {
+    this.events.off("toggleGameMenu");
+    this.input.keyboard?.off("keydown-ESC");
+
     this.events.on("toggleGameMenu", () => {
       if (!this.inGameMenu) {
         this.inGameMenu = new InGameMenu(this);
@@ -98,17 +102,15 @@ export default class GameScene extends Phaser.Scene {
   }
 
   destroyGame() {
-    this.player?.destroy();
-    this.ui?.destroy();
-    this.physics.world?.destroy();
-    this.children.removeAll();
-    this.input.keyboard?.off("keydown-ESC");
-    new MainMenu(this);
+    this.inGameMenu = undefined as any;
+    this.scene.restart();
   }
 
   update() {
     if (this.isPaused) return;
-    this.player?.update();
+    if (this.player && this.player.sprite.active) {
+      this.player.update();
+    }
     this.npcManager?.update();
   }
 }

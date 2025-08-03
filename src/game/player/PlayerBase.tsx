@@ -65,7 +65,7 @@ export abstract class PlayerBase {
       loop: true,
     });
 
-    scene.input.on("pointerdown", this.attack, this);
+    // scene.input.on("pointerdown", this.attack, this);
     this.wasdKeys.SPACE.on("down", this.attack, this);
 
     this.sprite.on("npcAttack", (damage: number) => {
