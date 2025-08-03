@@ -1,58 +1,23 @@
 import { useState } from "react";
-import Menu from "./components/Menu";
 import GameScreen from "./components/GameScreen";
-import LoadGame from "./components/LoadGame";
-import Options from "./components/Options";
-import ClassSelectionModal from "./components/ClassSelectionModal";
 import "./App.css";
 
-export type View = "menu" | "game" | "load" | "options";
-
 function App() {
-  const [view, setView] = useState<View>("menu");
-  const [characterClass, setCharacterClass] = useState<
-    "warrior" | "archer" | "lancer"
-  >("warrior");
-  const [showClassModal, setShowClassModal] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
-  const handleNewGame = () => {
-    setShowClassModal(true);
-  };
-
-  const handleClassSelect = (cls: "warrior" | "archer" | "lancer") => {
-    setCharacterClass(cls);
-    setShowClassModal(false);
-    setView("game");
-  };
-
-  const renderView = () => {
-    switch (view) {
-      case "menu":
-        return <Menu onNewGame={handleNewGame} onSelect={setView} />;
-      case "game":
-        return (
-          <GameScreen
-            characterClass={characterClass}
-            onBack={() => setView("menu")}
-          />
-        );
-      case "load":
-        return <LoadGame onBack={() => setView("menu")} />;
-      case "options":
-        return <Options onBack={() => setView("menu")} />;
-      default:
-        return null;
-    }
+  const handleGameStart = () => {
+    setGameStarted(true);
   };
 
   return (
     <div className="app-container">
-      {renderView()}
-      {showClassModal && (
-        <ClassSelectionModal
-          onSelect={handleClassSelect}
-          onClose={() => setShowClassModal(false)}
-        />
+      {gameStarted ? (
+        <GameScreen />
+      ) : (
+        <div className="start-screen">
+          <h1>Moje RPG</h1>
+          <button onClick={handleGameStart}>Rozpocznij grę</button>
+        </div>
       )}
     </div>
   );

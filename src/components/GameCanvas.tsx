@@ -2,15 +2,12 @@ import { useEffect, useRef } from "react";
 import Phaser from "phaser";
 import GameScene from "../game/GameScene";
 
-type Props = {
-  characterClass: "warrior" | "archer" | "lancer";
-};
-
-const GameCanvas: React.FC<Props> = ({ characterClass }) => {
+const GameCanvas: React.FC = () => {
+  const gameInstance = useRef<Phaser.Game | null>(null);
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!container.current) return;
+    if (!container.current || gameInstance.current) return;
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -24,13 +21,15 @@ const GameCanvas: React.FC<Props> = ({ characterClass }) => {
       scene: [GameScene],
     };
 
-    const game = new Phaser.Game(config);
-    game.scene.start("GameScene", { characterClass });
+    gameInstance.current = new Phaser.Game(config);
 
     return () => {
-      game.destroy(true);
+      if (gameInstance.current) {
+        gameInstance.current.destroy(true);
+        gameInstance.current = null;
+      }
     };
-  }, [characterClass]);
+  }, []);
 
   return <div id="game-container" ref={container} />;
 };

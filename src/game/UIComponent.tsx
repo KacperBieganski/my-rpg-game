@@ -13,6 +13,8 @@ export class UIComponent {
   private readonly BAR_WIDTH = 200;
   private readonly HEALTH_BAR_HEIGHT = 20;
   private readonly EXP_BAR_HEIGHT = 10;
+  private readonly MENU_BUTTON_RIGHT_MARGIN = 20;
+  private readonly MENU_BUTTON_TOP_MARGIN = 20;
 
   // Elementy UI
   private healthBar!: Phaser.GameObjects.Graphics;
@@ -22,6 +24,7 @@ export class UIComponent {
   private expBarBg!: Phaser.GameObjects.Graphics;
   private levelText!: Phaser.GameObjects.Text;
   private expText!: Phaser.GameObjects.Text;
+  private menuButton!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, player: PlayerBase) {
     this.scene = scene;
@@ -34,6 +37,7 @@ export class UIComponent {
     this.createHealthUI();
     this.createExpUI();
     this.createLevelUI();
+    this.createMenuButton();
     this.updateAllUI();
   }
 
@@ -118,11 +122,37 @@ export class UIComponent {
       .setDepth(1001);
   }
 
+  private createMenuButton(): void {
+    const x = this.scene.cameras.main.width - this.MENU_BUTTON_RIGHT_MARGIN;
+    const y = this.MENU_BUTTON_TOP_MARGIN;
+
+    this.menuButton = this.scene.add
+      .text(x, y, "Menu", {
+        font: "16px Arial",
+        color: "#FFFFFF",
+        backgroundColor: "#00000055",
+        padding: { x: 10, y: 5 },
+      })
+      .setOrigin(1, 0)
+      .setScrollFactor(0)
+      .setDepth(1001)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
+        // Emit event to scene to toggle game menu
+        this.scene.events.emit("toggleGameMenu");
+      });
+  }
+
   private setupEventListeners(): void {
     this.player.sprite.on("healthChanged", () => this.updateHealthUI());
     this.player.sprite.on("statsChanged", () => {
       this.updateExpUI();
       this.updateLevelUI();
+    });
+
+    // Listen for ESC key press
+    this.scene.input.keyboard?.on("keydown-ESC", () => {
+      this.scene.events.emit("toggleGameMenu");
     });
   }
 
@@ -200,5 +230,9 @@ export class UIComponent {
     this.expBarBg.destroy();
     this.levelText.destroy();
     this.expText.destroy();
+    this.menuButton.destroy();
+
+    // Remove keyboard listener
+    this.scene.input.keyboard?.off("keydown-ESC");
   }
 }
