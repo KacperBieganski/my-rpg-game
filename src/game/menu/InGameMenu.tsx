@@ -1,26 +1,28 @@
 import Phaser from "phaser";
 import GameScene from "../GameScene";
+import SaveSlotMenu from "./SaveSlotMenu";
 
 export default class InGameMenu {
   private scene: GameScene;
   private menuContainer!: Phaser.GameObjects.Container;
-  private isVisible: boolean = false;
+  private isVisible = false;
+  private SaveSlotMenu: SaveSlotMenu;
 
   constructor(scene: GameScene) {
     this.scene = scene;
-    this.create();
+    this.SaveSlotMenu = new SaveSlotMenu(scene, () => this.show());
+    this.createContainer();
     this.hide();
   }
 
-  private create() {
-    // Utwórz pusty kontener
+  private createContainer() {
     this.menuContainer = this.scene.add
       .container(0, 0)
       .setDepth(10000)
       .setScrollFactor(0);
   }
 
-  private buildMenuContents(centerX: number, centerY: number) {
+  private buildMainMenu(centerX: number, centerY: number) {
     const bg = this.scene.add
       .rectangle(centerX, centerY, 300, 300, 0x000000, 0.8)
       .setStrokeStyle(2, 0xffffff)
@@ -29,7 +31,7 @@ export default class InGameMenu {
 
     const title = this.scene.add
       .text(centerX, centerY - 80, "Menu Gry", {
-        fontSize: "24px",
+        fontSize: "25px",
         color: "#ffffff",
       })
       .setOrigin(0.5)
@@ -53,7 +55,10 @@ export default class InGameMenu {
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.saveGame());
+      .on("pointerdown", () => {
+        this.hide();
+        this.SaveSlotMenu.show();
+      });
 
     const mainMenuBtn = this.scene.add
       .text(centerX, centerY + 80, "Menu główne", {
@@ -63,21 +68,19 @@ export default class InGameMenu {
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.returnToMainMenu());
+      .on("pointerdown", () => this.showConfirmReturn());
 
-    // Dodaj do kontenera
     this.menuContainer.add([bg, title, resumeBtn, saveBtn, mainMenuBtn]);
   }
 
   public show() {
-    const cam = this.scene.cameras.main;
-    const centerX = cam.width / 2;
-    const centerY = cam.height / 2;
-
-    // Wyczyść i zbuduj menu dynamicznie (dla poprawnej pozycji)
     this.menuContainer.removeAll(true);
-    this.buildMenuContents(centerX, centerY);
 
+    const cam = this.scene.cameras.main;
+    const cx = cam.width / 2;
+    const cy = cam.height / 2;
+
+    this.buildMainMenu(cx, cy);
     this.menuContainer.setVisible(true);
     this.scene.togglePause(true);
     this.isVisible = true;
@@ -90,29 +93,76 @@ export default class InGameMenu {
   }
 
   public toggle() {
-    if (this.isVisible) {
-      this.hide();
-    } else {
-      this.show();
-    }
+    this.isVisible ? this.hide() : this.show();
   }
 
-  private saveGame() {
-    console.log("Save game clicked");
-  }
+  private showConfirmReturn() {
+    // wyczyść wszystko
+    this.menuContainer.removeAll(true);
 
-  private returnToMainMenu() {
-    if (
-      confirm(
-        "Czy na pewno chcesz wrócić do menu głównego? Niezapisany postęp zostanie utracony."
+    const cam = this.scene.cameras.main;
+    const cx = cam.width / 2;
+    const cy = cam.height / 2;
+
+    // tło okna
+    const bg = this.scene.add
+      .rectangle(cx, cy, 500, 200, 0x000000, 0.8)
+      .setStrokeStyle(2, 0xffffff)
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+
+    // pytanie
+    const question = this.scene.add
+      .text(
+        cx,
+        cy - 50,
+        "Niezapisany postęp zostanie utracony.\nNa pewno wrócić do menu głównego?",
+        {
+          fontSize: "18px",
+          color: "#ffffff",
+          align: "center",
+        }
       )
-    ) {
-      this.hide();
-      this.scene.destroyGame();
-    }
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+
+    // „Tak” – powrót do głównego menu
+    const yesBtn = this.scene.add
+      .text(cx - 110, cy + 40, "Tak", { fontSize: "18px", color: "#ffffff" })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
+        this.hide();
+        this.scene.destroyGame();
+      });
+
+    // „Zapisz grę” – otwórz zapis
+    const saveBtn = this.scene.add
+      .text(cx, cy + 40, "Zapisz grę", { fontSize: "18px", color: "#ffffff" })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
+        this.hide();
+        this.SaveSlotMenu.show();
+      });
+
+    // „Nie” – wróć do menu pauzy
+    const noBtn = this.scene.add
+      .text(cx + 110, cy + 40, "Nie", { fontSize: "18px", color: "#ffffff" })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
+        this.show();
+      });
+
+    this.menuContainer.add([bg, question, yesBtn, saveBtn, noBtn]);
   }
 
   public destroy() {
+    this.SaveSlotMenu.destroy();
     this.menuContainer.destroy();
   }
 }

@@ -17,9 +17,14 @@ export default class ClassSelection {
     const centerX = this.scene.cameras.main.width / 2;
     const centerY = this.scene.cameras.main.height / 2;
 
-    const classMenuBg = this.scene.add
-      .rectangle(centerX, centerY, 600, 500, 0x000000, 0.9)
-      .setStrokeStyle(2, 0xffffff);
+    const classMenuBg = this.scene.add.rectangle(
+      centerX,
+      centerY,
+      600,
+      500,
+      0x000000,
+      0.9
+    );
 
     const title = this.scene.add
       .text(centerX, centerY - 200, "Wybierz klasę postaci", {
@@ -68,9 +73,9 @@ export default class ClassSelection {
       .setInteractive();
 
     const cancelBtn = this.scene.add
-      .text(centerX, centerY + 180, "Anuluj", {
+      .text(centerX, centerY + 160, "◀ Powrót", {
         fontSize: "20px",
-        color: "#ffffff",
+        color: "#fff",
       })
       .setInteractive({ useHandCursor: true })
       .setOrigin(0.5)
@@ -96,7 +101,7 @@ export default class ClassSelection {
 
   private selectClass(characterClass: "warrior" | "archer" | "lancer") {
     this.destroy();
-    this.scene.startGame(characterClass);
+    this.scene.startNewGame(characterClass);
   }
 
   private cancel() {

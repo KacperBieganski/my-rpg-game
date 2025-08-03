@@ -9,6 +9,17 @@ import { UIComponent } from "./UIComponent";
 import MainMenu from "./menu/MainMenu";
 import ClassSelection from "./menu/ClassSelection";
 import InGameMenu from "./menu/InGameMenu";
+import { type SaveData } from "../game/SaveManager";
+
+type GameInitData = {
+  x: number;
+  y: number;
+  characterClass: "warrior" | "archer" | "lancer";
+  health?: number;
+  maxHealth?: number;
+  level?: number;
+  experience?: number;
+};
 
 export default class GameScene extends Phaser.Scene {
   public player!: import("./player/PlayerBase").PlayerBase;
@@ -51,42 +62,68 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
-  startGame(characterClass: "warrior" | "archer" | "lancer") {
-    this.characterClass = characterClass;
+  public startNewGame(characterClass: "warrior" | "archer" | "lancer") {
+    const { x, y } = DefaultGameSettings.player.position;
+    this.initGame({ x, y, characterClass });
+  }
+
+  public loadGame(data: SaveData) {
+    this.initGame({
+      x: data.x,
+      y: data.y,
+      characterClass: data.characterClass,
+      health: data.health,
+      maxHealth: data.maxHealth,
+      level: data.level,
+      experience: data.experience,
+    });
+  }
+
+  private initGame(opts: GameInitData) {
+    this.characterClass = opts.characterClass;
     this.isPaused = false;
 
+    // 1. load map + kolizje
     const { map, spawns, elevated1, blocked } = loadMap(this);
-
     (this as any).elevated1 = elevated1;
     (this as any).blocked = blocked;
 
+    // 2. animacje
     createPlayerAnimations(this);
 
+    // 3. stwórz gracza
     this.player = PlayerFactory.createPlayer(
       this,
-      DefaultGameSettings.player.position.x,
-      DefaultGameSettings.player.position.y,
-      this.characterClass
+      opts.x,
+      opts.y,
+      opts.characterClass
     );
 
+    // 4. ustaw staty, jeśli są w opts
+    if (opts.health != null) this.player.health = opts.health;
+    if (opts.maxHealth != null) this.player.maxHealth = opts.maxHealth;
+    if (opts.level != null) this.player.level = opts.level;
+    if (opts.experience != null) this.player.experience = opts.experience;
+
+    // 5. fizyka i kamera
     this.physics.add.collider(this.player.sprite, elevated1);
     this.physics.add.collider(this.player.sprite, blocked);
-
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    this.cameras.main.startFollow(this.player.sprite, true, 0.1, 0.1);
-    this.cameras.main.setFollowOffset(0, 0);
-    this.cameras.main.setRoundPixels(true);
+    this.cameras.main
+      .setBounds(0, 0, map.widthInPixels, map.heightInPixels)
+      .startFollow(this.player.sprite, true, 0.1, 0.1)
+      .setRoundPixels(true);
 
+    // 6. NPC
     this.npcManager = new NPCManager(this, spawns, this.player);
     this.npcManager.spawnNPCs(0);
     this.physics.add.collider(this.npcManager.getGroup(), elevated1);
     this.physics.add.collider(this.npcManager.getGroup(), blocked);
+    this.events.on("npcKilled", (exp: number) =>
+      this.player.addExperience(exp)
+    );
 
-    this.events.on("npcKilled", (exp: number) => {
-      this.player.addExperience(exp);
-    });
-
+    // 7. UI
     this.ui = new UIComponent(this, this.player);
   }
 
