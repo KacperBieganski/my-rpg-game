@@ -80,6 +80,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initGame(opts: GameInitData) {
+    this.children.removeAll();
+
     this.characterClass = opts.characterClass;
     this.isPaused = false;
 
@@ -109,14 +111,17 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player.sprite, elevated1);
     this.physics.add.collider(this.player.sprite, blocked);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    this.cameras.main
+    const cam = this.cameras.main;
+    cam
       .setBounds(0, 0, map.widthInPixels, map.heightInPixels)
       .startFollow(this.player.sprite, true, 0.1, 0.1)
       .setRoundPixels(true);
 
+    cam.setZoom(1);
+
     // 6. NPC
     this.npcManager = new NPCManager(this, spawns, this.player);
-    this.npcManager.spawnNPCs(0);
+    this.npcManager.spawnNPCs(5);
     this.physics.add.collider(this.npcManager.getGroup(), elevated1);
     this.physics.add.collider(this.npcManager.getGroup(), blocked);
     this.events.on("npcKilled", (exp: number) =>

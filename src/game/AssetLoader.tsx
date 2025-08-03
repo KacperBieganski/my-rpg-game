@@ -28,6 +28,7 @@ export class AssetLoader {
   }
 
   private static loadPlayerAssets(scene: Phaser.Scene): void {
+    scene.load.audio("runningGrass", "/assets/sounds/running-in-grass.ogg");
     // Warrior
     scene.load.spritesheet(
       "Blue_warrior_idle",
@@ -49,6 +50,9 @@ export class AssetLoader {
       "/assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack2.png",
       { frameWidth: 192, frameHeight: 192 }
     );
+    scene.load.audio("swordHit1", "/assets/sounds/hit-sword-1.ogg");
+    scene.load.audio("swordHit2", "/assets/sounds/hit-sword-2.ogg");
+    scene.load.audio("swordSwing1", "/assets/sounds/swing-sword-1.ogg");
 
     // Archer
     scene.load.spritesheet(
@@ -110,6 +114,8 @@ export class AssetLoader {
   }
 
   private static loadEnemyAssets(scene: Phaser.Scene): void {
+    scene.load.audio("deathEnemy", "/assets/sounds/death-enemy.ogg");
+
     scene.load.spritesheet(
       "Red_warrior_idle",
       "/assets/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Idle.png",

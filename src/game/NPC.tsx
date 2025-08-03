@@ -15,6 +15,7 @@ export class NPC {
 
   private isFollowing: boolean = false;
   private attackToggle: boolean = false;
+  private swordHitSounds: Phaser.Sound.BaseSound[] = [];
   private isAttacking: boolean = false;
   private attackCooldown: boolean = false;
   private speed: number = DefaultGameSettings.npc.speed;
@@ -62,6 +63,17 @@ export class NPC {
       .rectangle(x, y - 50, 50, 4, 0xff0000)
       .setOrigin(0.5)
       .setDepth(11);
+
+    this.loadSounds();
+  }
+
+  private loadSounds() {
+    this.swordHitSounds = [
+      this.scene.sound.add("swordHit1"),
+      this.scene.sound.add("swordHit2"),
+    ];
+    this.scene.sound.add("swordSwing1");
+    this.scene.sound.add("deathEnemy");
   }
 
   pickRandomDirection() {
@@ -162,6 +174,11 @@ export class NPC {
     this.isAttacking = true;
     this.attackCooldown = true;
 
+    this.scene.sound.play("swordSwing1", {
+      volume: 0.5,
+      detune: Phaser.Math.Between(-100, 100),
+    });
+
     this.sprite.setFlipX(this.player.x < this.sprite.x);
     const anim = this.attackToggle ? "Red_NPC_attack1" : "Red_NPC_attack2";
     this.attackToggle = !this.attackToggle;
@@ -179,6 +196,12 @@ export class NPC {
 
         if (distance <= this.attackRange) {
           this.player.emit("npcAttack", this.damage);
+
+          const randomSwingIndex = Phaser.Math.Between(
+            0,
+            this.swordHitSounds.length - 1
+          );
+          this.swordHitSounds[randomSwingIndex].play();
         }
       }
     });
@@ -201,6 +224,10 @@ export class NPC {
   }
 
   destroy() {
+    this.scene.sound.play("deathEnemy", {
+      volume: 0.5,
+      detune: Phaser.Math.Between(-100, 100),
+    });
     if (this.sprite.active) {
       this.sprite.destroy();
     }

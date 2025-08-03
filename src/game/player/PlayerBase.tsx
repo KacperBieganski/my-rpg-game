@@ -25,6 +25,10 @@ export abstract class PlayerBase {
   public experience: number;
   public nextLevelExp: number = 100;
 
+  private runningSound: Phaser.Sound.BaseSound;
+  private isMoving: boolean = false;
+  private soundFadeDuration: number = 200;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -71,6 +75,11 @@ export abstract class PlayerBase {
     this.sprite.on("npcAttack", (damage: number) => {
       this.takeDamage(damage);
     });
+
+    this.runningSound = this.scene.sound.add("runningGrass", {
+      loop: true,
+      volume: 0,
+    });
   }
 
   update() {
@@ -97,8 +106,10 @@ export abstract class PlayerBase {
       if (vx !== 0) {
         this.sprite.setFlipX(vx < 0);
       }
+      this.startRunningSound();
     } else {
       this.sprite.anims.play(this.getIdleAnimation(), true);
+      this.stopRunningSound();
     }
 
     this.sprite.setVelocity(vx, vy);
@@ -192,7 +203,42 @@ export abstract class PlayerBase {
     this.sprite.emit("statsChanged");
   }
 
+  private startRunningSound() {
+    if (!this.isMoving) {
+      this.isMoving = true;
+      if (!this.runningSound.isPlaying) {
+        this.runningSound.play();
+      }
+      // Płynne pojawienie się dźwięku
+      this.scene.tweens.add({
+        targets: this.runningSound,
+        volume: { from: 0, to: 0.2 },
+        duration: this.soundFadeDuration,
+        ease: "Linear",
+      });
+    }
+  }
+
+  private stopRunningSound() {
+    if (this.isMoving) {
+      this.isMoving = false;
+      // Płynne zanikanie dźwięku przed zatrzymaniem
+      this.scene.tweens.add({
+        targets: this.runningSound,
+        volume: { from: 0.2, to: 0 },
+        duration: this.soundFadeDuration,
+        ease: "Linear",
+        onComplete: () => {
+          if (!this.isMoving) {
+            this.runningSound.pause();
+          }
+        },
+      });
+    }
+  }
+
   destroy() {
+    this.runningSound.stop();
     this.healthRegenTimer.destroy();
   }
 

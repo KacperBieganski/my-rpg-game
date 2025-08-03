@@ -12,7 +12,7 @@ export default class MainMenu {
     this.scene.time.delayedCall(0, () => this.create());
   }
 
-  static preload(scene: Phaser.Scene) {
+  static preload(_scene: Phaser.Scene) {
     // Tutaj można dodać preloadowanie zasobów specyficznych dla menu
   }
 

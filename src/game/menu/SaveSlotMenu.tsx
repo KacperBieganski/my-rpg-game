@@ -6,7 +6,6 @@ import { SaveManager, type SaveData } from "../SaveManager";
 export default class SaveSlotMenu {
   private scene: GameScene;
   private container: Phaser.GameObjects.Container;
-  private isVisible = false;
   private onBack: () => void;
 
   constructor(scene: GameScene, onBack: () => void) {
@@ -23,13 +22,11 @@ export default class SaveSlotMenu {
     this.build();
     this.container.setVisible(true);
     this.scene.togglePause(true);
-    this.isVisible = true;
   }
 
   public hide() {
     this.container.setVisible(false);
     this.scene.togglePause(false);
-    this.isVisible = false;
   }
 
   private build() {

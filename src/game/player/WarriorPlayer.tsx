@@ -5,9 +5,20 @@ import Phaser from "phaser";
 
 export class WarriorPlayer extends PlayerBase {
   private attackToggle = false;
+  private swordHitSounds: Phaser.Sound.BaseSound[] = [];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "Blue_warrior_idle", DefaultGameSettings.player.warrior);
+    this.loadSwordSounds();
+  }
+
+  private loadSwordSounds() {
+    this.swordHitSounds = [
+      this.scene.sound.add("swordHit1"),
+      this.scene.sound.add("swordHit2"),
+    ];
+
+    this.scene.sound.add("swordSwing1");
   }
 
   attack() {
@@ -18,6 +29,11 @@ export class WarriorPlayer extends PlayerBase {
 
     const nearestEnemy = this.findNearestEnemy();
     const classSettings = DefaultGameSettings.player.warrior;
+
+    this.scene.sound.play("swordSwing1", {
+      volume: 0.6,
+      detune: Phaser.Math.Between(-100, 100),
+    });
 
     // Zawsze odtwarzaj animację ataku
     const anim = this.attackToggle
@@ -59,6 +75,11 @@ export class WarriorPlayer extends PlayerBase {
               this.sprite.x,
               this.sprite.y
             );
+            const randomSoundIndex = Phaser.Math.Between(
+              0,
+              this.swordHitSounds.length - 1
+            );
+            this.swordHitSounds[randomSoundIndex].play();
           }
         });
       }
