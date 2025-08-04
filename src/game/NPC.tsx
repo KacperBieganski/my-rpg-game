@@ -36,12 +36,12 @@ export class NPC {
     this.scene = scene;
     this.player = player;
     this.sprite = scene.physics.add.sprite(x, y, "Red_warrior_idle");
-    this.sprite.setScale(0.7);
+    this.sprite.setScale(1);
     this.sprite.setDepth(4);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    body.setSize(50, 60);
-    body.setOffset(74, 70);
+    body.setSize(40, 40);
+    body.setOffset(74, 90);
 
     this.direction = new Phaser.Math.Vector2();
     this.pickRandomDirection();

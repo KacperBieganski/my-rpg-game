@@ -11,14 +11,14 @@ const GameCanvas: React.FC = () => {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.WEBGL,
-      width: 854,
-      height: 480,
+      width: 1024,
+      height: 576,
       parent: containerRef.current,
       physics: {
         default: "arcade",
         arcade: {
           gravity: { x: 0, y: 0 },
-          debug: false,
+          debug: true,
           fps: 60,
           fixedStep: true,
         },
@@ -29,9 +29,9 @@ const GameCanvas: React.FC = () => {
       },
       scene: [GameScene],
       render: {
-        pixelArt: true,
+        pixelArt: false, // Tymczasowo wyłącz dla testów
         antialias: false,
-        roundPixels: true,
+        roundPixels: false, // Tymczasowo wyłącz
       },
     };
 

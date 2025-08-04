@@ -9,7 +9,7 @@ export class AssetLoader {
     this.loadEnemyAssets(scene);
 
     // Ładowanie mapy
-    scene.load.tilemapTiledJSON("level1", "../assets/map1.json");
+    scene.load.tilemapTiledJSON("level1", "../assets/startMap.json");
 
     // Ładowanie środowiska
     this.loadEnvironmentAssets(scene);
@@ -139,12 +139,22 @@ export class AssetLoader {
   }
 
   private static loadEnvironmentAssets(scene: Phaser.Scene): void {
+    scene.load.image("Overworld", "/assets/Overworld.png");
     scene.load.image(
-      "landscapes2",
+      "Tilemap_color1",
+      "/assets/Tiny Swords (Free Pack)/Terrain/Tilemap_color1.png"
+    );
+    scene.load.image(
+      "Tilemap_color2",
       "/assets/Tiny Swords (Free Pack)/Terrain/Tilemap_color2.png"
     );
     scene.load.image(
-      "water",
+      "Tilemap_color3",
+      "/assets/Tiny Swords (Free Pack)/Terrain/Tilemap_color3.png"
+    );
+    scene.load.image("Collisions", "/assets/Collisions.png");
+    scene.load.image(
+      "Water_Background_color",
       "/assets/Tiny Swords (Free Pack)/Terrain/Water Background color.png"
     );
   }
@@ -176,22 +186,22 @@ export class AssetLoader {
     scene.load.spritesheet(
       "Tree1",
       "/assets/Tiny Swords (Free Pack)/Decorations/Trees/Tree1.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 192, frameHeight: 256 }
     );
     scene.load.spritesheet(
       "Tree2",
       "/assets/Tiny Swords (Free Pack)/Decorations/Trees/Tree2.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 192, frameHeight: 256 }
     );
     scene.load.spritesheet(
       "Tree3",
       "/assets/Tiny Swords (Free Pack)/Decorations/Trees/Tree3.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 192, frameHeight: 192 }
     );
     scene.load.spritesheet(
       "Tree4",
       "/assets/Tiny Swords (Free Pack)/Decorations/Trees/Tree4.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 192, frameHeight: 192 }
     );
   }
 
@@ -199,22 +209,22 @@ export class AssetLoader {
     scene.load.spritesheet(
       "Bushe1",
       "/assets/Tiny Swords (Free Pack)/Decorations/Bushes/Bushe1.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 128, frameHeight: 128 }
     );
     scene.load.spritesheet(
       "Bushe2",
       "/assets/Tiny Swords (Free Pack)/Decorations/Bushes/Bushe2.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 128, frameHeight: 128 }
     );
     scene.load.spritesheet(
       "Bushe3",
       "/assets/Tiny Swords (Free Pack)/Decorations/Bushes/Bushe3.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 128, frameHeight: 128 }
     );
     scene.load.spritesheet(
       "Bushe4",
       "/assets/Tiny Swords (Free Pack)/Decorations/Bushes/Bushe4.png",
-      { frameWidth: 32, frameHeight: 32 }
+      { frameWidth: 128, frameHeight: 128 }
     );
   }
 

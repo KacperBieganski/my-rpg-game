@@ -1,6 +1,6 @@
 export const DefaultGameSettings = {
   player: {
-    position: { x: 800, y: 1400 },
+    position: { x: 700, y: 3200 },
     level: 1,
     experience: 0,
     warrior: {
@@ -8,7 +8,7 @@ export const DefaultGameSettings = {
       maxHealth: 200,
       regenRate: 5,
       regenDelay: 5000,
-      speed: 200,
+      speed: 400,
       attackDamage: 20,
       attackRange: 80,
       attackRate: 500,

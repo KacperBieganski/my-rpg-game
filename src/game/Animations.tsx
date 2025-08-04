@@ -219,3 +219,33 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
     });
   }
 }
+
+export function createObjectsAnimations(scene: Phaser.Scene) {
+  if (!scene.anims.exists("tree1_anim")) {
+    for (let i = 1; i <= 4; i++) {
+      scene.anims.create({
+        key: `tree${i}_anim`,
+        frames: scene.anims.generateFrameNumbers(`Tree${i}`, {
+          start: 0,
+          end: 7,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+  }
+
+  if (!scene.anims.exists("bushe1_anim")) {
+    for (let i = 1; i <= 4; i++) {
+      scene.anims.create({
+        key: `bushe${i}_anim`,
+        frames: scene.anims.generateFrameNumbers(`Bushe${i}`, {
+          start: 0,
+          end: 7,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+  }
+}

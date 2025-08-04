@@ -46,12 +46,12 @@ export abstract class PlayerBase {
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
     this.sprite.setCollideWorldBounds(true);
-    this.sprite.setScale(0.7);
+    this.sprite.setScale(1);
     this.sprite.setDepth(5);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    body.setSize(50, 60);
-    body.setOffset(74, 70);
+    body.setSize(40, 40);
+    body.setOffset(74, 90);
 
     this.cursors = scene.input.keyboard!.createCursorKeys();
     this.wasdKeys = {

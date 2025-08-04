@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { loadMap } from "./MapLoader";
 import { AssetLoader } from "./AssetLoader";
-import { createPlayerAnimations } from "./Animations";
+import { createPlayerAnimations, createObjectsAnimations } from "./Animations";
 import { NPCManager } from "./NPCManager";
 import { DefaultGameSettings } from "../game/GameSettings";
 import { PlayerFactory } from "./player/PlayerFactory";
@@ -40,6 +40,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.physics.world.drawDebug = true;
+    this.physics.world.debugGraphic.clear();
+
+    if (this.physics.world.debugGraphic) {
+      this.physics.world.debugGraphic.setDepth(9999);
+    }
+
     this.inGameMenu = undefined as any;
     this.setupEventListeners();
     new MainMenu(this);
@@ -86,14 +93,12 @@ export default class GameScene extends Phaser.Scene {
     this.isPaused = false;
 
     // 1. load map + kolizje
-    const { map, spawns, elevated1, blocked } = loadMap(this);
-    (this as any).elevated1 = elevated1;
-    (this as any).blocked = blocked;
+    createObjectsAnimations(this);
+    const { map, spawns, collisions } = loadMap(this);
+    (this as any).collisions = collisions;
 
-    // 2. animacje
+    // 2. stwórz gracza
     createPlayerAnimations(this);
-
-    // 3. stwórz gracza
     this.player = PlayerFactory.createPlayer(
       this,
       opts.x,
@@ -101,15 +106,14 @@ export default class GameScene extends Phaser.Scene {
       opts.characterClass
     );
 
-    // 4. ustaw staty, jeśli są w opts
+    // 3. ustaw staty, jeśli są w opts
     if (opts.health != null) this.player.health = opts.health;
     if (opts.maxHealth != null) this.player.maxHealth = opts.maxHealth;
     if (opts.level != null) this.player.level = opts.level;
     if (opts.experience != null) this.player.experience = opts.experience;
 
-    // 5. fizyka i kamera
-    this.physics.add.collider(this.player.sprite, elevated1);
-    this.physics.add.collider(this.player.sprite, blocked);
+    // 4. fizyka i kamera
+    this.physics.add.collider(this.player.sprite, collisions);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     const cam = this.cameras.main;
     cam
@@ -119,16 +123,18 @@ export default class GameScene extends Phaser.Scene {
 
     cam.setZoom(1);
 
-    // 6. NPC
+    this.physics.world.createDebugGraphic();
+    this.physics.world.drawDebug = true;
+
+    // 5. NPC
     this.npcManager = new NPCManager(this, spawns, this.player);
     this.npcManager.spawnNPCs(5);
-    this.physics.add.collider(this.npcManager.getGroup(), elevated1);
-    this.physics.add.collider(this.npcManager.getGroup(), blocked);
+    this.physics.add.collider(this.npcManager.getGroup(), collisions);
     this.events.on("npcKilled", (exp: number) =>
       this.player.addExperience(exp)
     );
 
-    // 7. UI
+    // 6. UI
     this.ui = new UIComponent(this, this.player);
   }
 
@@ -154,5 +160,10 @@ export default class GameScene extends Phaser.Scene {
       this.player.update();
     }
     this.npcManager?.update();
+
+    if (this.input.keyboard?.addKey("D").isDown) {
+      this.physics.world.debugGraphic.clear();
+      this.physics.world.drawDebug = !this.physics.world.drawDebug;
+    }
   }
 }
