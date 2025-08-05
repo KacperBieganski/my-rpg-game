@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 
 export function loadMap(scene: Phaser.Scene) {
+  const spritesToSort: Phaser.GameObjects.Sprite[] = [];
+  //const debugGraphics: Phaser.GameObjects.Graphics[] = [];
   const map = scene.make.tilemap({ key: "level1" });
 
   // Ładowanie tilesetów
@@ -44,42 +46,51 @@ export function loadMap(scene: Phaser.Scene) {
   collisions.setCollisionByExclusion([-1]);
 
   // Debugowanie kolizji
-  if (scene.physics.world.debugGraphic) {
-    scene.physics.world.debugGraphic.clear();
-    collisions.forEachTile((tile) => {
-      if (tile.index !== -1) {
-        const graphics = scene.add.graphics();
-        graphics.lineStyle(1, 0xff0000, 0.8);
-        graphics.strokeRect(tile.pixelX, tile.pixelY, tile.width, tile.height);
-        graphics.setDepth(1000);
-      }
-    });
-  }
+  // if (scene.physics.world.debugGraphic) {
+  //   scene.physics.world.debugGraphic.clear();
+  //   collisions.forEachTile((tile) => {
+  //     if (tile.index !== -1) {
+  //       const graphics = scene.add.graphics();
+  //       graphics.lineStyle(1, 0xff0000, 0.8);
+  //       graphics.strokeRect(tile.pixelX, tile.pixelY, tile.width, tile.height);
+  //       graphics.setDepth(1000);
+  //     }
+  //   });
+  // }
 
   // Ładowanie obiektów z warstwy Objects
   const objectsLayer = map.getObjectLayer("Objects");
   if (objectsLayer) {
     objectsLayer.objects.forEach((obj) => {
-      // Tworzenie obiektów na podstawie gid
-      if (obj.gid) {
-        const sprite = scene.add.sprite(obj.x!, obj.y!, getTextureKey(obj.gid));
-        sprite.setOrigin(0, 1); // Ustawienie punktu zakotwiczenia na dół obiektu
+      const name =
+        obj.properties?.find((p: { name: string }) => p.name === "Name")
+          ?.value || obj.name;
 
-        // Dodawanie animacji dla drzew
-        if (isTree(obj.gid)) {
-          const treeType = getTreeType(obj.gid);
-          sprite.play(`${treeType}_anim`);
-        }
+      if (!name) return;
 
-        // Dodawanie animacji dla krzaków
-        else if (isBush(obj.gid)) {
-          const bushType = getBushType(obj.gid);
-          sprite.play(`${bushType}_anim`);
-        }
+      const textureKey = getTextureKey(name);
+      const sprite = scene.add.sprite(obj.x!, obj.y!, textureKey);
+      sprite.setOrigin(0, 1); // Ustawienie punktu zakotwiczenia na dół obiektu
+      sprite.setData("sortY", obj.y! - 40);
+      spritesToSort.push(sprite);
 
-        // Ustawienie głębokości w zależności od pozycji Y
-        sprite.setDepth(obj.y!);
+      // Dodawanie obramowania
+      // const bounds = sprite.getBounds();
+      // const outline = scene.add.graphics();
+      // outline.lineStyle(2, 0x00ff00, 0.8);
+      // outline.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+      // outline.setDepth(sprite.depth + 1);
+      // debugGraphics.push(outline);
+
+      // Dodawanie animacji na podstawie nazwy
+      if (isTree(name)) {
+        sprite.play(`${name.toLowerCase()}_anim`);
+      } else if (isBush(name)) {
+        sprite.play(`${name.toLowerCase()}_anim`);
       }
+
+      // Ustawienie głębokości w zależności od pozycji Y
+      sprite.setDepth(obj.y!);
     });
   }
 
@@ -91,47 +102,19 @@ export function loadMap(scene: Phaser.Scene) {
   decorations.setDepth(4);
   // Obiekty będą miały depth ustawione dynamicznie na podstawie Y
 
-  return { map, spawns, collisions };
+  return { map, spawns, collisions, spritesToSort };
 }
 
 // Funkcje pomocnicze
-function getTextureKey(gid: number): string {
-  // Mapowanie GID na klucze tekstur
-  const objectMap: Record<number, string> = {
-    1931: "Bushe1",
-    1932: "Bushe2",
-    1933: "Bushe3",
-    1934: "Bushe4",
-    1935: "RedCastle",
-    1936: "RedHouse1",
-    1937: "RedHouse2",
-    1938: "RedHouse3",
-    1939: "RedTower",
-    1940: "Rock1",
-    1941: "Rock2",
-    1942: "Rock3",
-    1943: "Rock4",
-    1944: "Tree1",
-    1945: "Tree2",
-    1946: "Tree3",
-    1947: "Tree4",
-  };
-
-  return objectMap[gid] || "unknown";
+function getTextureKey(name: string): string {
+  // Mapowanie nazw na klucze tekstur
+  return name; // Zakładamy, że nazwa obiektu odpowiada nazwie tekstury
 }
 
-function isTree(gid: number): boolean {
-  return gid >= 1944 && gid <= 1947;
+function isTree(name: string): boolean {
+  return name.startsWith("Tree");
 }
 
-function isBush(gid: number): boolean {
-  return gid >= 1931 && gid <= 1934;
-}
-
-function getTreeType(gid: number): string {
-  return `tree${gid - 1943}`;
-}
-
-function getBushType(gid: number): string {
-  return `bushe${gid - 1930}`;
+function isBush(name: string): boolean {
+  return name.startsWith("Bushe");
 }

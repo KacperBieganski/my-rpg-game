@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { DefaultGameSettings } from "./GameSettings";
+import { FloatingTextEffects } from "./FloatingTextEffects";
 
 export class NPC {
   sprite: Phaser.Physics.Arcade.Sprite;
@@ -12,6 +13,7 @@ export class NPC {
   private stuckTime: number = 0;
   private healthBarBg: Phaser.GameObjects.Rectangle;
   private healthBar: Phaser.GameObjects.Rectangle;
+  private floatingTextEffects: FloatingTextEffects;
 
   private isFollowing: boolean = false;
   private attackToggle: boolean = false;
@@ -24,8 +26,6 @@ export class NPC {
   private damage: number = DefaultGameSettings.npc.damage;
   private attackRate: number = DefaultGameSettings.npc.attackRate;
   private player: Phaser.Physics.Arcade.Sprite;
-  private lastAttackerX: number = 0;
-  private lastAttackerY: number = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -63,6 +63,8 @@ export class NPC {
       .rectangle(x, y - 50, 50, 4, 0xff0000)
       .setOrigin(0.5)
       .setDepth(11);
+
+    this.floatingTextEffects = new FloatingTextEffects(scene);
 
     this.loadSounds();
   }
@@ -195,7 +197,7 @@ export class NPC {
         );
 
         if (distance <= this.attackRange) {
-          this.player.emit("npcAttack", this.damage);
+          this.player.emit("npcAttack", this.damage, this.sprite);
 
           const randomSwingIndex = Phaser.Math.Between(
             0,
@@ -223,6 +225,25 @@ export class NPC {
     this.healthBarBg.setPosition(x, y - 50);
   }
 
+  takeDamage(amount: number, attackerX?: number, attackerY?: number) {
+    if (!this.sprite.active) return;
+
+    this.health -= amount;
+    this.floatingTextEffects.showDamage(this.sprite, amount);
+    this.floatingTextEffects.applyDamageEffects(
+      this.sprite,
+      DefaultGameSettings.npc.knockbackForce,
+      attackerX,
+      attackerY
+    );
+
+    if (this.health <= 0) {
+      console.log(`Granting exp: ${DefaultGameSettings.npc.expGain}`);
+      this.scene.events.emit("npcKilled", DefaultGameSettings.npc.expGain);
+      this.destroy();
+    }
+  }
+
   destroy() {
     this.scene.sound.play("deathEnemy", {
       volume: 0.5,
@@ -240,55 +261,7 @@ export class NPC {
     if (this.healthBarBg) {
       this.healthBarBg.destroy();
     }
-  }
 
-  takeDamage(amount: number, attackerX?: number, attackerY?: number) {
-    // Sprawdź czy NPC jeszcze istnieje
-    if (!this.sprite.active) {
-      return;
-    }
-
-    this.health -= amount;
-
-    const knockbackForce = DefaultGameSettings.npc.knockbackForce;
-
-    // Zapisz pozycję atakującego dla efektu odrzutu
-    if (attackerX !== undefined && attackerY !== undefined) {
-      this.lastAttackerX = attackerX;
-      this.lastAttackerY = attackerY;
-    }
-
-    // Efekt odrzutu
-    const knockbackDirection = new Phaser.Math.Vector2(
-      this.sprite.x - this.lastAttackerX,
-      this.sprite.y - this.lastAttackerY
-    )
-      .normalize()
-      .scale(30)
-      .scale(knockbackForce);
-
-    this.sprite.setVelocity(knockbackDirection.x, knockbackDirection.y);
-
-    // Efekt wizualny przy otrzymywaniu obrażeń
-    this.sprite.setTint(0xff0000);
-
-    // Opóźnione czyszczenie efektów
-    const damageTimer = this.scene.time.delayedCall(200, () => {
-      if (this.sprite.active) {
-        this.sprite.clearTint();
-        this.sprite.setVelocity(0);
-      }
-    });
-
-    // Jeśli zdrowie <= 0, zniszcz po krótkim opóźnieniu
-    if (this.health <= 0) {
-      this.scene.time.delayedCall(100, () => {
-        if (this.sprite.active) {
-          this.scene.events.emit("npcKilled", DefaultGameSettings.npc.expGain);
-          this.destroy();
-          damageTimer.remove();
-        }
-      });
-    }
+    this.floatingTextEffects.destroy();
   }
 }

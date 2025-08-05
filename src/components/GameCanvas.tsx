@@ -10,7 +10,7 @@ const GameCanvas: React.FC = () => {
     if (!containerRef.current || gameInstance.current) return;
 
     const config: Phaser.Types.Core.GameConfig = {
-      type: Phaser.WEBGL,
+      type: Phaser.CANVAS,
       width: 1024,
       height: 576,
       parent: containerRef.current,

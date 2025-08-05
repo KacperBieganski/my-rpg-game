@@ -13,6 +13,12 @@ export class ArcherPlayer extends PlayerBase {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "player_archer_idle", DefaultGameSettings.player.archer);
     this.arrows = this.scene.physics.add.group();
+    this.loadSounds();
+  }
+
+  private loadSounds() {
+    this.scene.sound.add("bowShoot");
+    this.scene.sound.add("bowHit");
   }
 
   private setupArrowCollisions(arrow: Phaser.Physics.Arcade.Sprite) {
@@ -65,6 +71,11 @@ export class ArcherPlayer extends PlayerBase {
 
     const nearestEnemy = this.findNearestEnemy();
     const classSettings = DefaultGameSettings.player.archer;
+
+    this.scene.sound.play("bowShoot", {
+      volume: 0.6,
+      detune: Phaser.Math.Between(-100, 100),
+    });
 
     this.sprite.setVelocity(0);
     this.sprite.anims.play("player_archer_shoot", true);
@@ -191,6 +202,11 @@ export class ArcherPlayer extends PlayerBase {
       arrow,
       target.sprite,
       () => {
+        this.scene.sound.play("bowHit", {
+          volume: 0.5,
+          detune: Phaser.Math.Between(-100, 100),
+        });
+
         target.takeDamage(
           DefaultGameSettings.player.archer.attackDamage,
           this.sprite.x,

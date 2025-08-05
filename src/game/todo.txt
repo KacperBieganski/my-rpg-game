@@ -1,1 +1,2 @@
 // blok i stamina   
+// agro npc tylko na tej samej warstwie

@@ -5,14 +5,110 @@ import Phaser from "phaser";
 
 export class LancerPlayer extends PlayerBase {
   private attackToggle = false;
+  private spearThrustSounds: Phaser.Sound.BaseSound[] = [];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "Blue_Lancer_idle", DefaultGameSettings.player.lancer);
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    body.setOffset(130, 130);
+    body.setOffset(140, 155);
+    this.loadSounds();
+  }
+
+  private loadSounds() {
+    this.spearThrustSounds = [
+      this.scene.sound.add("spearThrust1"),
+      this.scene.sound.add("spearThrust2"),
+      this.scene.sound.add("spearThrust3"),
+    ];
+
+    this.scene.sound.add("spearHit");
+    this.scene.sound.add("spearBlock");
+  }
+
+  update() {
+    // Logika bloku - tylko gdy nie atakujemy
+    if (!this.isAttacking) {
+      if (this.blockKey.isDown && !this.isBlocking && !this.blockCooldown) {
+        this.startBlock();
+      } else if (this.blockKey.isUp && this.isBlocking) {
+        this.endBlock();
+      }
+    }
+
+    super.update();
+  }
+
+  takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
+    if (this.isBlocking) {
+      this.scene.sound.play("spearBlock", {
+        volume: 0.6,
+        detune: Phaser.Math.Between(-100, 100),
+      });
+      this.floatingTextEffects.showDamage(this.sprite, 0);
+
+      // Animacja bloku kierunkowego tylko gdy jest atakujący
+      if (attacker) {
+        this.playDirectionalBlockAnimation(attacker);
+      } else {
+        // Standardowa animacja bloku gdy nie ma atakującego
+        this.sprite.anims.play(this.getBlockAnimation(), true);
+      }
+      return;
+    }
+
+    super.takeDamage(amount, attacker);
+  }
+
+  private playDirectionalBlockAnimation(
+    attacker: Phaser.Physics.Arcade.Sprite
+  ) {
+    const dx = attacker.x - this.sprite.x;
+    const dy = attacker.y - this.sprite.y;
+    const angle = Math.atan2(dy, dx);
+    const angleDeg = Phaser.Math.RadToDeg(angle);
+
+    let anim: string;
+    let flipX = false;
+
+    // Określ animację na podstawie kąta ataku
+    if (angleDeg >= -22.5 && angleDeg < 22.5) {
+      anim = "player_lancer_right_defence";
+      flipX = false;
+    } else if (angleDeg >= 22.5 && angleDeg < 67.5) {
+      anim = "player_lancer_downright_defence";
+      flipX = false;
+    } else if (angleDeg >= 67.5 && angleDeg < 112.5) {
+      anim = "player_lancer_down_defence";
+    } else if (angleDeg >= 112.5 && angleDeg < 157.5) {
+      anim = "player_lancer_downright_defence";
+      flipX = true;
+    } else if (angleDeg >= 157.5 || angleDeg < -157.5) {
+      anim = "player_lancer_right_defence";
+      flipX = true;
+    } else if (angleDeg >= -157.5 && angleDeg < -112.5) {
+      anim = "player_lancer_upright_defence";
+      flipX = true;
+    } else if (angleDeg >= -112.5 && angleDeg < -67.5) {
+      anim = "player_lancer_up_defence";
+    } else {
+      anim = "player_lancer_upright_defence";
+      flipX = false;
+    }
+
+    this.sprite.setFlipX(flipX);
+    this.sprite.anims.play(anim, true);
+
+    // Efekt wizualny
+    this.sprite.setTint(0x8888ff);
+    this.scene.time.delayedCall(200, () => {
+      if (this.sprite.active) {
+        this.sprite.clearTint();
+      }
+    });
   }
 
   attack() {
+    if (this.isBlocking) return;
     if (this.attackCooldown || this.isAttacking) return;
 
     this.isAttacking = true;
@@ -20,6 +116,12 @@ export class LancerPlayer extends PlayerBase {
 
     const nearestEnemy = this.findNearestEnemy();
     const classSettings = DefaultGameSettings.player.lancer;
+
+    const randomSoundIndex = Phaser.Math.Between(
+      0,
+      this.spearThrustSounds.length - 1
+    );
+    this.spearThrustSounds[randomSoundIndex].play({ volume: 0.3 });
 
     let anim = "player_lancer_right_attack";
     let flipX = false;
@@ -102,6 +204,10 @@ export class LancerPlayer extends PlayerBase {
               this.sprite.x,
               this.sprite.y
             );
+            this.scene.sound.play("spearHit", {
+              volume: 0.6,
+              detune: Phaser.Math.Between(-100, 100),
+            });
           }
         }
       });
@@ -114,6 +220,16 @@ export class LancerPlayer extends PlayerBase {
     this.scene.time.delayedCall(classSettings.attackRate, () => {
       this.attackCooldown = false;
     });
+  }
+
+  protected getBlockAnimation(): string {
+    return "player_lancer_right_defence";
+  }
+
+  protected startBlock() {
+    this.isBlocking = true;
+    // Standardowa animacja bloku - zmieni się na kierunkową jeśli będzie atak
+    this.sprite.anims.play(this.getBlockAnimation(), true);
   }
 
   protected getCharacterType(): "warrior" | "archer" | "lancer" {

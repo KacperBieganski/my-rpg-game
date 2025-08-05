@@ -54,13 +54,13 @@ export class UIComponent {
         5
       )
       .setScrollFactor(0)
-      .setDepth(1000);
+      .setDepth(99999);
 
     // Pasek zdrowia
     this.healthBar = this.scene.add
       .graphics()
       .setScrollFactor(0)
-      .setDepth(1001);
+      .setDepth(99999);
 
     // Tekst zdrowia
     this.healthText = this.scene.add
@@ -76,7 +76,7 @@ export class UIComponent {
         }
       )
       .setScrollFactor(0)
-      .setDepth(1001);
+      .setDepth(99999);
   }
 
   private createExpUI(): void {
@@ -92,7 +92,7 @@ export class UIComponent {
         3
       )
       .setScrollFactor(0)
-      .setDepth(1000);
+      .setDepth(99999);
 
     // Pasek doświadczenia
     this.expBar = this.scene.add.graphics().setScrollFactor(0).setDepth(1001);
@@ -106,7 +106,7 @@ export class UIComponent {
         padding: { x: 5, y: 2 },
       })
       .setScrollFactor(0)
-      .setDepth(1001);
+      .setDepth(99999);
   }
 
   private createLevelUI(): void {
@@ -119,7 +119,7 @@ export class UIComponent {
         strokeThickness: 3,
       })
       .setScrollFactor(0)
-      .setDepth(1001);
+      .setDepth(99999);
   }
 
   private createMenuButton(): void {
@@ -135,7 +135,7 @@ export class UIComponent {
       })
       .setOrigin(1, 0)
       .setScrollFactor(0)
-      .setDepth(1001)
+      .setDepth(99999)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         // Emit event to scene to toggle game menu

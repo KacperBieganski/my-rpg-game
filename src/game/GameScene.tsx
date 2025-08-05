@@ -28,6 +28,7 @@ export default class GameScene extends Phaser.Scene {
   public ui!: UIComponent;
   public inGameMenu!: InGameMenu;
   public isPaused: boolean = false;
+  private depthSortedGroup: Phaser.GameObjects.Group | null = null;
 
   constructor() {
     super({ key: "GameScene" });
@@ -92,9 +93,11 @@ export default class GameScene extends Phaser.Scene {
     this.characterClass = opts.characterClass;
     this.isPaused = false;
 
+    this.depthSortedGroup = this.add.group();
+
     // 1. load map + kolizje
     createObjectsAnimations(this);
-    const { map, spawns, collisions } = loadMap(this);
+    const { map, spawns, collisions, spritesToSort } = loadMap(this);
     (this as any).collisions = collisions;
 
     // 2. stwórz gracza
@@ -105,6 +108,12 @@ export default class GameScene extends Phaser.Scene {
       opts.y,
       opts.characterClass
     );
+    this.depthSortedGroup.add(this.player.sprite);
+    this.player.sprite.setData("sortY", this.player.sprite.y);
+
+    spritesToSort.forEach((sprite) => {
+      this.depthSortedGroup?.add(sprite);
+    });
 
     // 3. ustaw staty, jeśli są w opts
     if (opts.health != null) this.player.health = opts.health;
@@ -115,6 +124,7 @@ export default class GameScene extends Phaser.Scene {
     // 4. fizyka i kamera
     this.physics.add.collider(this.player.sprite, collisions);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
     const cam = this.cameras.main;
     cam
       .setBounds(0, 0, map.widthInPixels, map.heightInPixels)
@@ -149,21 +159,41 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  destroyGame() {
-    this.inGameMenu = undefined as any;
-    this.scene.restart();
-  }
-
   update() {
     if (this.isPaused) return;
+
+    if (this.depthSortedGroup && !this.depthSortedGroup.scene) {
+      this.depthSortedGroup = null;
+      return;
+    }
+
+    if (this.depthSortedGroup) {
+      this.depthSortedGroup.getChildren().forEach((obj: any) => {
+        if (obj && obj.setDepth && typeof obj.y === "number") {
+          // Use sortY if it exists, otherwise fall back to y
+          const sortY = obj.getData("sortY") ?? obj.y;
+          obj.setDepth(sortY);
+        }
+      });
+    }
+
+    // Update player's sortY data for proper depth sorting
+    if (this.player?.sprite) {
+      this.player.sprite.setData("sortY", this.player.sprite.y);
+    }
+
     if (this.player && this.player.sprite.active) {
       this.player.update();
     }
     this.npcManager?.update();
+  }
 
-    if (this.input.keyboard?.addKey("D").isDown) {
-      this.physics.world.debugGraphic.clear();
-      this.physics.world.drawDebug = !this.physics.world.drawDebug;
+  destroyGame() {
+    this.inGameMenu = undefined as any;
+    if (this.depthSortedGroup) {
+      this.depthSortedGroup.destroy();
+      this.depthSortedGroup = null;
     }
+    this.scene.restart();
   }
 }

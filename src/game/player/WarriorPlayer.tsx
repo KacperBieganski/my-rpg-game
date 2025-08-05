@@ -9,19 +9,49 @@ export class WarriorPlayer extends PlayerBase {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "Blue_warrior_idle", DefaultGameSettings.player.warrior);
-    this.loadSwordSounds();
+    this.loadSounds();
   }
 
-  private loadSwordSounds() {
+  private loadSounds() {
     this.swordHitSounds = [
       this.scene.sound.add("swordHit1"),
       this.scene.sound.add("swordHit2"),
     ];
 
     this.scene.sound.add("swordSwing1");
+    this.scene.sound.add("shieldBlock");
+  }
+
+  update() {
+    // Logika bloku - tylko gdy nie atakujemy
+    if (!this.isAttacking) {
+      if (this.blockKey.isDown && !this.isBlocking && !this.blockCooldown) {
+        this.startBlock();
+      } else if (this.blockKey.isUp && this.isBlocking) {
+        this.endBlock();
+      }
+    }
+
+    super.update();
+  }
+
+  takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
+    if (this.isBlocking) {
+      this.blockSound.play();
+      this.floatingTextEffects.showDamage(this.sprite, 0);
+
+      // Obracanie się tylko w momencie otrzymania ataku
+      if (attacker) {
+        this.sprite.setFlipX(attacker.x < this.sprite.x);
+      }
+      return;
+    }
+
+    super.takeDamage(amount, attacker);
   }
 
   attack() {
+    if (this.isBlocking) return;
     if (this.attackCooldown || this.isAttacking) return;
 
     this.isAttacking = true;
@@ -92,6 +122,10 @@ export class WarriorPlayer extends PlayerBase {
     this.scene.time.delayedCall(classSettings.attackRate, () => {
       this.attackCooldown = false;
     });
+  }
+
+  protected getBlockAnimation(): string {
+    return "player_warrior_guard";
   }
 
   protected getCharacterType(): "warrior" | "archer" {

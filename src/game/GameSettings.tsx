@@ -8,9 +8,9 @@ export const DefaultGameSettings = {
       maxHealth: 200,
       regenRate: 5,
       regenDelay: 5000,
-      speed: 400,
+      speed: 200,
       attackDamage: 20,
-      attackRange: 80,
+      attackRange: 100,
       attackRate: 500,
     },
     archer: {

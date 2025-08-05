@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { NPC } from "../NPC";
 import { DefaultGameSettings } from "../GameSettings";
+import { FloatingTextEffects } from "../FloatingTextEffects";
 
 export abstract class PlayerBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
@@ -17,6 +18,11 @@ export abstract class PlayerBase {
     D: Phaser.Input.Keyboard.Key;
     SPACE: Phaser.Input.Keyboard.Key;
   };
+  protected isBlocking = false;
+  protected blockKey: Phaser.Input.Keyboard.Key;
+  protected blockSound: Phaser.Sound.BaseSound;
+  protected blockCooldown = false;
+  protected floatingTextEffects: FloatingTextEffects;
   protected lastDamageTime: number = 0;
   protected healthRegenTimer: Phaser.Time.TimerEvent;
   protected regenRate: number;
@@ -26,6 +32,7 @@ export abstract class PlayerBase {
   public nextLevelExp: number = 100;
 
   private runningSound: Phaser.Sound.BaseSound;
+  private lvlUpSound: Phaser.Sound.BaseSound;
   private isMoving: boolean = false;
   private soundFadeDuration: number = 200;
 
@@ -72,18 +79,31 @@ export abstract class PlayerBase {
     // scene.input.on("pointerdown", this.attack, this);
     this.wasdKeys.SPACE.on("down", this.attack, this);
 
-    this.sprite.on("npcAttack", (damage: number) => {
-      this.takeDamage(damage);
-    });
+    this.sprite.on(
+      "npcAttack",
+      (damage: number, attacker?: Phaser.Physics.Arcade.Sprite) => {
+        this.takeDamage(damage, attacker);
+      }
+    );
+
+    this.blockKey = this.scene.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.Q
+    );
+    this.blockSound = this.scene.sound.add("shieldBlock", { volume: 0.7 });
+
+    this.floatingTextEffects = new FloatingTextEffects(scene);
 
     this.runningSound = this.scene.sound.add("runningGrass", {
       loop: true,
       volume: 0,
     });
+    this.lvlUpSound = this.scene.sound.add("lvlUp", {
+      volume: 1,
+    });
   }
 
   update() {
-    if (this.isAttacking) {
+    if (this.isAttacking || this.isBlocking) {
       this.sprite.setVelocity(0, 0);
       return;
     }
@@ -138,42 +158,59 @@ export abstract class PlayerBase {
     return nearestEnemy;
   }
 
-  protected regenerateHealth() {
-    const currentTime = this.scene.time.now;
-    if (
-      currentTime - this.lastDamageTime > this.regenDelay &&
-      this.health < this.maxHealth
-    ) {
-      this.health = Phaser.Math.Clamp(
-        this.health + this.regenRate,
-        0,
-        this.maxHealth
-      );
+  private regenerateHealth() {
+    // Jeśli zdrowie jest już pełne, nie ma co regenerować
+    if (this.health >= this.maxHealth) {
+      return;
+    }
 
-      if (this.health < this.maxHealth) {
-        this.health = Math.min(this.health + this.regenRate, this.maxHealth);
+    const currentTime = this.scene.time.now;
+
+    // Sprawdź czy minął wymagany czas od ostatnich obrażeń
+    if (currentTime - this.lastDamageTime > this.regenDelay) {
+      const healAmount = Math.min(this.regenRate, this.maxHealth - this.health);
+
+      // Dodaj tylko jeśli jest co dodawać
+      if (healAmount > 0) {
+        this.health += healAmount;
         this.sprite.emit("healthChanged");
-        this.sprite.setTint(0x00ff00);
-        this.scene.time.delayedCall(200, () => {
-          this.sprite.clearTint();
-        });
+        this.floatingTextEffects.showHeal(this.sprite, healAmount);
       }
     }
   }
 
-  takeDamage(amount: number) {
+  protected startBlock() {
+    this.isBlocking = true;
+    this.sprite.anims.play(this.getBlockAnimation(), true);
+  }
+
+  protected endBlock() {
+    this.isBlocking = false;
+    this.sprite.clearTint();
+    this.blockCooldown = true;
+
+    // Krótki cooldown przed ponownym blokiem (300ms)
+    this.scene.time.delayedCall(300, () => {
+      this.blockCooldown = false;
+    });
+  }
+
+  takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
+    if (this.isBlocking) {
+      this.blockSound.play();
+      this.floatingTextEffects.showDamage(this.sprite, 0);
+      return;
+    }
+
     this.health -= amount;
     this.sprite.emit("healthChanged");
     this.lastDamageTime = this.scene.time.now;
     this.health = Math.max(this.health, 0);
 
-    this.sprite.setTint(0xff0000);
-    this.scene.time.delayedCall(200, () => {
-      this.sprite.clearTint();
-    });
+    this.floatingTextEffects.showDamage(this.sprite, amount);
+    this.floatingTextEffects.applyDamageEffects(this.sprite);
 
     if (this.health <= 0) {
-      this.sprite.setTint(0xff0000);
       this.sprite.setVelocity(0, 0);
     }
   }
@@ -193,14 +230,32 @@ export abstract class PlayerBase {
 
   private levelUp() {
     this.level++;
-    this.nextLevelExp = Math.floor(this.nextLevelExp * 1.2); // Zwiększ próg o 20%
+    this.nextLevelExp = Math.floor(this.nextLevelExp * 1.2);
 
-    // Ulepsz statystyki gracza
+    if (!this.lvlUpSound.isPlaying) {
+      this.lvlUpSound.play();
+    }
+
+    // Zapisz poprzednie maksymalne zdrowie
+    const previousMaxHealth = this.maxHealth;
+
+    // Zwiększ maksymalne zdrowie
     this.maxHealth = Math.floor(this.maxHealth * 1.1);
-    this.health = this.maxHealth;
 
+    // Dodaj różnicę do obecnego zdrowia (zamiast ustawiać na max)
+    const healthIncrease = this.maxHealth - previousMaxHealth;
+    this.health += healthIncrease;
+
+    this.lastDamageTime = 0;
+
+    this.floatingTextEffects.showLevelUp(this.sprite);
     this.sprite.emit("levelUp");
     this.sprite.emit("statsChanged");
+
+    // Pokaż efekt uleczenia jeśli było zwiększenie zdrowia
+    if (healthIncrease > 0) {
+      this.floatingTextEffects.showHeal(this.sprite, healthIncrease);
+    }
   }
 
   private startRunningSound() {
@@ -240,10 +295,12 @@ export abstract class PlayerBase {
   destroy() {
     this.runningSound.stop();
     this.healthRegenTimer.destroy();
+    this.floatingTextEffects.destroy();
   }
 
   abstract attack(): void;
   protected abstract getCharacterType(): "warrior" | "archer" | "lancer";
   protected abstract getIdleAnimation(): string;
   protected abstract getRunAnimation(): string;
+  protected abstract getBlockAnimation(): string;
 }
