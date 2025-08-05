@@ -7,6 +7,7 @@ export class NPCManager {
   private scene: Phaser.Scene;
   private spawnsLayer: Phaser.Tilemaps.TilemapLayer;
   private player: PlayerBase;
+  private npcGroup: Phaser.GameObjects.Group;
 
   constructor(
     scene: Phaser.Scene,
@@ -16,6 +17,7 @@ export class NPCManager {
     this.scene = scene;
     this.spawnsLayer = spawnsLayer;
     this.player = player;
+    this.npcGroup = this.scene.add.group();
   }
 
   spawnNPCs(count: number = 10) {
@@ -38,21 +40,26 @@ export class NPCManager {
 
       const npc = new NPC(this.scene, worldX, worldY, this.player.sprite);
       this.npcs.push(npc);
+      this.npcGroup.add(npc.sprite);
+      npc.sprite.setData("sortY", npc.sprite.y); // Dodajemy dane do sortowania
     }
   }
 
   update() {
     this.npcs = this.npcs.filter((npc) => {
-      if (npc.health <= 0) return false;
+      if (npc.health <= 0) {
+        this.npcGroup.remove(npc.sprite, true, true);
+        return false;
+      }
       npc.update();
+      // Aktualizujemy wartość sortY dla każdego NPC
+      npc.sprite.setData("sortY", npc.sprite.y);
       return true;
     });
   }
 
   getGroup(): Phaser.GameObjects.Group {
-    const group = this.scene.add.group();
-    this.npcs.forEach((npc) => group.add(npc.sprite));
-    return group;
+    return this.npcGroup;
   }
 
   getNPCs(): NPC[] {
@@ -60,7 +67,7 @@ export class NPCManager {
   }
 
   destroy() {
-    this.npcs.forEach((npc) => npc.sprite.destroy());
+    this.npcGroup.clear(true, true);
     this.npcs = [];
   }
 }

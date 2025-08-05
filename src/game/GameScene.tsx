@@ -19,6 +19,10 @@ type GameInitData = {
   maxHealth?: number;
   level?: number;
   experience?: number;
+  currentStamina?: number;
+  maxStamina?: number;
+  critChance?: number;
+  critDamageMultiplier?: number;
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -84,6 +88,10 @@ export default class GameScene extends Phaser.Scene {
       maxHealth: data.maxHealth,
       level: data.level,
       experience: data.experience,
+      currentStamina: data.currentStamina,
+      maxStamina: data.maxStamina,
+      critChance: data.critChance,
+      critDamageMultiplier: data.critDamageMultiplier,
     });
   }
 
@@ -120,6 +128,12 @@ export default class GameScene extends Phaser.Scene {
     if (opts.maxHealth != null) this.player.maxHealth = opts.maxHealth;
     if (opts.level != null) this.player.level = opts.level;
     if (opts.experience != null) this.player.experience = opts.experience;
+    if (opts.currentStamina != null)
+      this.player.currentStamina = opts.currentStamina;
+    if (opts.maxStamina != null) this.player.maxStamina = opts.maxStamina;
+    if (opts.critChance != null) this.player.critChance = opts.critChance;
+    if (opts.critDamageMultiplier != null)
+      this.player.critDamageMultiplier = opts.critDamageMultiplier;
 
     // 4. fizyka i kamera
     this.physics.add.collider(this.player.sprite, collisions);
@@ -162,38 +176,80 @@ export default class GameScene extends Phaser.Scene {
   update() {
     if (this.isPaused) return;
 
-    if (this.depthSortedGroup && !this.depthSortedGroup.scene) {
-      this.depthSortedGroup = null;
-      return;
-    }
+    // Aktualizacja depth sorting dla wszystkich obiektów
+    const updateDepth = (obj: Phaser.GameObjects.GameObject) => {
+      if (!obj || !obj.active) return;
 
-    if (this.depthSortedGroup) {
-      this.depthSortedGroup.getChildren().forEach((obj: any) => {
-        if (obj && obj.setDepth && typeof obj.y === "number") {
-          // Use sortY if it exists, otherwise fall back to y
-          const sortY = obj.getData("sortY") ?? obj.y;
-          obj.setDepth(sortY);
-        }
-      });
-    }
+      const sprite = obj as Phaser.GameObjects.Sprite;
+      if (sprite && sprite.setDepth && typeof sprite.y === "number") {
+        const sortY = sprite.getData("sortY") ?? sprite.y;
+        sprite.setDepth(sortY);
+      }
+    };
 
-    // Update player's sortY data for proper depth sorting
-    if (this.player?.sprite) {
+    // Aktualizacja gracza
+    if (this.player?.sprite?.active) {
       this.player.sprite.setData("sortY", this.player.sprite.y);
+      updateDepth(this.player.sprite);
     }
 
+    // Aktualizacja NPC
+    if (this.npcManager?.getGroup()) {
+      const npcGroup = this.npcManager.getGroup();
+      if (npcGroup) {
+        npcGroup.getChildren().forEach(updateDepth);
+      }
+    }
+
+    // Aktualizacja innych obiektów
+    if (this.depthSortedGroup) {
+      this.depthSortedGroup.getChildren().forEach(updateDepth);
+    }
+
+    // Standardowe update'y
     if (this.player && this.player.sprite.active) {
       this.player.update();
     }
+    this.player?.update();
     this.npcManager?.update();
   }
 
   destroyGame() {
-    this.inGameMenu = undefined as any;
+    // Clean up all game objects and references
+    if (this.inGameMenu) {
+      this.inGameMenu.destroy();
+      this.inGameMenu = undefined as any;
+    }
+
+    if (this.ui) {
+      this.ui.destroy();
+      this.ui = undefined as any;
+    }
+
+    if (this.npcManager) {
+      this.npcManager.destroy();
+      this.npcManager = undefined as any;
+    }
+
+    if (this.player) {
+      this.player.destroy();
+      this.player = undefined as any;
+    }
+
     if (this.depthSortedGroup) {
       this.depthSortedGroup.destroy();
       this.depthSortedGroup = null;
     }
+
+    // Clear all physics objects
+    this.physics.world.shutdown();
+
+    // Remove all event listeners
+    this.events.off("toggleGameMenu");
+    this.input.keyboard?.off("keydown-ESC");
+    this.events.off("npcKilled");
+
+    // Restart the scene
     this.scene.restart();
   }
 }

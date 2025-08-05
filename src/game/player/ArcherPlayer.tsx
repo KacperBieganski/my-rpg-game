@@ -35,16 +35,9 @@ export class ArcherPlayer extends PlayerBase {
       worldBounds.destroy();
     });
 
-    const elevatedLayer = (this.scene as any).elevated1;
-    if (elevatedLayer) {
-      this.scene.physics.add.collider(arrow, elevatedLayer, () => {
-        this.handleArrowCollision(arrow);
-      });
-    }
-
-    const blockedLayer = (this.scene as any).blocked;
-    if (blockedLayer) {
-      this.scene.physics.add.collider(arrow, blockedLayer, () => {
+    const collisions = (this.scene as any).collisions;
+    if (collisions) {
+      this.scene.physics.add.collider(arrow, collisions, () => {
         this.handleArrowCollision(arrow);
       });
     }
@@ -64,7 +57,12 @@ export class ArcherPlayer extends PlayerBase {
   }
 
   attack() {
-    if (this.attackCooldown || this.isAttacking) return;
+    if (
+      this.attackCooldown ||
+      this.isAttacking ||
+      !this.useStamina(DefaultGameSettings.player.stamina.attackCost)
+    )
+      return;
 
     this.isAttacking = true;
     this.attackCooldown = true;
@@ -202,16 +200,18 @@ export class ArcherPlayer extends PlayerBase {
       arrow,
       target.sprite,
       () => {
+        const isCrit = this.checkCriticalHit();
+        const baseDmg = DefaultGameSettings.player.archer.attackDamage;
+        const damage = baseDmg * this.getCriticalDamageMultiplier();
         this.scene.sound.play("bowHit", {
           volume: 0.5,
           detune: Phaser.Math.Between(-100, 100),
         });
 
-        target.takeDamage(
-          DefaultGameSettings.player.archer.attackDamage,
-          this.sprite.x,
-          this.sprite.y
-        );
+        target.takeDamage(damage, this.sprite.x, this.sprite.y);
+        if (isCrit) {
+          this.floatingTextEffects.showCriticalHit(target.sprite);
+        }
         arrow.destroy();
       },
       undefined,
@@ -231,5 +231,9 @@ export class ArcherPlayer extends PlayerBase {
 
   protected getRunAnimation(): string {
     return "player_archer_run";
+  }
+
+  protected getBlockAnimation(): string {
+    return "player_archer_idle";
   }
 }

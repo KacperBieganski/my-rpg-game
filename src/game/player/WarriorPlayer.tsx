@@ -35,24 +35,28 @@ export class WarriorPlayer extends PlayerBase {
     super.update();
   }
 
-  takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
-    if (this.isBlocking) {
-      this.blockSound.play();
-      this.floatingTextEffects.showDamage(this.sprite, 0);
+  public takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
+    super.takeDamage(amount, attacker);
 
-      // Obracanie się tylko w momencie otrzymania ataku
+    if (this.isBlocking && this.currentStamina >= 0 && amount > 0) {
       if (attacker) {
         this.sprite.setFlipX(attacker.x < this.sprite.x);
       }
-      return;
     }
-
-    super.takeDamage(amount, attacker);
   }
 
   attack() {
     if (this.isBlocking) return;
-    if (this.attackCooldown || this.isAttacking) return;
+    if (
+      this.attackCooldown ||
+      this.isAttacking ||
+      !this.useStamina(DefaultGameSettings.player.stamina.attackCost)
+    )
+      return;
+
+    const isCrit = this.checkCriticalHit();
+    const baseDmg = DefaultGameSettings.player.warrior.attackDamage;
+    const damage = baseDmg * this.getCriticalDamageMultiplier();
 
     this.isAttacking = true;
     this.attackCooldown = true;
@@ -100,11 +104,10 @@ export class WarriorPlayer extends PlayerBase {
             this.sprite.y
           );
           if (dist < hitBox.radius) {
-            npc.takeDamage(
-              classSettings.attackDamage,
-              this.sprite.x,
-              this.sprite.y
-            );
+            npc.takeDamage(damage, this.sprite.x, this.sprite.y);
+            if (isCrit) {
+              this.floatingTextEffects.showCriticalHit(npc.sprite);
+            }
             const randomSoundIndex = Phaser.Math.Between(
               0,
               this.swordHitSounds.length - 1

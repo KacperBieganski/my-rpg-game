@@ -240,6 +240,7 @@ export class AssetLoader {
   private static environmentImages: ImageConfig[] = [
     { key: "Overworld", path: "/assets/Overworld.png" },
     { key: "red_pixel", path: "/assets/red_pixel.png" },
+    { key: "arrow", path: "/assets/Units/Blue Units/Archer/Arrow.png" },
     { key: "Tilemap_color1", path: "/assets/Terrain/Tilemap_color1.png" },
     { key: "Tilemap_color2", path: "/assets/Terrain/Tilemap_color2.png" },
     { key: "Tilemap_color3", path: "/assets/Terrain/Tilemap_color3.png" },
@@ -251,14 +252,14 @@ export class AssetLoader {
   ];
 
   private static buildingImages: ImageConfig[] = [
-    { key: "RedTower", path: "/assets/Buildings/Red Buildings/Tower.png" },
+    { key: "RedTower", path: "/assets/Buildings/Red Buildings/RedTower.png" },
     {
       key: "RedCastle",
-      path: "/assets/Buildings/Red Buildings/Castle.png",
+      path: "/assets/Buildings/Red Buildings/RedCastle.png",
     },
-    { key: "RedHouse1", path: "/assets/Buildings/Red Buildings/House1.png" },
-    { key: "RedHouse2", path: "/assets/Buildings/Red Buildings/House2.png" },
-    { key: "RedHouse3", path: "/assets/Buildings/Red Buildings/House3.png" },
+    { key: "RedHouse1", path: "/assets/Buildings/Red Buildings/RedHouse1.png" },
+    { key: "RedHouse2", path: "/assets/Buildings/Red Buildings/RedHouse2.png" },
+    { key: "RedHouse3", path: "/assets/Buildings/Red Buildings/RedHouse3.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [

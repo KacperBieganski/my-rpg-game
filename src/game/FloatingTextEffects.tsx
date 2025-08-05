@@ -90,13 +90,33 @@ export class FloatingTextEffects {
     );
   }
 
+  showCriticalHit(target: Phaser.GameObjects.Sprite): void {
+    const text = this.scene.add
+      .text(target.x, target.y - 50, "CRITICAL!", {
+        font: "20px Arial",
+        color: "#FFD700",
+        stroke: "#000",
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
+      .setDepth(1000);
+
+    this.scene.tweens.add({
+      targets: text,
+      y: target.y - 100,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => text.destroy(),
+    });
+  }
+
   private showFloatingText(
     pool: Phaser.GameObjects.Text[],
     source: Phaser.GameObjects.GameObject,
     text: string,
     xOffset: number,
     yOffset: number,
-    duration: number = 1000,
+    duration: number = 2000,
     scale: number = 1
   ) {
     const availableText = pool.find((text) => !text.visible);

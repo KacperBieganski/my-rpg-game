@@ -6,6 +6,10 @@ export interface SaveData {
   maxHealth: number;
   level: number;
   experience: number;
+  currentStamina: number;
+  maxStamina: number;
+  critChance: number;
+  critDamageMultiplier: number;
 }
 
 const PREFIX = "myrpg_save_";

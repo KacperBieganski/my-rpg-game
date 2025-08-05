@@ -154,6 +154,10 @@ export default class SaveSlotMenu {
       maxHealth: this.scene.player.maxHealth,
       level: this.scene.player.level,
       experience: this.scene.player.experience,
+      currentStamina: this.scene.player.currentStamina,
+      maxStamina: this.scene.player.maxStamina,
+      critChance: this.scene.player.critChance,
+      critDamageMultiplier: this.scene.player.critDamageMultiplier,
     };
     SaveManager.save(slot, saveData);
     this.show(); // odśwież listę (teraz slot będzie zajęty)

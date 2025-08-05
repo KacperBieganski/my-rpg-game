@@ -5,8 +5,8 @@ import { FloatingTextEffects } from "../FloatingTextEffects";
 
 export abstract class PlayerBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
-  health: number;
-  maxHealth: number;
+  public health: number;
+  public maxHealth: number;
   protected scene: Phaser.Scene;
   protected attackCooldown = false;
   protected isAttacking = false;
@@ -27,9 +27,18 @@ export abstract class PlayerBase {
   protected healthRegenTimer: Phaser.Time.TimerEvent;
   protected regenRate: number;
   protected regenDelay: number;
+
+  private lastStaminaUseTime: number = 0;
+  private staminaRegenTimer: Phaser.Time.TimerEvent;
+  private isStaminaDepleted: boolean = false;
+  private lastCriticalHit: boolean = false;
   public level: number;
   public experience: number;
   public nextLevelExp: number = 100;
+  public currentStamina: number;
+  public maxStamina: number;
+  public critChance: number;
+  public critDamageMultiplier: number;
 
   private runningSound: Phaser.Sound.BaseSound;
   private lvlUpSound: Phaser.Sound.BaseSound;
@@ -46,8 +55,14 @@ export abstract class PlayerBase {
     this.scene = scene;
     this.health = settings.health;
     this.maxHealth = settings.maxHealth;
+    this.maxStamina = DefaultGameSettings.player.stamina.maxStamina;
+    this.currentStamina = this.maxStamina;
+    this.critChance = DefaultGameSettings.player.criticalHit.baseChance;
+    this.critDamageMultiplier =
+      DefaultGameSettings.player.criticalHit.damageMultiplier;
     this.regenRate = settings.regenRate;
     this.regenDelay = settings.regenDelay;
+    this.currentStamina = DefaultGameSettings.player.stamina.maxStamina;
     this.level = DefaultGameSettings.player.level;
     this.experience = DefaultGameSettings.player.experience;
 
@@ -72,6 +87,13 @@ export abstract class PlayerBase {
     this.healthRegenTimer = scene.time.addEvent({
       delay: 1000,
       callback: this.regenerateHealth,
+      callbackScope: this,
+      loop: true,
+    });
+
+    this.staminaRegenTimer = scene.time.addEvent({
+      delay: 100, // Check every 100ms for better responsiveness
+      callback: this.regenerateStamina,
       callbackScope: this,
       loop: true,
     });
@@ -179,6 +201,72 @@ export abstract class PlayerBase {
     }
   }
 
+  private regenerateStamina() {
+    if (this.currentStamina >= DefaultGameSettings.player.stamina.maxStamina) {
+      this.currentStamina = DefaultGameSettings.player.stamina.maxStamina;
+      this.isStaminaDepleted = false;
+      return;
+    }
+
+    const currentTime = this.scene.time.now;
+    const staminaSettings = DefaultGameSettings.player.stamina;
+
+    // Check if enough time has passed since last stamina use
+    if (
+      currentTime - this.lastStaminaUseTime >
+      staminaSettings.staminaRegenDelay
+    ) {
+      const regenAmount = staminaSettings.staminaRegenRate * 0.1; // Convert to per 100ms
+      this.currentStamina = Phaser.Math.Clamp(
+        this.currentStamina + regenAmount,
+        0,
+        staminaSettings.maxStamina
+      );
+      this.sprite.emit("staminaChanged");
+    }
+  }
+
+  protected useStamina(amount: number): boolean {
+    if (this.currentStamina < amount) return false;
+
+    this.currentStamina -= amount;
+    this.lastStaminaUseTime = this.scene.time.now;
+    this.currentStamina = Phaser.Math.Clamp(
+      this.currentStamina,
+      0,
+      this.getMaxStamina()
+    );
+
+    this.sprite.emit("staminaChanged");
+
+    if (this.currentStamina <= 0) {
+      this.isStaminaDepleted = true;
+    }
+
+    return true;
+  }
+
+  protected checkCriticalHit(): boolean {
+    this.lastCriticalHit = Phaser.Math.FloatBetween(0, 1) < this.critChance;
+    return this.lastCriticalHit;
+  }
+
+  protected getCriticalDamageMultiplier(): number {
+    return this.lastCriticalHit ? this.critDamageMultiplier : 1;
+  }
+
+  public getStaminaPercentage(): number {
+    return this.currentStamina / DefaultGameSettings.player.stamina.maxStamina;
+  }
+
+  public getCurrentStamina(): number {
+    return this.currentStamina;
+  }
+
+  public getMaxStamina(): number {
+    return this.maxStamina;
+  }
+
   protected startBlock() {
     this.isBlocking = true;
     this.sprite.anims.play(this.getBlockAnimation(), true);
@@ -195,17 +283,20 @@ export abstract class PlayerBase {
     });
   }
 
-  takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
+  public takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
     if (this.isBlocking) {
-      this.blockSound.play();
-      this.floatingTextEffects.showDamage(this.sprite, 0);
-      return;
+      const cost = DefaultGameSettings.player.stamina.blockCost;
+      if (this.useStamina(cost)) {
+        this.blockSound.play();
+        this.floatingTextEffects.showDamage(this.sprite, 0);
+        return;
+      }
     }
 
-    this.health -= amount;
+    // Normalne obrażenia
+    this.health = Phaser.Math.Clamp(this.health - amount, 0, this.maxHealth);
     this.sprite.emit("healthChanged");
     this.lastDamageTime = this.scene.time.now;
-    this.health = Math.max(this.health, 0);
 
     this.floatingTextEffects.showDamage(this.sprite, amount);
     this.floatingTextEffects.applyDamageEffects(this.sprite);

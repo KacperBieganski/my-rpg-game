@@ -1,2 +1,2 @@
-// blok i stamina   
-// agro npc tylko na tej samej warstwie
+ // agro npc tylko na tej samej warstwie
+ // nowe staty po lvl up

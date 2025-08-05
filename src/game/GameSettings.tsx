@@ -3,6 +3,21 @@ export const DefaultGameSettings = {
     position: { x: 700, y: 3200 },
     level: 1,
     experience: 0,
+
+    stamina: {
+      maxStamina: 100,
+      staminaRegenRate: 10,
+      staminaRegenDelay: 2000,
+      attackCost: 5,
+      blockCost: 5,
+    },
+
+    criticalHit: {
+      baseChance: 0.1,
+      chancePerLevel: 0.01,
+      damageMultiplier: 1.5,
+    },
+
     warrior: {
       health: 200,
       maxHealth: 200,
@@ -20,7 +35,7 @@ export const DefaultGameSettings = {
       regenDelay: 5000,
       speed: 200,
       attackDamage: 20,
-      attackRange: 300,
+      attackRange: 400,
       attackRate: 800,
     },
     lancer: {

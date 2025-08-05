@@ -39,24 +39,16 @@ export class LancerPlayer extends PlayerBase {
   }
 
   takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
-    if (this.isBlocking) {
-      this.scene.sound.play("spearBlock", {
-        volume: 0.6,
-        detune: Phaser.Math.Between(-100, 100),
-      });
-      this.floatingTextEffects.showDamage(this.sprite, 0);
+    super.takeDamage(amount, attacker);
 
-      // Animacja bloku kierunkowego tylko gdy jest atakujący
+    if (this.isBlocking && this.currentStamina >= 0 && amount > 0) {
       if (attacker) {
         this.playDirectionalBlockAnimation(attacker);
       } else {
-        // Standardowa animacja bloku gdy nie ma atakującego
         this.sprite.anims.play(this.getBlockAnimation(), true);
       }
       return;
     }
-
-    super.takeDamage(amount, attacker);
   }
 
   private playDirectionalBlockAnimation(
@@ -109,7 +101,16 @@ export class LancerPlayer extends PlayerBase {
 
   attack() {
     if (this.isBlocking) return;
-    if (this.attackCooldown || this.isAttacking) return;
+    if (
+      this.attackCooldown ||
+      this.isAttacking ||
+      !this.useStamina(DefaultGameSettings.player.stamina.attackCost)
+    )
+      return;
+
+    const isCrit = this.checkCriticalHit();
+    const baseDmg = DefaultGameSettings.player.lancer.attackDamage;
+    const damage = baseDmg * this.getCriticalDamageMultiplier();
 
     this.isAttacking = true;
     this.attackCooldown = true;
@@ -199,11 +200,10 @@ export class LancerPlayer extends PlayerBase {
             Phaser.Math.Angle.Wrap(npcAngle - attackAngle)
           );
           if (angleDiff <= Phaser.Math.DegToRad(45)) {
-            npc.takeDamage(
-              classSettings.attackDamage,
-              this.sprite.x,
-              this.sprite.y
-            );
+            npc.takeDamage(damage, this.sprite.x, this.sprite.y);
+            if (isCrit) {
+              this.floatingTextEffects.showCriticalHit(npc.sprite);
+            }
             this.scene.sound.play("spearHit", {
               volume: 0.6,
               detune: Phaser.Math.Between(-100, 100),

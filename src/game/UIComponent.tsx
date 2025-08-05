@@ -6,228 +6,304 @@ export class UIComponent {
   private player: PlayerBase;
 
   // Stałe pozycji
-  private readonly UI_MARGIN_LEFT = 20;
-  private readonly HEALTH_BAR_Y = 20;
-  private readonly EXP_BAR_Y = 50;
-  private readonly LEVEL_TEXT_Y = 80;
-  private readonly BAR_WIDTH = 200;
-  private readonly HEALTH_BAR_HEIGHT = 20;
-  private readonly EXP_BAR_HEIGHT = 10;
-  private readonly MENU_BUTTON_RIGHT_MARGIN = 20;
-  private readonly MENU_BUTTON_TOP_MARGIN = 20;
+  private readonly MARGIN = 20;
+  private readonly BAR_WIDTH = 220;
+  private readonly HEALTH_Y = 20;
+  private readonly STAMINA_Y = 50;
+  private readonly EXP_Y = 65;
+  private readonly LEVEL_Y = 80;
 
-  // Elementy UI
+  // Elementy
+  private healthBg!: Phaser.GameObjects.Graphics;
   private healthBar!: Phaser.GameObjects.Graphics;
-  private healthBarBg!: Phaser.GameObjects.Graphics;
   private healthText!: Phaser.GameObjects.Text;
+
+  private staminaBg!: Phaser.GameObjects.Graphics;
+  private staminaBar!: Phaser.GameObjects.Graphics;
+  private staminaText!: Phaser.GameObjects.Text;
+
+  private expBg!: Phaser.GameObjects.Graphics;
   private expBar!: Phaser.GameObjects.Graphics;
-  private expBarBg!: Phaser.GameObjects.Graphics;
-  private levelText!: Phaser.GameObjects.Text;
   private expText!: Phaser.GameObjects.Text;
+
+  private levelText!: Phaser.GameObjects.Text;
   private menuButton!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, player: PlayerBase) {
     this.scene = scene;
     this.player = player;
     this.initUI();
-    this.setupEventListeners();
+    this.setupListeners();
   }
 
-  private initUI(): void {
+  private initUI() {
     this.createHealthUI();
+    this.createStaminaUI();
     this.createExpUI();
     this.createLevelUI();
     this.createMenuButton();
-    this.updateAllUI();
+    this.updateAll();
   }
 
-  private createHealthUI(): void {
-    // Tło paska zdrowia
-    this.healthBarBg = this.scene.add
-      .graphics()
-      .fillStyle(0x000000, 0.5)
+  private createFrame(
+    y: number,
+    height: number,
+    graphics: Phaser.GameObjects.Graphics
+  ) {
+    // Tło
+    graphics.clear();
+    graphics.fillStyle(0x332211, 0.8);
+    graphics
       .fillRoundedRect(
-        this.UI_MARGIN_LEFT,
-        this.HEALTH_BAR_Y,
-        this.BAR_WIDTH,
-        this.HEALTH_BAR_HEIGHT,
-        5
+        this.MARGIN - 4,
+        y - 4,
+        this.BAR_WIDTH + 8,
+        height + 8,
+        6
       )
-      .setScrollFactor(0)
-      .setDepth(99999);
+      .setDepth(9999);
+    // Ramka
+    graphics.lineStyle(2, 0xaaaa77, 1);
+    graphics
+      .strokeRoundedRect(
+        this.MARGIN - 4,
+        y - 4,
+        this.BAR_WIDTH + 8,
+        height + 8,
+        6
+      )
+      .setDepth(9999);
+  }
 
-    // Pasek zdrowia
+  private createHealthUI() {
+    this.healthBg = this.scene.add.graphics().setScrollFactor(0).setDepth(1000);
     this.healthBar = this.scene.add
       .graphics()
       .setScrollFactor(0)
-      .setDepth(99999);
-
-    // Tekst zdrowia
+      .setDepth(9999);
     this.healthText = this.scene.add
-      .text(
-        this.UI_MARGIN_LEFT + this.BAR_WIDTH + 10,
-        this.HEALTH_BAR_Y - 1,
-        "",
-        {
-          font: "14px Arial",
-          color: "#FFFFFF",
-          backgroundColor: "#00000055",
-          padding: { x: 5, y: 2 },
-        }
-      )
-      .setScrollFactor(0)
-      .setDepth(99999);
-  }
-
-  private createExpUI(): void {
-    // Tło paska doświadczenia
-    this.expBarBg = this.scene.add
-      .graphics()
-      .fillStyle(0x000000, 0.5)
-      .fillRoundedRect(
-        this.UI_MARGIN_LEFT,
-        this.EXP_BAR_Y,
-        this.BAR_WIDTH,
-        this.EXP_BAR_HEIGHT,
-        3
-      )
-      .setScrollFactor(0)
-      .setDepth(99999);
-
-    // Pasek doświadczenia
-    this.expBar = this.scene.add.graphics().setScrollFactor(0).setDepth(1001);
-
-    // Tekst doświadczenia
-    this.expText = this.scene.add
-      .text(this.UI_MARGIN_LEFT + this.BAR_WIDTH + 10, this.EXP_BAR_Y - 3, "", {
-        font: "14px Arial",
-        color: "#FFFFFF",
-        backgroundColor: "#00000055",
-        padding: { x: 5, y: 2 },
-      })
-      .setScrollFactor(0)
-      .setDepth(99999);
-  }
-
-  private createLevelUI(): void {
-    // Tekst poziomu
-    this.levelText = this.scene.add
-      .text(this.UI_MARGIN_LEFT, this.LEVEL_TEXT_Y, "", {
-        font: "18px MedievalSharp",
-        color: "#FFFFFF",
-        stroke: "#000",
+      .text(this.MARGIN + this.BAR_WIDTH + 12, this.HEALTH_Y, "", {
+        fontFamily: "serif",
+        fontSize: "16px",
+        color: "#ffeeaa",
+        stroke: "#000000",
         strokeThickness: 3,
       })
       .setScrollFactor(0)
-      .setDepth(99999);
+      .setDepth(9999);
   }
 
-  private createMenuButton(): void {
-    const x = this.scene.cameras.main.width - this.MENU_BUTTON_RIGHT_MARGIN;
-    const y = this.MENU_BUTTON_TOP_MARGIN;
+  private createStaminaUI() {
+    this.staminaBg = this.scene.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(1000);
+    this.staminaBar = this.scene.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(9999);
+    this.staminaText = this.scene.add
+      .text(this.MARGIN + this.BAR_WIDTH + 12, this.STAMINA_Y - 9, "", {
+        fontFamily: "serif",
+        fontSize: "14px",
+        color: "#aaffff",
+        stroke: "#000000",
+        strokeThickness: 3,
+      })
+      .setScrollFactor(0)
+      .setDepth(9999);
+  }
 
+  private createExpUI() {
+    this.expBg = this.scene.add.graphics().setScrollFactor(0).setDepth(9998);
+    this.expBar = this.scene.add.graphics().setScrollFactor(0).setDepth(9999);
+    this.expText = this.scene.add
+      .text(this.MARGIN + this.BAR_WIDTH + 12, this.EXP_Y - 8, "", {
+        fontFamily: "serif",
+        fontSize: "14px",
+        color: "#ddaaff",
+        stroke: "#000000",
+        strokeThickness: 3,
+      })
+      .setScrollFactor(0)
+      .setDepth(9999);
+  }
+
+  private createLevelUI() {
+    this.levelText = this.scene.add
+      .text(this.MARGIN, this.LEVEL_Y, "", {
+        fontFamily: "serif",
+        fontSize: "20px",
+        color: "#ffdd88",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
+      .setScrollFactor(0)
+      .setDepth(9999);
+  }
+
+  private createMenuButton() {
+    const x = this.scene.cameras.main.width - this.MARGIN;
+    const y = this.MARGIN;
     this.menuButton = this.scene.add
-      .text(x, y, "Menu", {
-        font: "16px Arial",
-        color: "#FFFFFF",
-        backgroundColor: "#00000055",
-        padding: { x: 10, y: 5 },
+      .text(x, y, "[ Menu ]", {
+        fontFamily: "serif",
+        fontSize: "18px",
+        color: "#ffffcc",
+        stroke: "#000000",
+        strokeThickness: 4,
       })
       .setOrigin(1, 0)
       .setScrollFactor(0)
-      .setDepth(99999)
+      .setDepth(1001)
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => {
-        // Emit event to scene to toggle game menu
-        this.scene.events.emit("toggleGameMenu");
-      });
+      .on("pointerdown", () => this.scene.events.emit("toggleGameMenu"));
   }
 
-  private setupEventListeners(): void {
+  private setupListeners() {
     this.player.sprite.on("healthChanged", () => this.updateHealthUI());
+    this.player.sprite.on("staminaChanged", () => this.updateStaminaUI());
     this.player.sprite.on("statsChanged", () => {
       this.updateExpUI();
       this.updateLevelUI();
     });
+    this.scene.input.keyboard?.on("keydown-ESC", () =>
+      this.scene.events.emit("toggleGameMenu")
+    );
   }
 
-  private updateAllUI(): void {
+  private updateAll() {
     this.updateHealthUI();
+    this.updateStaminaUI();
     this.updateExpUI();
     this.updateLevelUI();
   }
 
-  private updateHealthUI(): void {
-    const healthPercent = Phaser.Math.Clamp(
+  private drawGradientBar(
+    g: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    colorStart: number,
+    colorEnd: number
+  ) {
+    const start = Phaser.Display.Color.ValueToColor(colorStart);
+    const end = Phaser.Display.Color.ValueToColor(colorEnd);
+
+    for (let i = 0; i < width; i++) {
+      const t = i / (width - 1);
+      // interpolacja składowych
+      const r = Phaser.Math.Interpolation.Linear([start.red, end.red], t);
+      const gr = Phaser.Math.Interpolation.Linear([start.green, end.green], t);
+      const b = Phaser.Math.Interpolation.Linear([start.blue, end.blue], t);
+      const col = Phaser.Display.Color.GetColor(r, gr, b);
+
+      g.fillStyle(col, 1);
+      g.fillRect(x + i, y, 1, height);
+    }
+  }
+  // --------------------------
+
+  private updateHealthUI() {
+    this.createFrame(this.HEALTH_Y, 20, this.healthBg);
+
+    const pct = Phaser.Math.Clamp(
       this.player.health / this.player.maxHealth,
       0,
       1
     );
-    const width = this.BAR_WIDTH * healthPercent;
-    const color =
-      healthPercent < 0.3
-        ? 0xff0000
-        : healthPercent < 0.6
-        ? 0xffa500
-        : 0x00ff00;
+    const w = Math.floor(this.BAR_WIDTH * pct);
 
-    this.healthBar
-      .clear()
-      .fillStyle(color, 1)
-      .fillRoundedRect(
-        this.UI_MARGIN_LEFT,
-        this.HEALTH_BAR_Y,
-        width,
-        this.HEALTH_BAR_HEIGHT,
-        5
-      );
+    this.healthBar.clear();
+    // zamiast fillGradientStyle → drawGradientBar
+    this.drawGradientBar(
+      this.healthBar,
+      this.MARGIN,
+      this.HEALTH_Y,
+      w,
+      20,
+      0xaa0000,
+      0xffdd00
+    );
 
-    // Aktualizuj tekst zdrowia
     this.healthText.setText(
       `${Math.floor(this.player.health)}/${this.player.maxHealth}`
     );
   }
 
-  private updateExpUI(): void {
-    const expPercent = Phaser.Math.Clamp(
+  private updateStaminaUI() {
+    this.createFrame(this.STAMINA_Y, 5, this.staminaBg);
+
+    const pct = Phaser.Math.Clamp(
+      this.player.getCurrentStamina() / this.player.getMaxStamina(),
+      0,
+      1
+    );
+    const w = Math.floor(this.BAR_WIDTH * pct);
+
+    this.staminaBar.clear();
+    this.drawGradientBar(
+      this.staminaBar,
+      this.MARGIN,
+      this.STAMINA_Y,
+      w,
+      5,
+      0x005500,
+      0x88ff88
+    );
+
+    this.staminaText.setText(
+      `${Math.floor(
+        this.player.getCurrentStamina()
+      )}/${this.player.getMaxStamina()}`
+    );
+  }
+
+  private updateExpUI() {
+    this.createFrame(this.EXP_Y, 4, this.expBg);
+
+    const pct = Phaser.Math.Clamp(
       this.player.experience / this.player.nextLevelExp,
       0,
       1
     );
-    const width = this.BAR_WIDTH * expPercent;
+    const w = Math.floor(this.BAR_WIDTH * pct);
 
-    this.expBar
-      .clear()
-      .fillStyle(0x4d8dff, 1)
-      .fillRoundedRect(
-        this.UI_MARGIN_LEFT,
-        this.EXP_BAR_Y,
-        width,
-        this.EXP_BAR_HEIGHT,
-        3
-      );
+    this.expBar.clear();
+    this.drawGradientBar(
+      this.expBar,
+      this.MARGIN,
+      this.EXP_Y,
+      w,
+      4,
+      0x222277,
+      0xaaaaff
+    );
 
-    // Aktualizuj tekst doświadczenia
     this.expText.setText(
       `${this.player.experience}/${this.player.nextLevelExp}`
     );
   }
 
-  private updateLevelUI(): void {
+  private updateLevelUI() {
     this.levelText.setText(`Lvl ${this.player.level}`);
   }
 
-  public destroy(): void {
-    this.healthBar.destroy();
-    this.healthBarBg.destroy();
-    this.healthText.destroy();
-    this.expBar.destroy();
-    this.expBarBg.destroy();
-    this.levelText.destroy();
-    this.expText.destroy();
-    this.menuButton.destroy();
-
-    // Remove keyboard listener
+  public destroy() {
+    [
+      this.healthBg,
+      this.healthBar,
+      this.healthText,
+      this.staminaBg,
+      this.staminaBar,
+      this.staminaText,
+      this.expBg,
+      this.expBar,
+      this.expText,
+      this.levelText,
+      this.menuButton,
+    ].forEach((obj) => obj.destroy());
     this.scene.input.keyboard?.off("keydown-ESC");
   }
 }

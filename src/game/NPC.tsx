@@ -38,6 +38,7 @@ export class NPC {
     this.sprite = scene.physics.add.sprite(x, y, "Red_warrior_idle");
     this.sprite.setScale(1);
     this.sprite.setDepth(4);
+    this.sprite.setData("sortY", y);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(40, 40);
@@ -168,6 +169,7 @@ export class NPC {
 
     this.lastPosition.copy(currentPosition);
     this.updateHealthBar();
+    this.sprite.setData("sortY", this.sprite.y);
   }
 
   private attackPlayer() {
