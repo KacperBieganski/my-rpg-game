@@ -35,7 +35,7 @@ export class NPC {
   ) {
     this.scene = scene;
     this.player = player;
-    this.sprite = scene.physics.add.sprite(x, y, "Red_warrior_idle");
+    this.sprite = scene.physics.add.sprite(x, y, "Red_goblin_idle");
     this.sprite.setScale(1);
     this.sprite.setDepth(4);
     this.sprite.setData("sortY", y);
@@ -128,7 +128,7 @@ export class NPC {
           this.direction.x * this.speed,
           this.direction.y * this.speed
         );
-        this.sprite.anims.play("Red_NPC_run", true);
+        this.sprite.anims.play("Red_goblin_run", true);
         this.sprite.setFlipX(this.direction.x < 0);
       }
     } else {
@@ -139,10 +139,10 @@ export class NPC {
       );
 
       if (this.direction.length() > 0) {
-        this.sprite.anims.play("Red_NPC_run", true);
+        this.sprite.anims.play("Red_goblin_run", true);
         this.sprite.setFlipX(this.direction.x < 0);
       } else {
-        this.sprite.anims.play("Red_NPC_idle", true);
+        this.sprite.anims.play("Red_goblin_idle", true);
       }
     }
 
@@ -184,10 +184,8 @@ export class NPC {
     });
 
     this.sprite.setFlipX(this.player.x < this.sprite.x);
-    const anim = this.attackToggle ? "Red_NPC_attack1" : "Red_NPC_attack2";
-    this.attackToggle = !this.attackToggle;
 
-    this.sprite.anims.play(anim, true);
+    this.sprite.anims.play("Red_goblin_right_attack", true);
 
     this.scene.time.delayedCall(300, () => {
       if (this.sprite.active) {

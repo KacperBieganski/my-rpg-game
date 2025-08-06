@@ -27,6 +27,7 @@ export class AssetLoader {
     this.loadAssets(scene, this.enemySpriteSheets, "spritesheet");
     this.loadAssets(scene, this.environmentImages, "image");
     this.loadAssets(scene, this.buildingImages, "image");
+    this.loadAssets(scene, this.otherImages, "image");
     this.loadAssets(scene, this.treeSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.bushSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.rockImages, "image");
@@ -208,26 +209,32 @@ export class AssetLoader {
 
   private static enemySpriteSheets: SpriteSheetConfig[] = [
     {
-      key: "Red_warrior_idle",
-      path: "/assets/Units/Red Units/Warrior/Warrior_Idle.png",
+      key: "Red_goblin_idle",
+      path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torch_Idle.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_warrior_run",
-      path: "/assets/Units/Red Units/Warrior/Warrior_Run.png",
+      key: "Red_goblin_run",
+      path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Run.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_warrior_attack1",
-      path: "/assets/Units/Red Units/Warrior/Warrior_Attack1.png",
+      key: "Red_goblin_right_attack",
+      path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Right_Attack.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_warrior_attack2",
-      path: "/assets/Units/Red Units/Warrior/Warrior_Attack2.png",
+      key: "Red_goblin_down_attack",
+      path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Down_Attack.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_goblin_up_attack",
+      path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Up_Attack.png",
       frameWidth: 192,
       frameHeight: 192,
     },
@@ -238,9 +245,9 @@ export class AssetLoader {
   ];
 
   private static environmentImages: ImageConfig[] = [
-    { key: "Overworld", path: "/assets/Overworld.png" },
     { key: "red_pixel", path: "/assets/red_pixel.png" },
     { key: "arrow", path: "/assets/Units/Blue Units/Archer/Arrow.png" },
+    { key: "Tilemap", path: "/assets/Terrain/Tilemap.png" },
     { key: "Tilemap_color1", path: "/assets/Terrain/Tilemap_color1.png" },
     { key: "Tilemap_color2", path: "/assets/Terrain/Tilemap_color2.png" },
     { key: "Tilemap_color3", path: "/assets/Terrain/Tilemap_color3.png" },
@@ -252,38 +259,42 @@ export class AssetLoader {
   ];
 
   private static buildingImages: ImageConfig[] = [
-    { key: "RedTower", path: "/assets/Buildings/Red Buildings/RedTower.png" },
+    { key: "RedTower3", path: "/assets/Buildings/Red_Buildings/RedTower3.png" },
     {
-      key: "RedCastle",
-      path: "/assets/Buildings/Red Buildings/RedCastle.png",
+      key: "RedCastle1",
+      path: "/assets/Buildings/Red_Buildings/RedCastle1.png",
     },
-    { key: "RedHouse1", path: "/assets/Buildings/Red Buildings/RedHouse1.png" },
-    { key: "RedHouse2", path: "/assets/Buildings/Red Buildings/RedHouse2.png" },
-    { key: "RedHouse3", path: "/assets/Buildings/Red Buildings/RedHouse3.png" },
+    { key: "RedHouse1", path: "/assets/Buildings/Red_Buildings/RedHouse1.png" },
+    { key: "RedHouse2", path: "/assets/Buildings/Red_Buildings/RedHouse2.png" },
+    { key: "RedHouse3", path: "/assets/Buildings/Red_Buildings/RedHouse3.png" },
+  ];
+
+  private static otherImages: ImageConfig[] = [
+    { key: "Signpost1", path: "/assets/Decorations/Other/Signpost1.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [
     {
       key: "Tree1",
-      path: "/assets/Decorations/Trees/Tree1.png",
+      path: "/assets/Decorations/Trees/Tree1_Sprite.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
       key: "Tree2",
-      path: "/assets/Decorations/Trees/Tree2.png",
+      path: "/assets/Decorations/Trees/Tree2_Sprite.png",
       frameWidth: 192,
       frameHeight: 256,
     },
     {
       key: "Tree3",
-      path: "/assets/Decorations/Trees/Tree3.png",
+      path: "/assets/Decorations/Trees/Tree3_Sprite.png",
       frameWidth: 192,
       frameHeight: 147,
     },
     {
       key: "Tree4",
-      path: "/assets/Decorations/Trees/Tree4.png",
+      path: "/assets/Decorations/Trees/Tree4_Sprite.png",
       frameWidth: 192,
       frameHeight: 147,
     },
@@ -292,25 +303,25 @@ export class AssetLoader {
   private static bushSpriteSheets: SpriteSheetConfig[] = [
     {
       key: "Bushe1",
-      path: "/assets/Decorations/Bushes/Bushe1.png",
+      path: "/assets/Decorations/Bushes/Bushe1_Sprite.png",
       frameWidth: 128,
       frameHeight: 80,
     },
     {
       key: "Bushe2",
-      path: "/assets/Decorations/Bushes/Bushe2.png",
+      path: "/assets/Decorations/Bushes/Bushe2_Sprite.png",
       frameWidth: 128,
       frameHeight: 76,
     },
     {
       key: "Bushe3",
-      path: "/assets/Decorations/Bushes/Bushe3.png",
+      path: "/assets/Decorations/Bushes/Bushe3_Sprite.png",
       frameWidth: 128,
       frameHeight: 84,
     },
     {
       key: "Bushe4",
-      path: "/assets/Decorations/Bushes/Bushe4.png",
+      path: "/assets/Decorations/Bushes/Bushe4_Sprite.png",
       frameWidth: 128,
       frameHeight: 80,
     },

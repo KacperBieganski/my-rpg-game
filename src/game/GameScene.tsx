@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { loadMap } from "./MapLoader";
 import { AssetLoader } from "./AssetLoader";
 import { createPlayerAnimations, createObjectsAnimations } from "./Animations";
-import { NPCManager } from "./NPCManager";
+import { NpcManager } from "./npc/NpcManager";
 import { DefaultGameSettings } from "../game/GameSettings";
 import { PlayerFactory } from "./player/PlayerFactory";
 import { UIComponent } from "./UIComponent";
@@ -27,7 +27,7 @@ type GameInitData = {
 
 export default class GameScene extends Phaser.Scene {
   public player!: import("./player/PlayerBase").PlayerBase;
-  public npcManager!: NPCManager;
+  public npcManager!: NpcManager;
   public characterClass: "warrior" | "archer" | "lancer" = "warrior";
   public ui!: UIComponent;
   public inGameMenu!: InGameMenu;
@@ -105,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
 
     // 1. load map + kolizje
     createObjectsAnimations(this);
-    const { map, spawns, collisions, spritesToSort } = loadMap(this);
+    const { map, collisions, spritesToSort, spawnObjects } = loadMap(this);
     (this as any).collisions = collisions;
 
     // 2. stwórz gracza
@@ -151,8 +151,9 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.drawDebug = true;
 
     // 5. NPC
-    this.npcManager = new NPCManager(this, spawns, this.player);
-    this.npcManager.spawnNPCs(5);
+    // Przekazujemy obiekty spawnu do NPCManager
+    this.npcManager = new NpcManager(this, this.player, spawnObjects);
+    this.npcManager.spawnNPCs();
     this.physics.add.collider(this.npcManager.getGroup(), collisions);
     this.events.on("npcKilled", (exp: number) =>
       this.player.addExperience(exp)

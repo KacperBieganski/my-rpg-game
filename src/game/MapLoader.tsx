@@ -2,12 +2,13 @@ import Phaser from "phaser";
 
 export function loadMap(scene: Phaser.Scene) {
   const spritesToSort: Phaser.GameObjects.Sprite[] = [];
+  const spawnObjects: Phaser.Types.Tilemaps.TiledObject[] = [];
   //const debugGraphics: Phaser.GameObjects.Graphics[] = [];
   const map = scene.make.tilemap({ key: "level1" });
 
   // Ładowanie tilesetów
   const tilesets = {
-    overworld: map.addTilesetImage("Overworld", "Overworld"),
+    tilemap: map.addTilesetImage("Tilemap", "Tilemap"),
     tilemapColor1: map.addTilesetImage("Tilemap_color1", "Tilemap_color1"),
     tilemapColor2: map.addTilesetImage("Tilemap_color2", "Tilemap_color2"),
     tilemapColor3: map.addTilesetImage("Tilemap_color3", "Tilemap_color3"),
@@ -22,16 +23,14 @@ export function loadMap(scene: Phaser.Scene) {
   const createLayer = (name: string, tiles: Phaser.Tilemaps.Tileset[]) =>
     map.createLayer(name, tiles, 0, 0);
 
-  const spawns = createLayer("Spawns", []);
   const collisions = createLayer("Collisions", [tilesets.collisions!]);
-  const decorations = createLayer("Decorations", [tilesets.overworld!]);
+  const decorations = createLayer("Decorations", [tilesets.tilemap!]);
   const terrain_2 = createLayer("Terrain_2", [tilesets.tilemapColor3!]);
   const terrain_1 = createLayer("Terrain_1", [tilesets.tilemapColor2!]);
   const terrain_0 = createLayer("Terrain_0", [tilesets.tilemapColor1!]);
   const water = createLayer("Water", [tilesets.water!]);
 
   if (
-    !spawns ||
     !collisions ||
     !decorations ||
     !terrain_0 ||
@@ -82,6 +81,14 @@ export function loadMap(scene: Phaser.Scene) {
       // outline.setDepth(sprite.depth + 1);
       // debugGraphics.push(outline);
 
+      // Sprawdzenie właściwości flip i odwrócenie sprite'a jeśli potrzebne
+      const flipProperty = obj.properties?.find(
+        (p: { name: string }) => p.name === "flip"
+      );
+      if (flipProperty && flipProperty.value === true) {
+        sprite.setFlipX(true);
+      }
+
       // Dodawanie animacji na podstawie nazwy
       if (isTree(name)) {
         sprite.play(`${name.toLowerCase()}_anim`);
@@ -102,7 +109,12 @@ export function loadMap(scene: Phaser.Scene) {
   decorations.setDepth(4);
   // Obiekty będą miały depth ustawione dynamicznie na podstawie Y
 
-  return { map, spawns, collisions, spritesToSort };
+  const spawnLayer = map.getObjectLayer("Spawns");
+  if (spawnLayer) {
+    spawnObjects.push(...spawnLayer.objects);
+  }
+
+  return { map, collisions, spritesToSort, spawnObjects };
 }
 
 // Funkcje pomocnicze
