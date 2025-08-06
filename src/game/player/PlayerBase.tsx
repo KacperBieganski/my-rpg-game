@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { NPC } from "../NPC";
+import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import { FloatingTextEffects } from "../FloatingTextEffects";
 
@@ -126,7 +126,7 @@ export abstract class PlayerBase {
 
   update() {
     if (this.isAttacking || this.isBlocking) {
-      this.sprite.setVelocity(0, 0);
+      //this.sprite.setVelocity(0, 0);
       return;
     }
 
@@ -157,11 +157,11 @@ export abstract class PlayerBase {
     this.sprite.setVelocity(vx, vy);
   }
 
-  protected findNearestEnemy(): NPC | null {
-    const npcs = (this.scene as any).npcManager.getNPCs() as NPC[];
+  protected findNearestEnemy(): NpcBase | null {
+    const npcs = (this.scene as any).npcManager.getNPCs() as NpcBase[];
     if (npcs.length === 0) return null;
 
-    let nearestEnemy: NPC | null = null;
+    let nearestEnemy: NpcBase | null = null;
     let minDistance = Number.MAX_VALUE;
 
     npcs.forEach((npc) => {
@@ -283,7 +283,7 @@ export abstract class PlayerBase {
     });
   }
 
-  public takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
+  public takeDamage(amount: number, _attacker?: Phaser.Physics.Arcade.Sprite) {
     if (this.isBlocking) {
       const cost = DefaultGameSettings.player.stamina.blockCost;
       if (this.useStamina(cost)) {

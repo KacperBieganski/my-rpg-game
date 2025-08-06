@@ -1,5 +1,5 @@
 import { PlayerBase } from "./PlayerBase";
-import { NPC } from "../NPC";
+import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
 
@@ -74,7 +74,7 @@ export class WarriorPlayer extends PlayerBase {
       ? "player_warrior_attack1"
       : "player_warrior_attack2";
     this.attackToggle = !this.attackToggle;
-    this.sprite.setVelocity(0);
+    //this.sprite.setVelocity(0);
     this.sprite.anims.play(anim, true);
 
     // Jeśli wróg jest w zasięgu, zadaj obrażenia
@@ -95,7 +95,7 @@ export class WarriorPlayer extends PlayerBase {
           classSettings.attackRange
         );
 
-        const npcs = (this.scene as any).npcManager.getNPCs() as NPC[];
+        const npcs = (this.scene as any).npcManager.getNPCs() as NpcBase[];
         npcs.forEach((npc) => {
           const dist = Phaser.Math.Distance.Between(
             npc.sprite.x,
@@ -104,7 +104,7 @@ export class WarriorPlayer extends PlayerBase {
             this.sprite.y
           );
           if (dist < hitBox.radius) {
-            npc.takeDamage(damage, this.sprite.x, this.sprite.y);
+            npc.takeDamage(damage);
             if (isCrit) {
               this.floatingTextEffects.showCriticalHit(npc.sprite);
             }

@@ -1,5 +1,5 @@
 import { PlayerBase } from "./PlayerBase";
-import { NPC } from "../NPC";
+import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
 
@@ -75,7 +75,7 @@ export class ArcherPlayer extends PlayerBase {
       detune: Phaser.Math.Between(-100, 100),
     });
 
-    this.sprite.setVelocity(0);
+    //this.sprite.setVelocity(0);
     this.sprite.anims.play("player_archer_shoot", true);
 
     if (nearestEnemy) {
@@ -112,7 +112,7 @@ export class ArcherPlayer extends PlayerBase {
     const arrow = this.arrows.create(
       this.sprite.x,
       this.sprite.y,
-      "arrow"
+      "Arrow"
     ) as Phaser.Physics.Arcade.Sprite;
 
     arrow.setScale(0.8);
@@ -163,14 +163,14 @@ export class ArcherPlayer extends PlayerBase {
     updateDistance();
   }
 
-  private shootAtTarget(target: NPC) {
+  private shootAtTarget(target: NpcBase) {
     if (this.scene.time.now - this.lastArrowTime < 300) return;
 
     this.lastArrowTime = this.scene.time.now;
     const arrow = this.arrows.create(
       this.sprite.x,
       this.sprite.y,
-      "arrow"
+      "Arrow"
     ) as Phaser.Physics.Arcade.Sprite;
 
     arrow.setScale(0.8);
@@ -208,7 +208,7 @@ export class ArcherPlayer extends PlayerBase {
           detune: Phaser.Math.Between(-100, 100),
         });
 
-        target.takeDamage(damage, this.sprite.x, this.sprite.y);
+        target.takeDamage(damage);
         if (isCrit) {
           this.floatingTextEffects.showCriticalHit(target.sprite);
         }
@@ -221,7 +221,7 @@ export class ArcherPlayer extends PlayerBase {
     this.setupArrowCollisions(arrow);
   }
 
-  protected getCharacterType(): "warrior" | "archer" {
+  protected getCharacterType(): "warrior" | "archer" | "lancer" {
     return "archer";
   }
 

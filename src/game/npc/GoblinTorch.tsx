@@ -6,7 +6,7 @@ export class GoblinTorch extends NpcBase {
   private lastPosition: Phaser.Math.Vector2;
   private stuckTime: number = 0;
   private isFollowing: boolean = false;
-  private swordHitSounds: Phaser.Sound.BaseSound[] = [];
+  private torchSwingSounds: Phaser.Sound.BaseSound[] = [];
   private direction: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
 
   constructor(
@@ -17,7 +17,7 @@ export class GoblinTorch extends NpcBase {
     config: NpcConfig,
     type: string = "Walkable"
   ) {
-    super(scene, x, y, "Red_goblin_idle", player, config);
+    super(scene, x, y, "Red_goblinTorch_idle", player, config);
 
     this.isStatic = type === "Static";
     this.lastPosition = new Phaser.Math.Vector2(x, y);
@@ -40,12 +40,14 @@ export class GoblinTorch extends NpcBase {
   }
 
   private loadSounds() {
-    this.swordHitSounds = [
-      this.scene.sound.add("swordHit1"),
-      this.scene.sound.add("swordHit2"),
+    this.torchSwingSounds = [
+      this.scene.sound.add("torchSwing1"),
+      this.scene.sound.add("torchSwing2"),
+      this.scene.sound.add("torchSwing3"),
     ];
-    this.scene.sound.add("swordSwing1");
-    this.scene.sound.add("deathEnemy");
+
+    this.scene.sound.add("torchHit1");
+    this.scene.sound.add("deathGoblin1");
   }
 
   private pickRandomDirection() {
@@ -61,7 +63,7 @@ export class GoblinTorch extends NpcBase {
       ];
       this.direction = Phaser.Utils.Array.GetRandom(possibleDirections);
       this.sprite.setVelocity(0, 0);
-      this.sprite.anims.play("Red_goblin_idle", true);
+      this.sprite.anims.play("Red_goblinTorch_idle", true);
     }
   }
 
@@ -102,10 +104,11 @@ export class GoblinTorch extends NpcBase {
     this.isAttacking = true;
     this.attackCooldown = true;
 
-    this.scene.sound.play("swordSwing1", {
-      volume: 0.5,
-      detune: Phaser.Math.Between(-100, 100),
-    });
+    const randomSoundIndex = Phaser.Math.Between(
+      0,
+      this.torchSwingSounds.length - 1
+    );
+    this.torchSwingSounds[randomSoundIndex].play({ volume: 0.6 });
 
     // Oblicz kierunek względem gracza
     const angle = Phaser.Math.Angle.Between(
@@ -119,14 +122,14 @@ export class GoblinTorch extends NpcBase {
     // Wybierz animację w zależności od kierunku
     let attackAnim: string;
     if (angleDeg >= -45 && angleDeg < 45) {
-      attackAnim = "Red_goblin_right_attack";
+      attackAnim = "Red_goblinTorch_right_attack";
       this.sprite.setFlipX(false);
     } else if (angleDeg >= 45 && angleDeg < 135) {
-      attackAnim = "Red_goblin_down_attack";
+      attackAnim = "Red_goblinTorch_down_attack";
     } else if (angleDeg >= -135 && angleDeg < -45) {
-      attackAnim = "Red_goblin_up_attack";
+      attackAnim = "Red_goblinTorch_up_attack";
     } else {
-      attackAnim = "Red_goblin_right_attack";
+      attackAnim = "Red_goblinTorch_right_attack";
       this.sprite.setFlipX(true);
     }
 
@@ -144,16 +147,17 @@ export class GoblinTorch extends NpcBase {
 
         if (distance <= this.attackRange) {
           this.player.emit("npcAttack", this.damage, this.sprite);
-          this.swordHitSounds[
-            Phaser.Math.Between(0, this.swordHitSounds.length - 1)
-          ].play();
+          this.scene.sound.play("torchHit1", {
+            volume: 0.6,
+            detune: Phaser.Math.Between(-100, 100),
+          });
         }
       }
     });
 
     this.sprite.once("animationcomplete", () => {
       this.isAttacking = false;
-      this.sprite.anims.play("Red_goblin_idle", true);
+      this.sprite.anims.play("Red_goblinTorch_idle", true);
     });
 
     this.scene.time.delayedCall(this.attackRate, () => {
@@ -175,7 +179,7 @@ export class GoblinTorch extends NpcBase {
         direction.x * this.speed,
         direction.y * this.speed
       );
-      this.sprite.anims.play("Red_goblin_run", true);
+      this.sprite.anims.play("Red_goblinTorch_run", true);
       this.sprite.setFlipX(direction.x < 0);
     }
   }
@@ -187,10 +191,10 @@ export class GoblinTorch extends NpcBase {
     );
 
     if (this.direction.length() > 0) {
-      this.sprite.anims.play("Red_goblin_run", true);
+      this.sprite.anims.play("Red_goblinTorch_run", true);
       this.sprite.setFlipX(this.direction.x < 0);
     } else {
-      this.sprite.anims.play("Red_goblin_idle", true);
+      this.sprite.anims.play("Red_goblinTorch_idle", true);
     }
   }
 
@@ -221,7 +225,7 @@ export class GoblinTorch extends NpcBase {
 
   public destroy() {
     super.destroy();
-    this.scene.sound.play("deathEnemy", {
+    this.scene.sound.play("deathGoblin1", {
       volume: 0.5,
       detune: Phaser.Math.Between(-100, 100),
     });

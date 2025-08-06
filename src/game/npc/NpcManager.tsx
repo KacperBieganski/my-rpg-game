@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { NpcBase } from "./NpcBase";
 import { PlayerBase } from "../player/PlayerBase";
 import { NpcFactory } from "./NpcFactory";
+import { GoblinTNT } from "./GoblinTNT";
 
 export class NpcManager {
   private npcs: NpcBase[] = [];
@@ -26,7 +27,6 @@ export class NpcManager {
       // Pomijaj obiekty bez nazwy
       if (!spawnObj.name || !spawnObj.type) return;
 
-      // Konwersja pozycji obiektu (Tiled używa lewego górnego rogu, Phaser - środka)
       const spawnX = spawnObj.x!;
       const spawnY = spawnObj.y!;
 
@@ -59,6 +59,33 @@ export class NpcManager {
       }
       npc.update();
       npc.sprite.setData("sortY", npc.sprite.y);
+
+      // If NPC has projectiles (like GoblinTNT), update their depth too
+      if (npc instanceof GoblinTNT) {
+        npc
+          .getDynamites()
+          .getChildren()
+          .forEach((dynamite: Phaser.GameObjects.GameObject) => {
+            if (dynamite.active) {
+              dynamite.setData(
+                "sortY",
+                (dynamite as Phaser.Physics.Arcade.Sprite).y
+              );
+            }
+          });
+        npc
+          .getExplosions()
+          .getChildren()
+          .forEach((explosion: Phaser.GameObjects.GameObject) => {
+            if (explosion.active) {
+              explosion.setData(
+                "sortY",
+                (explosion as Phaser.Physics.Arcade.Sprite).y
+              );
+            }
+          });
+      }
+
       return true;
     });
   }

@@ -94,6 +94,8 @@ export function loadMap(scene: Phaser.Scene) {
         sprite.play(`${name.toLowerCase()}_anim`);
       } else if (isBush(name)) {
         sprite.play(`${name.toLowerCase()}_anim`);
+      } else if (isTower(name)) {
+        sprite.play(`redTower1_anim`);
       }
 
       // Ustawienie głębokości w zależności od pozycji Y
@@ -120,7 +122,7 @@ export function loadMap(scene: Phaser.Scene) {
 // Funkcje pomocnicze
 function getTextureKey(name: string): string {
   // Mapowanie nazw na klucze tekstur
-  return name; // Zakładamy, że nazwa obiektu odpowiada nazwie tekstury
+  return name;
 }
 
 function isTree(name: string): boolean {
@@ -129,4 +131,8 @@ function isTree(name: string): boolean {
 
 function isBush(name: string): boolean {
   return name.startsWith("Bushe");
+}
+
+function isTower(name: string): boolean {
+  return name.startsWith("RedTower");
 }

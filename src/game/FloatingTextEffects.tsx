@@ -145,12 +145,9 @@ export class FloatingTextEffects {
     }
   }
 
-  public applyDamageEffects(
-    sprite: Phaser.Physics.Arcade.Sprite,
-    knockbackForce: number = 0,
-    attackerX?: number,
-    attackerY?: number
-  ) {
+  public applyDamageEffects(sprite: Phaser.Physics.Arcade.Sprite) {
+    if (!sprite.body) return;
+
     // Flash effect
     let flashCount = 0;
     const flashTimer = this.scene.time.addEvent({
@@ -165,39 +162,22 @@ export class FloatingTextEffects {
     // Shake effect
     const originalX = sprite.x;
     const originalY = sprite.y;
-    let shakeCount = 0;
-    const shakeTimer = this.scene.time.addEvent({
-      delay: 50,
-      callback: () => {
-        sprite.x = originalX + (Math.random() * 4 - 2);
-        sprite.y = originalY + (Math.random() * 4 - 2);
-        shakeCount++;
-        if (shakeCount >= 4) {
+    const shakeIntensity = 3;
+
+    this.scene.tweens.add({
+      targets: sprite,
+      x: originalX + Phaser.Math.Between(-shakeIntensity, shakeIntensity),
+      y: originalY + Phaser.Math.Between(-shakeIntensity, shakeIntensity),
+      duration: 60,
+      yoyo: true,
+      repeat: 2,
+      onComplete: () => {
+        if (sprite.active) {
           sprite.x = originalX;
           sprite.y = originalY;
-          shakeTimer.remove();
         }
       },
-      callbackScope: this,
-      repeat: 3,
     });
-
-    // Knockback effect
-    if (
-      knockbackForce > 0 &&
-      attackerX !== undefined &&
-      attackerY !== undefined
-    ) {
-      const knockbackDirection = new Phaser.Math.Vector2(
-        sprite.x - attackerX,
-        sprite.y - attackerY
-      )
-        .normalize()
-        .scale(30)
-        .scale(knockbackForce);
-
-      sprite.setVelocity(knockbackDirection.x, knockbackDirection.y);
-    }
 
     // Reset effects after delay
     this.scene.time.delayedCall(300, () => {
@@ -206,7 +186,6 @@ export class FloatingTextEffects {
         sprite.x = originalX;
         sprite.y = originalY;
         flashTimer.remove();
-        shakeTimer.remove();
       }
     });
   }

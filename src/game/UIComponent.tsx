@@ -155,7 +155,7 @@ export class UIComponent {
       })
       .setOrigin(1, 0)
       .setScrollFactor(0)
-      .setDepth(1001)
+      .setDepth(9999)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.scene.events.emit("toggleGameMenu"));
   }

@@ -215,6 +215,10 @@ export default class GameScene extends Phaser.Scene {
     this.npcManager?.update();
   }
 
+  public getDepthSortedGroup(): Phaser.GameObjects.Group {
+    return this.depthSortedGroup!;
+  }
+
   destroyGame() {
     // Clean up all game objects and references
     if (this.inGameMenu) {

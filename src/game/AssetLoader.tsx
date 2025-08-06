@@ -27,6 +27,7 @@ export class AssetLoader {
     this.loadAssets(scene, this.enemySpriteSheets, "spritesheet");
     this.loadAssets(scene, this.environmentImages, "image");
     this.loadAssets(scene, this.buildingImages, "image");
+    this.loadAssets(scene, this.buildingSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.otherImages, "image");
     this.loadAssets(scene, this.treeSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.bushSpriteSheets, "spritesheet");
@@ -208,45 +209,85 @@ export class AssetLoader {
   ];
 
   private static enemySpriteSheets: SpriteSheetConfig[] = [
+    // Red GoblinTorch
     {
-      key: "Red_goblin_idle",
+      key: "Red_goblinTorch_idle",
       path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torch_Idle.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_goblin_run",
+      key: "Red_goblinTorch_run",
       path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Run.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_goblin_right_attack",
+      key: "Red_goblinTorch_right_attack",
       path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Right_Attack.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_goblin_down_attack",
+      key: "Red_goblinTorch_down_attack",
       path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Down_Attack.png",
       frameWidth: 192,
       frameHeight: 192,
     },
     {
-      key: "Red_goblin_up_attack",
+      key: "Red_goblinTorch_up_attack",
       path: "/assets/Units/Red Units/Goblin/GoblinTorch/Goblin_Torche_Up_Attack.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+
+    // Red GoblinTNT
+    {
+      key: "Red_goblinTNT_idle",
+      path: "/assets/Units/Red Units/Goblin/GoblinTNT/Goblin_TNT_Idle.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_goblinTNT_run",
+      path: "/assets/Units/Red Units/Goblin/GoblinTNT/Goblin_TNT_Run.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_goblinTNT_attack",
+      path: "/assets/Units/Red Units/Goblin/GoblinTNT/Goblin_TNT_Attack.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Dynamite",
+      path: "/assets/Units/Red Units/Goblin/GoblinTNT/Dynamite.png",
+      frameWidth: 64,
+      frameHeight: 64,
+    },
+    {
+      key: "Explosions",
+      path: "/assets/Effects/Explosions.png",
       frameWidth: 192,
       frameHeight: 192,
     },
   ];
 
   private static enemyAudios: AudioConfig[] = [
-    { key: "deathEnemy", path: "/assets/sounds/death-enemy.ogg" },
+    { key: "deathGoblin1", path: "/assets/sounds/death-goblin1.ogg" },
+    { key: "deathGoblin2", path: "/assets/sounds/death-goblin2.ogg" },
+    { key: "torchHit1", path: "/assets/sounds/hit-torch-1.ogg" },
+    { key: "torchSwing1", path: "/assets/sounds/swing-torch-1.ogg" },
+    { key: "torchSwing2", path: "/assets/sounds/swing-torch-2.ogg" },
+    { key: "torchSwing3", path: "/assets/sounds/swing-torch-3.ogg" },
+    { key: "explosion", path: "/assets/sounds/explosion-1.ogg" },
+    { key: "throw", path: "/assets/sounds/throw.ogg" },
   ];
 
   private static environmentImages: ImageConfig[] = [
-    { key: "red_pixel", path: "/assets/red_pixel.png" },
-    { key: "arrow", path: "/assets/Units/Blue Units/Archer/Arrow.png" },
+    { key: "Red_pixel", path: "/assets/red_pixel.png" },
+    { key: "Arrow", path: "/assets/Units/Blue Units/Archer/Arrow.png" },
     { key: "Tilemap", path: "/assets/Terrain/Tilemap.png" },
     { key: "Tilemap_color1", path: "/assets/Terrain/Tilemap_color1.png" },
     { key: "Tilemap_color2", path: "/assets/Terrain/Tilemap_color2.png" },
@@ -267,6 +308,19 @@ export class AssetLoader {
     { key: "RedHouse1", path: "/assets/Buildings/Red_Buildings/RedHouse1.png" },
     { key: "RedHouse2", path: "/assets/Buildings/Red_Buildings/RedHouse2.png" },
     { key: "RedHouse3", path: "/assets/Buildings/Red_Buildings/RedHouse3.png" },
+    {
+      key: "RedCottage1",
+      path: "/assets/Buildings/Red_Buildings/RedCottage1.png",
+    },
+  ];
+
+  private static buildingSpriteSheets: SpriteSheetConfig[] = [
+    {
+      key: "RedTower1",
+      path: "/assets/Buildings/Red_Buildings/RedTower1_Sprite.png",
+      frameWidth: 256,
+      frameHeight: 170,
+    },
   ];
 
   private static otherImages: ImageConfig[] = [

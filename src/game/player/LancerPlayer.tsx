@@ -1,5 +1,5 @@
 import { PlayerBase } from "./PlayerBase";
-import { NPC } from "../NPC";
+import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
 
@@ -173,12 +173,12 @@ export class LancerPlayer extends PlayerBase {
     }
 
     this.attackToggle = !this.attackToggle;
-    this.sprite.setVelocity(0);
+    //this.sprite.setVelocity(0);
     this.sprite.anims.play(anim, true);
 
     // Jeśli wróg jest w zasięgu, zadaj obrażenia
     if (nearestEnemy) {
-      const npcs = (this.scene as any).npcManager.getNPCs() as NPC[];
+      const npcs = (this.scene as any).npcManager.getNPCs() as NpcBase[];
 
       npcs.forEach((npc) => {
         const dist = Phaser.Math.Distance.Between(
@@ -200,7 +200,7 @@ export class LancerPlayer extends PlayerBase {
             Phaser.Math.Angle.Wrap(npcAngle - attackAngle)
           );
           if (angleDiff <= Phaser.Math.DegToRad(45)) {
-            npc.takeDamage(damage, this.sprite.x, this.sprite.y);
+            npc.takeDamage(damage);
             if (isCrit) {
               this.floatingTextEffects.showCriticalHit(npc.sprite);
             }

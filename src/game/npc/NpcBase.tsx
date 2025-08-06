@@ -10,7 +10,6 @@ export interface NpcConfig {
   damage: number;
   attackRate: number;
   expGain: number;
-  knockbackForce: number;
 }
 
 export abstract class NpcBase {
@@ -24,7 +23,6 @@ export abstract class NpcBase {
   protected damage: number;
   protected attackRate: number;
   protected expGain: number;
-  protected knockbackForce: number;
   protected isStatic: boolean = false;
 
   protected healthBarBg!: Phaser.GameObjects.Rectangle;
@@ -59,7 +57,6 @@ export abstract class NpcBase {
     this.damage = config.damage;
     this.attackRate = config.attackRate;
     this.expGain = config.expGain;
-    this.knockbackForce = config.knockbackForce;
 
     this.setupPhysics();
     this.setupHealthBar();
@@ -135,17 +132,12 @@ export abstract class NpcBase {
     this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - 50);
   }
 
-  public takeDamage(amount: number, attackerX?: number, attackerY?: number) {
+  public takeDamage(amount: number) {
     if (!this.sprite.active) return;
 
     this.health -= amount;
     this.floatingTextEffects.showDamage(this.sprite, amount);
-    this.floatingTextEffects.applyDamageEffects(
-      this.sprite,
-      this.knockbackForce,
-      attackerX,
-      attackerY
-    );
+    this.floatingTextEffects.applyDamageEffects(this.sprite);
 
     if (this.health <= 0) {
       this.scene.events.emit("npcKilled", this.expGain);

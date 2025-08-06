@@ -103,7 +103,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       sprite: "Blue_lancer_down_attack",
       start: 0,
       end: 2,
-      frameRate: 8,
+      frameRate: 13,
       repeat: 0,
     },
     {
@@ -111,7 +111,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       sprite: "Blue_lancer_downright_attack",
       start: 0,
       end: 2,
-      frameRate: 8,
+      frameRate: 13,
       repeat: 0,
     },
     {
@@ -119,7 +119,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       sprite: "Blue_lancer_right_attack",
       start: 0,
       end: 2,
-      frameRate: 8,
+      frameRate: 13,
       repeat: 0,
     },
     {
@@ -127,7 +127,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       sprite: "Blue_lancer_up_attack",
       start: 0,
       end: 2,
-      frameRate: 8,
+      frameRate: 13,
       repeat: 0,
     },
     {
@@ -135,7 +135,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       sprite: "Blue_lancer_upright_attack",
       start: 0,
       end: 2,
-      frameRate: 8,
+      frameRate: 13,
       repeat: 0,
     },
 
@@ -146,7 +146,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 5,
       frameRate: 10,
-      repeat: 0,
+      repeat: -1,
     },
     {
       key: "player_lancer_downright_defence",
@@ -154,7 +154,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 5,
       frameRate: 10,
-      repeat: 0,
+      repeat: -1,
     },
     {
       key: "player_lancer_right_defence",
@@ -162,7 +162,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 5,
       frameRate: 10,
-      repeat: 0,
+      repeat: -1,
     },
     {
       key: "player_lancer_up_defence",
@@ -170,7 +170,7 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 5,
       frameRate: 10,
-      repeat: 0,
+      repeat: -1,
     },
     {
       key: "player_lancer_upright_defence",
@@ -178,47 +178,89 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 5,
       frameRate: 10,
-      repeat: 0,
+      repeat: -1,
     },
 
-    // Red Goblin
+    // Red GoblinTorch
     {
-      key: "Red_goblin_idle",
-      sprite: "Red_goblin_idle",
+      key: "Red_goblinTorch_idle",
+      sprite: "Red_goblinTorch_idle",
       start: 0,
       end: 6,
       frameRate: 8,
       repeat: -1,
     },
     {
-      key: "Red_goblin_run",
-      sprite: "Red_goblin_run",
+      key: "Red_goblinTorch_run",
+      sprite: "Red_goblinTorch_run",
       start: 0,
       end: 5,
       frameRate: 10,
       repeat: -1,
     },
     {
-      key: "Red_goblin_right_attack",
-      sprite: "Red_goblin_right_attack",
+      key: "Red_goblinTorch_right_attack",
+      sprite: "Red_goblinTorch_right_attack",
       start: 0,
       end: 5,
       frameRate: 12,
       repeat: 0,
     },
     {
-      key: "Red_goblin_down_attack",
-      sprite: "Red_goblin_down_attack",
+      key: "Red_goblinTorch_down_attack",
+      sprite: "Red_goblinTorch_down_attack",
       start: 0,
       end: 5,
       frameRate: 12,
       repeat: 0,
     },
     {
-      key: "Red_goblin_up_attack",
-      sprite: "Red_goblin_up_attack",
+      key: "Red_goblinTorch_up_attack",
+      sprite: "Red_goblinTorch_up_attack",
       start: 0,
       end: 5,
+      frameRate: 12,
+      repeat: 0,
+    },
+
+    // Red GoblinTNT
+    {
+      key: "Red_goblinTNT_idle",
+      sprite: "Red_goblinTNT_idle",
+      start: 0,
+      end: 5,
+      frameRate: 8,
+      repeat: -1,
+    },
+    {
+      key: "Red_goblinTNT_run",
+      sprite: "Red_goblinTNT_run",
+      start: 0,
+      end: 5,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Red_goblinTNT_attack",
+      sprite: "Red_goblinTNT_attack",
+      start: 0,
+      end: 6,
+      frameRate: 12,
+      repeat: 0,
+    },
+    {
+      key: "Dynamite",
+      sprite: "Dynamite",
+      start: 0,
+      end: 5,
+      frameRate: 12,
+      repeat: -1,
+    },
+    {
+      key: "Explosions",
+      sprite: "Explosions",
+      start: 0,
+      end: 8,
       frameRate: 12,
       repeat: 0,
     },
@@ -267,5 +309,16 @@ export function createObjectsAnimations(scene: Phaser.Scene) {
         repeat: -1,
       });
     }
+  }
+  if (!scene.anims.exists("redTower1_anim")) {
+    scene.anims.create({
+      key: "redTower1_anim",
+      frames: scene.anims.generateFrameNumbers(`RedTower1`, {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 6,
+      repeat: -1,
+    });
   }
 }
