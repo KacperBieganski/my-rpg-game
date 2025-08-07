@@ -1,35 +1,50 @@
-// src/ui/SaveSlotMenu.ts
 import Phaser from "phaser";
 import GameScene from "../GameScene";
 import { SaveManager, type SaveData } from "../SaveManager";
+import { GameState } from "../GameState";
 
 export default class SaveSlotMenu {
   private scene: GameScene;
   private container: Phaser.GameObjects.Container;
   private onBack: () => void;
+  private escKey?: Phaser.Input.Keyboard.Key;
 
   constructor(scene: GameScene, onBack: () => void) {
     this.scene = scene;
     this.onBack = onBack;
     this.container = this.scene.add
       .container(0, 0)
-      .setDepth(10000)
-      .setScrollFactor(0);
+      .setDepth(10001)
+      .setScrollFactor(0)
+      .setVisible(false);
+    this.escKey = this.scene.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ESC
+    );
+    this.escKey?.on("down", () => {
+      if (this.container.visible) {
+        this.hide();
+      }
+    });
+
+    this.build();
   }
 
   public show() {
-    this.container.removeAll(true);
+    if (!this.container) return;
     this.build();
     this.container.setVisible(true);
-    this.scene.togglePause(true);
+    this.scene.currentState = GameState.IN_SAVE_MENU;
   }
 
   public hide() {
-    this.container.setVisible(false);
-    this.scene.togglePause(false);
+    if (this.container) {
+      this.container.setVisible(false);
+    }
+    this.onBack();
   }
 
   private build() {
+    this.container.removeAll(true);
     const cam = this.scene.cameras.main;
     const cx = cam.width / 2;
     const cy = cam.height / 2;
@@ -41,7 +56,7 @@ export default class SaveSlotMenu {
       .setOrigin(0.5)
       .setScrollFactor(0);
     const title = this.scene.add
-      .text(cx, cy - 160, "Wybierz slot zapisu", {
+      .text(cx, cy - 130, "Wybierz slot zapisu", {
         fontSize: "22px",
         color: "#ffffff",
       })
@@ -59,7 +74,7 @@ export default class SaveSlotMenu {
         : `Slot ${slot}: pusty`;
 
       const btn = this.scene.add
-        .text(cx, cy - 100 + i * 40, label, {
+        .text(cx, cy - 70 + i * 40, label, {
           fontSize: "18px",
           color: data ? "#aaffaa" : "#aaaaaa",
         })
@@ -76,6 +91,21 @@ export default class SaveSlotMenu {
 
       this.container.add(btn);
     });
+
+    const autoSaveData = SaveManager.getAutoSaveData();
+    const autoSaveLabel = autoSaveData
+      ? `Autozapis: ${autoSaveData.characterClass} Lvl ${autoSaveData.level}`
+      : "Autozapis: brak";
+
+    const autoSaveBtn = this.scene.add
+      .text(cx, cy + 90, autoSaveLabel, {
+        fontSize: "18px",
+        color: autoSaveData ? "#ffaa88" : "#aaaaaa",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+
+    this.container.add(autoSaveBtn);
 
     // przycisk „Powrót”
     const back = this.scene.add
@@ -160,10 +190,17 @@ export default class SaveSlotMenu {
       critDamageMultiplier: this.scene.player.critDamageMultiplier,
     };
     SaveManager.save(slot, saveData);
-    this.show(); // odśwież listę (teraz slot będzie zajęty)
+    this.show(); // odśwież listę
   }
 
   public destroy() {
-    this.container.destroy();
+    if (this.escKey) {
+      this.escKey.off("down");
+      this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    }
+
+    if (this.container) {
+      this.container.destroy();
+    }
   }
 }

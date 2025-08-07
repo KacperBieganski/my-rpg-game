@@ -1,4 +1,7 @@
 export const DefaultGameSettings = {
+  game: {
+    autoSaveTime: 10000,
+  },
   player: {
     position: { x: 700, y: 3200 },
     level: 1,

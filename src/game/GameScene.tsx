@@ -1,11 +1,13 @@
 import Phaser from "phaser";
+import { LoadingScreen } from "./menu/LoadingScreen";
 import { loadMap } from "./MapLoader";
 import { AssetLoader } from "./AssetLoader";
+import { GameState } from "./GameState";
 import { createPlayerAnimations, createObjectsAnimations } from "./Animations";
 import { NpcManager } from "./npc/NpcManager";
 import { DefaultGameSettings } from "../game/GameSettings";
 import { PlayerFactory } from "./player/PlayerFactory";
-import { UIComponent } from "./UIComponent";
+import { UIComponent } from "./UI/UIComponent";
 import MainMenu from "./menu/MainMenu";
 import ClassSelection from "./menu/ClassSelection";
 import InGameMenu from "./menu/InGameMenu";
@@ -26,6 +28,8 @@ type GameInitData = {
 };
 
 export default class GameScene extends Phaser.Scene {
+  private loadingScreen!: LoadingScreen;
+  public currentState: GameState = GameState.MAIN_MENU;
   public player!: import("./player/PlayerBase").PlayerBase;
   public npcManager!: NpcManager;
   public characterClass: "warrior" | "archer" | "lancer" = "warrior";
@@ -39,6 +43,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.loadingScreen = new LoadingScreen(this);
+
     AssetLoader.preload(this);
     MainMenu.preload(this);
     ClassSelection.preload(this);
@@ -58,19 +64,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private setupEventListeners() {
-    this.events.off("toggleGameMenu");
     this.input.keyboard?.off("keydown-ESC");
 
-    this.events.on("toggleGameMenu", () => {
-      if (!this.inGameMenu) {
-        this.inGameMenu = new InGameMenu(this);
-      } else {
-        this.inGameMenu.toggle();
-      }
-    });
-
     this.input.keyboard?.on("keydown-ESC", () => {
-      this.events.emit("toggleGameMenu");
+      switch (this.currentState) {
+        case GameState.IN_GAME:
+          this.openPauseMenu();
+          break;
+        case GameState.IN_PAUSE_MENU:
+          this.closePauseMenu();
+          break;
+        case GameState.IN_SAVE_MENU:
+          this.closeSaveMenu();
+          break;
+        // Dodaj inne stany w razie potrzeby
+      }
     });
   }
 
@@ -97,6 +105,8 @@ export default class GameScene extends Phaser.Scene {
 
   private initGame(opts: GameInitData) {
     this.children.removeAll();
+
+    this.loadingScreen = new LoadingScreen(this);
 
     this.characterClass = opts.characterClass;
     this.isPaused = false;
@@ -161,6 +171,33 @@ export default class GameScene extends Phaser.Scene {
 
     // 6. UI
     this.ui = new UIComponent(this, this.player);
+
+    this.currentState = GameState.IN_GAME;
+  }
+
+  private openPauseMenu() {
+    if (!this.inGameMenu) {
+      this.inGameMenu = new InGameMenu(this);
+    }
+    this.inGameMenu.show();
+    this.currentState = GameState.IN_PAUSE_MENU;
+    this.togglePause(true);
+  }
+
+  private closePauseMenu() {
+    if (this.inGameMenu) {
+      this.inGameMenu.hide();
+    }
+    this.currentState = GameState.IN_GAME;
+    this.togglePause(false);
+  }
+
+  private closeSaveMenu() {
+    if (this.inGameMenu && this.inGameMenu.saveSlotMenu) {
+      this.inGameMenu.saveSlotMenu.destroy();
+      this.inGameMenu.show();
+    }
+    this.currentState = GameState.IN_PAUSE_MENU;
   }
 
   togglePause(state: boolean) {

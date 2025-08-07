@@ -125,36 +125,52 @@ export abstract class PlayerBase {
   }
 
   update() {
-    if (this.isAttacking || this.isBlocking) {
-      //this.sprite.setVelocity(0, 0);
-      return;
-    }
-
     const PLAYER_SPEED =
       DefaultGameSettings.player[this.getCharacterType()].speed;
     let vx = 0;
     let vy = 0;
 
-    if (this.cursors.left.isDown || this.wasdKeys.A.isDown) vx -= 1;
-    if (this.cursors.right.isDown || this.wasdKeys.D.isDown) vx += 1;
-    if (this.cursors.up.isDown || this.wasdKeys.W.isDown) vy -= 1;
-    if (this.cursors.down.isDown || this.wasdKeys.S.isDown) vy += 1;
-
-    const length = Math.hypot(vx, vy);
-    if (length > 0) {
-      vx = (vx / length) * PLAYER_SPEED;
-      vy = (vy / length) * PLAYER_SPEED;
-      this.sprite.anims.play(this.getRunAnimation(), true);
-      if (vx !== 0) {
-        this.sprite.setFlipX(vx < 0);
-      }
-      this.startRunningSound();
-    } else {
-      this.sprite.anims.play(this.getIdleAnimation(), true);
-      this.stopRunningSound();
+    // Obsługa ruchu - działa nawet podczas ataku i blokowania
+    if (!this.isBlocking) {
+      // Tylko jeśli nie blokujemy
+      if (this.cursors.left.isDown || this.wasdKeys.A.isDown) vx -= 1;
+      if (this.cursors.right.isDown || this.wasdKeys.D.isDown) vx += 1;
+      if (this.cursors.up.isDown || this.wasdKeys.W.isDown) vy -= 1;
+      if (this.cursors.down.isDown || this.wasdKeys.S.isDown) vy += 1;
     }
 
-    this.sprite.setVelocity(vx, vy);
+    const length = Math.hypot(vx, vy);
+
+    if (this.isBlocking) {
+      // Podczas blokowania pokazujemy tylko animację bloku
+      this.sprite.anims.play(this.getBlockAnimation(), true);
+      this.sprite.setVelocity(0, 0); // Zatrzymujemy postać podczas blokowania
+    } else if (this.isAttacking) {
+      // Podczas ataku pozwalamy na ruch, ale nie zmieniamy animacji
+      if (length > 0) {
+        vx = (vx / length) * PLAYER_SPEED;
+        vy = (vy / length) * PLAYER_SPEED;
+        if (vx !== 0) {
+          this.sprite.setFlipX(vx < 0);
+        }
+      }
+      this.sprite.setVelocity(vx, vy);
+    } else {
+      // Normalny ruch
+      if (length > 0) {
+        vx = (vx / length) * PLAYER_SPEED;
+        vy = (vy / length) * PLAYER_SPEED;
+        this.sprite.anims.play(this.getRunAnimation(), true);
+        if (vx !== 0) {
+          this.sprite.setFlipX(vx < 0);
+        }
+        this.startRunningSound();
+      } else {
+        this.sprite.anims.play(this.getIdleAnimation(), true);
+        this.stopRunningSound();
+      }
+      this.sprite.setVelocity(vx, vy);
+    }
   }
 
   protected findNearestEnemy(): NpcBase | null {
@@ -270,6 +286,7 @@ export abstract class PlayerBase {
   protected startBlock() {
     this.isBlocking = true;
     this.sprite.anims.play(this.getBlockAnimation(), true);
+    this.stopRunningSound();
   }
 
   protected endBlock() {
@@ -277,8 +294,12 @@ export abstract class PlayerBase {
     this.sprite.clearTint();
     this.blockCooldown = true;
 
+    if (this.isMoving) {
+      this.startRunningSound();
+    }
+
     // Krótki cooldown przed ponownym blokiem (300ms)
-    this.scene.time.delayedCall(300, () => {
+    this.scene.time.delayedCall(200, () => {
       this.blockCooldown = false;
     });
   }

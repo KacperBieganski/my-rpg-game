@@ -5,29 +5,40 @@ import MainMenu from "./MainMenu";
 export default class ClassSelection {
   private scene: GameScene;
   private selectionContainer!: Phaser.GameObjects.Container;
+  private menuRef?: MainMenu;
+  private backgroundImage!: Phaser.GameObjects.TileSprite;
 
   constructor(scene: GameScene) {
     this.scene = scene;
+    this.menuRef = (this.scene as any).menuMusic;
     this.create();
   }
 
-  static preload(scene: Phaser.Scene) {}
+  static preload(_scene: Phaser.Scene) {}
 
   create() {
-    const centerX = this.scene.cameras.main.width / 2;
-    const centerY = this.scene.cameras.main.height / 2;
+    const { width, height } = this.scene.cameras.main;
+
+    this.backgroundImage = this.scene.add
+      .tileSprite(0, 0, width, height, "Water_Background_color")
+      .setOrigin(0, 0)
+      .setTileScale(1)
+      .setScrollFactor(0);
+
+    const centerX = width / 2;
+    const centerY = height / 2;
 
     const classMenuBg = this.scene.add.rectangle(
       centerX,
       centerY,
-      600,
-      500,
+      width * 0.6,
+      height * 0.8,
       0x000000,
-      0.9
+      0.5
     );
 
     const title = this.scene.add
-      .text(centerX, centerY - 200, "Wybierz klasę postaci", {
+      .text(centerX, centerY - 160, "Wybierz klasę postaci", {
         fontSize: "28px",
         color: "#ffffff",
       })
@@ -35,10 +46,10 @@ export default class ClassSelection {
 
     // Warrior option
     const warriorSprite = this.scene.add
-      .sprite(centerX - 200, centerY, "Blue_warrior_idle")
+      .sprite(centerX - 200, centerY + 30, "Blue_warrior_idle")
       .setScale(1.5);
     const warriorBtn = this.scene.add
-      .text(centerX - 200, centerY + 80, "Rycerz", {
+      .text(centerX - 200, centerY + 110, "Rycerz", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -48,10 +59,10 @@ export default class ClassSelection {
 
     // Archer option
     const archerSprite = this.scene.add
-      .sprite(centerX, centerY, "Blue_archer_idle")
+      .sprite(centerX, centerY + 30, "Blue_archer_idle")
       .setScale(1.5);
     const archerBtn = this.scene.add
-      .text(centerX, centerY + 80, "Łucznik", {
+      .text(centerX, centerY + 110, "Łucznik", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -61,10 +72,10 @@ export default class ClassSelection {
 
     // Lancer option
     const lancerSprite = this.scene.add
-      .sprite(centerX + 200, centerY, "Blue_lancer_idle")
+      .sprite(centerX + 200, centerY + 30, "Blue_lancer_idle")
       .setScale(1.5);
     const lancerBtn = this.scene.add
-      .text(centerX + 200, centerY + 80, "Lancer", {
+      .text(centerX + 200, centerY + 110, "Lancer", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -100,6 +111,9 @@ export default class ClassSelection {
   }
 
   private selectClass(characterClass: "warrior" | "archer" | "lancer") {
+    if (this.menuRef) {
+      this.menuRef.stopMusic();
+    }
     this.destroy();
     this.scene.startNewGame(characterClass);
   }

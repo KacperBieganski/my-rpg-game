@@ -33,6 +33,7 @@ export class AssetLoader {
     this.loadAssets(scene, this.bushSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.rockImages, "image");
 
+    this.loadAssets(scene, this.GameAudios, "audio");
     this.loadAssets(scene, this.playerAudios, "audio");
     this.loadAssets(scene, this.enemyAudios, "audio");
   }
@@ -189,6 +190,22 @@ export class AssetLoader {
       path: "/assets/Units/Blue Units/Lancer/Lancer_UpRight_Defence.png",
       frameWidth: 320,
       frameHeight: 320,
+    },
+  ];
+
+  private static GameAudios: AudioConfig[] = [
+    { key: "medieval-main-1", path: "/assets/soundTracks/medieval-main-1.ogg" },
+    {
+      key: "medieval-ambient-1",
+      path: "/assets/soundTracks/medieval-ambient-1.ogg",
+    },
+    {
+      key: "medieval-ambient-2",
+      path: "/assets/soundTracks/medieval-ambient-2.ogg",
+    },
+    {
+      key: "medieval-ambient-3",
+      path: "/assets/soundTracks/medieval-ambient-3.ogg",
     },
   ];
 
