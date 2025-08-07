@@ -72,8 +72,8 @@ export abstract class PlayerBase {
     this.sprite.setDepth(5);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    body.setSize(40, 40);
-    body.setOffset(74, 90);
+    body.setSize(40, 20);
+    body.setOffset(74, 110);
 
     this.cursors = scene.input.keyboard!.createCursorKeys();
     this.wasdKeys = {

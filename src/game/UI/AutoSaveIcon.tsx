@@ -14,7 +14,7 @@ export class AutoSaveIcon {
       .setScrollFactor(0)
       .setDepth(10000)
       .setAlpha(0)
-      .setScale(0.5);
+      .setScale(1);
   }
 
   showSaving() {

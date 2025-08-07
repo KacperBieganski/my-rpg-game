@@ -1,6 +1,7 @@
 export const DefaultGameSettings = {
   game: {
-    autoSaveTime: 10000,
+    npcSpawnRadius: 10000,
+    autoSaveTime: 60000,
   },
   player: {
     position: { x: 700, y: 3200 },
@@ -59,6 +60,7 @@ export const DefaultGameSettings = {
       speed: 100,
       damage: 10,
       detectionRange: 250,
+      shouldMaintainDistance: false,
       attackRange: 80,
       attackRate: 1000,
       expGain: 20,
@@ -69,8 +71,9 @@ export const DefaultGameSettings = {
       speed: 80,
       damage: 40,
       detectionRange: 400,
-      distanceFromThePlayer: 150,
-      attackRange: 300,
+      shouldMaintainDistance: true,
+      distanceFromPlayer: 250,
+      attackRange: 200,
       attackRate: 3000,
       explodeTime: 2000,
       explodeRadius: 70,

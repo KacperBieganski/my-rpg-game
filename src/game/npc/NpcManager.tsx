@@ -44,6 +44,9 @@ export class NpcManager {
         this.npcs.push(npc);
         this.npcGroup.add(npc.sprite);
         npc.sprite.setData("sortY", npc.sprite.y);
+
+        //  kolizję między NPC a innymi NPC
+        this.scene.physics.add.collider(npc.sprite, this.npcGroup);
       } catch (error) {
         console.error(`Failed to create NPC: ${spawnObj.name}`, error);
       }

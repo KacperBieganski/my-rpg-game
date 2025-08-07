@@ -23,6 +23,7 @@ export class AssetLoader {
     scene.load.tilemapTiledJSON("level1", "../assets/startMap.json");
 
     // Kategorie zasobów
+    this.loadAssets(scene, this.gameImages, "image");
     this.loadAssets(scene, this.playerSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.enemySpriteSheets, "spritesheet");
     this.loadAssets(scene, this.environmentImages, "image");
@@ -65,6 +66,10 @@ export class AssetLoader {
   }
 
   // --- Definicje zasobów ---
+
+  private static gameImages: ImageConfig[] = [
+    { key: "save_icon", path: "/assets/save_icon.png" },
+  ];
 
   private static playerSpriteSheets: SpriteSheetConfig[] = [
     // Warrior

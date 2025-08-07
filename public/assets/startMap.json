@@ -2535,6 +2535,18 @@
                  "width":50,
                  "x":1471,
                  "y":2601.66666666667
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":323,
+                 "name":"RedGoblinTNT",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2045.66666666667,
+                 "y":3320.33333333333
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2543,7 +2555,7 @@
          "y":0
         }],
  "nextlayerid":19,
- "nextobjectid":323,
+ "nextobjectid":324,
  "orientation":"orthogonal",
  "renderorder":"right-up",
  "tiledversion":"1.11.2",
