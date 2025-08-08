@@ -1,6 +1,7 @@
 import { NpcBase } from "./NpcBase";
-import { GoblinTorch } from "./GoblinTorch";
-import { GoblinTNT } from "./GoblinTNT";
+import { GoblinTorch } from "./npcs/GoblinTorch";
+import { GoblinTNT } from "./npcs/GoblinTNT";
+import { GoblinBarrel } from "./npcs/GoblinBarrel";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
 
@@ -38,7 +39,8 @@ export class NpcFactory {
         return DefaultGameSettings.npc.GoblinTorch;
       case "GoblinTNT":
         return DefaultGameSettings.npc.GoblinTNT;
-      // Dodaj inne typy NPC tutaj
+      case "GoblinBarrel":
+        return DefaultGameSettings.npc.GoblinBarrel;
       default:
         throw new Error(`No config found for NPC type: ${type}`);
     }
@@ -57,6 +59,8 @@ export class NpcFactory {
         return new GoblinTorch(scene, x, y, player, config);
       case "GoblinTNT":
         return new GoblinTNT(scene, x, y, player, config);
+      case "GoblinBarrel":
+        return new GoblinBarrel(scene, x, y, player, config);
       default:
         throw new Error(`Unknown NPC type: ${type}`);
     }

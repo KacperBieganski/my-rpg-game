@@ -11,6 +11,24 @@ type AnimationConfig = {
 
 export function createPlayerAnimations(scene: Phaser.Scene) {
   const animations: AnimationConfig[] = [
+    // Dead
+    {
+      key: "dead_anim1",
+      sprite: "Dead1",
+      start: 0,
+      end: 6,
+      frameRate: 12,
+      repeat: 0,
+    },
+    {
+      key: "dead_anim2",
+      sprite: "Dead2",
+      start: 0,
+      end: 6,
+      frameRate: 12,
+      repeat: 0,
+    },
+
     // Warrior
     {
       key: "player_warrior_idle",
@@ -262,6 +280,40 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       start: 0,
       end: 8,
       frameRate: 12,
+      repeat: 0,
+    },
+
+    // Red GoblinBarrel
+    {
+      key: "Red_goblinBarrel_Hide",
+      sprite: "Red_goblinBarrel_Hide",
+      start: 0,
+      end: 5,
+      frameRate: 12,
+      repeat: 0,
+    },
+    {
+      key: "Red_goblinBarrel_Run",
+      sprite: "Red_goblinBarrel_Run",
+      start: 0,
+      end: 2,
+      frameRate: 12,
+      repeat: -1,
+    },
+    {
+      key: "Red_goblinBarrel_Show",
+      sprite: "Red_goblinBarrel_Show",
+      start: 0,
+      end: 5,
+      frameRate: 12,
+      repeat: 0,
+    },
+    {
+      key: "Red_goblinBarrel_Explode",
+      sprite: "Red_goblinBarrel_Explode",
+      start: 0,
+      end: 2,
+      frameRate: 8,
       repeat: 0,
     },
   ];

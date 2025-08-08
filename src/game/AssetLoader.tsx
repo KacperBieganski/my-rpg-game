@@ -231,6 +231,20 @@ export class AssetLoader {
   ];
 
   private static enemySpriteSheets: SpriteSheetConfig[] = [
+    // Dead
+    {
+      key: "Dead1",
+      path: "/assets/Units/Dead/Dead1.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "Dead2",
+      path: "/assets/Units/Dead/Dead2.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+
     // Red GoblinTorch
     {
       key: "Red_goblinTorch_idle",
@@ -294,6 +308,44 @@ export class AssetLoader {
       frameWidth: 192,
       frameHeight: 192,
     },
+
+    // Red GoblinBarrel
+    {
+      key: "Red_goblinBarrel_Idle",
+      path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_Idle.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "Red_goblinBarrel_Run",
+      path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_Run.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "Red_goblinBarrel_Hide",
+      path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_Hide.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "Red_goblinBarrel_Show",
+      path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_Show.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "Red_goblinBarrel_ShowStatic",
+      path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_ShowStatic.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "Red_goblinBarrel_Explode",
+      path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_Explode.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
   ];
 
   private static enemyAudios: AudioConfig[] = [
@@ -305,6 +357,8 @@ export class AssetLoader {
     { key: "torchSwing3", path: "/assets/sounds/swing-torch-3.ogg" },
     { key: "explosion", path: "/assets/sounds/explosion-1.ogg" },
     { key: "throw", path: "/assets/sounds/throw.ogg" },
+    { key: "openBox", path: "/assets/sounds/open-box.ogg" },
+    { key: "closeBox", path: "/assets/sounds/open-box.ogg" },
   ];
 
   private static environmentImages: ImageConfig[] = [
@@ -347,6 +401,7 @@ export class AssetLoader {
 
   private static otherImages: ImageConfig[] = [
     { key: "Signpost1", path: "/assets/Decorations/Other/Signpost1.png" },
+    { key: "RedBarrel", path: "/assets/Decorations/Other/RedBarrel.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [

@@ -2,7 +2,8 @@ import Phaser from "phaser";
 import { NpcBase } from "./NpcBase";
 import { PlayerBase } from "../player/PlayerBase";
 import { NpcFactory } from "./NpcFactory";
-import { GoblinTNT } from "./GoblinTNT";
+import { GoblinTNT } from "./npcs/GoblinTNT";
+import { GoblinBarrel } from "./npcs/GoblinBarrel";
 
 export class NpcManager {
   private npcs: NpcBase[] = [];
@@ -56,12 +57,20 @@ export class NpcManager {
   update() {
     this.npcs = this.npcs.filter((npc) => {
       if (npc.health <= 0) {
-        this.npcGroup.remove(npc.sprite, true, true);
-        npc.destroy();
+        if (!npc.isDead) {
+          // Start death animation if not already started
+          npc.startDeathAnimation();
+          this.npcGroup.remove(npc.sprite);
+        }
+
         return false;
       }
       npc.update();
       npc.sprite.setData("sortY", npc.sprite.y);
+
+      if (npc.isDead) {
+        return true;
+      }
 
       // If NPC has projectiles (like GoblinTNT), update their depth too
       if (npc instanceof GoblinTNT) {
@@ -89,6 +98,20 @@ export class NpcManager {
           });
       }
 
+      if (npc instanceof GoblinBarrel) {
+        npc
+          .getExplosions()
+          .getChildren()
+          .forEach((explosion: Phaser.GameObjects.GameObject) => {
+            if (explosion.active) {
+              explosion.setData(
+                "sortY",
+                (explosion as Phaser.Physics.Arcade.Sprite).y
+              );
+            }
+          });
+      }
+
       return true;
     });
   }
@@ -102,7 +125,11 @@ export class NpcManager {
   }
 
   destroy() {
-    this.npcs.forEach((npc) => npc.destroy());
+    this.npcs.forEach((npc) => {
+      if (npc.health > 0) {
+        npc.startDeathAnimation();
+      }
+    });
     this.npcGroup.clear(true, true);
     this.npcs = [];
   }

@@ -1,4 +1,5 @@
-import { type NpcConfig, NpcBase } from "./NpcBase";
+import { NpcBase } from "../NpcBase";
+import { type NpcConfig } from "../NpcConfig";
 import Phaser from "phaser";
 
 export class GoblinTorch extends NpcBase {
@@ -92,20 +93,18 @@ export class GoblinTorch extends NpcBase {
     });
   }
 
-  protected playRunAnimation(): void {
+  public playRunAnimation(): void {
     this.sprite.anims.play("Red_goblinTorch_run", true);
   }
 
-  protected playIdleAnimation(): void {
+  public playIdleAnimation(): void {
     this.sprite.anims.play("Red_goblinTorch_idle", true);
   }
 
   public destroy() {
-    super.destroy();
     this.scene.sound.play("deathGoblin1", {
       volume: 0.5,
       detune: Phaser.Math.Between(-100, 100),
     });
-    this.changeDirectionTimer?.destroy();
   }
 }
