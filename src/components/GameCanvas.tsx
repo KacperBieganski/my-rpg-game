@@ -33,6 +33,9 @@ const GameCanvas: React.FC = () => {
         antialias: false,
         roundPixels: false, // Tymczasowo wyłącz
       },
+      dom: {
+        createContainer: true,
+      },
     };
 
     gameInstance.current = new Phaser.Game(config);

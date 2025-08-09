@@ -114,12 +114,6 @@ export class LoadSlotsMenu {
       return;
     }
 
-    // Stop menu music before loading game
-    const mainMenu = (this.scene as any).menuMusic as MainMenu;
-    if (mainMenu && mainMenu.stopMusic) {
-      mainMenu.stopMusic();
-    }
-
     this.destroy();
     this.scene.loadGame(data);
   }

@@ -3,6 +3,7 @@ export const GameState = {
   IN_GAME: "IN_GAME",
   IN_PAUSE_MENU: "IN_PAUSE_MENU",
   IN_SAVE_MENU: "IN_SAVE_MENU",
+  IN_OPTIONS_MENU: "IN_OPTIONS_MENU",
   IN_DIALOGUE: "IN_DIALOGUE",
 } as const;
 

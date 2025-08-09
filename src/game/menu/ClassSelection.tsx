@@ -5,12 +5,10 @@ import MainMenu from "./MainMenu";
 export default class ClassSelection {
   private scene: GameScene;
   private selectionContainer!: Phaser.GameObjects.Container;
-  private menuRef?: MainMenu;
   private backgroundImage!: Phaser.GameObjects.TileSprite;
 
   constructor(scene: GameScene) {
     this.scene = scene;
-    this.menuRef = (this.scene as any).menuMusic;
     this.create();
   }
 
@@ -111,9 +109,6 @@ export default class ClassSelection {
   }
 
   private selectClass(characterClass: "warrior" | "archer" | "lancer") {
-    if (this.menuRef) {
-      this.menuRef.stopMusic();
-    }
     this.destroy();
     this.scene.startNewGame(characterClass);
   }

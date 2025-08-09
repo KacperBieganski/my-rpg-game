@@ -1,12 +1,13 @@
 import Phaser from "phaser";
 import GameScene from "../GameScene";
 import ClassSelection from "./ClassSelection";
+import { MusicManager } from "../MusicManager";
 import { LoadSlotsMenu } from "./LoadSlotsMenu";
+import { OptionsMenu } from "./OptionsMenu";
 
 export default class MainMenu {
   private scene: GameScene;
   private container: Phaser.GameObjects.Container;
-  private backgroundMusic!: Phaser.Sound.BaseSound;
   private backgroundImage!: Phaser.GameObjects.TileSprite;
   private static isMusicPlaying: boolean = false;
 
@@ -14,24 +15,19 @@ export default class MainMenu {
     this.scene = scene;
     this.container = this.scene.add.container(0, 0).setDepth(1000);
     (this.scene as any).menuMusic = this;
-    this.loadSounds();
+
     this.create(); // Bezpośrednie wywołanie create bez delayedCall
   }
 
   static preload(_scene: Phaser.Scene) {}
 
-  private loadSounds() {
-    if (!this.scene.sound.get("medieval-main-1")) {
-      this.backgroundMusic = this.scene.sound.add("medieval-main-1", {
-        volume: 0.6,
-        loop: true,
-      });
-    } else {
-      this.backgroundMusic = this.scene.sound.get("medieval-main-1");
-    }
-  }
-
   create() {
+    const music = MusicManager.getInstance();
+    if (!MainMenu.isMusicPlaying) {
+      music.play(this.scene, "medieval-main-1", true);
+      MainMenu.isMusicPlaying = true;
+    }
+
     const { width, height } = this.scene.cameras.main;
 
     // Tło - dodane bezpośrednio do sceny
@@ -76,39 +72,42 @@ export default class MainMenu {
       .setOrigin(0.5)
       .setDepth(2);
 
+    const OptionsBtn = this.scene.add
+      .text(centerX, centerY + 110, "Opcje", {
+        fontSize: "24px",
+        color: "#ffffff",
+      })
+      .setInteractive({ useHandCursor: true })
+      .setOrigin(0.5)
+      .setDepth(2);
+
     // Dodanie elementów do kontenera
-    this.container.add([menuBg, title, newGameBtn, loadGameBtn]);
+    this.container.add([menuBg, title, newGameBtn, loadGameBtn, OptionsBtn]);
 
     // Odtwarzanie muzyki
     if (!MainMenu.isMusicPlaying) {
-      this.backgroundMusic.play();
+      //this.backgroundMusic.play();
       MainMenu.isMusicPlaying = true;
     }
 
     // Obsługa przycisków
     newGameBtn.on("pointerdown", () => {
-      this.destroy(false);
+      this.destroy();
       new ClassSelection(this.scene);
     });
 
     loadGameBtn.on("pointerdown", () => {
-      this.destroy(false);
+      this.destroy();
       new LoadSlotsMenu(this.scene);
+    });
+
+    OptionsBtn.on("pointerdown", () => {
+      this.destroy();
+      new OptionsMenu(this.scene);
     });
   }
 
-  stopMusic() {
-    if (this.backgroundMusic && this.backgroundMusic.isPlaying) {
-      this.backgroundMusic.stop();
-      MainMenu.isMusicPlaying = false;
-    }
-  }
-
-  destroy(stopMusic: boolean = false) {
-    if (stopMusic) {
-      this.stopMusic();
-    }
-
+  destroy() {
     // Usuwanie elementów
     if (this.backgroundImage) {
       this.backgroundImage.destroy();

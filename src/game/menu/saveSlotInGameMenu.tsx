@@ -3,7 +3,7 @@ import GameScene from "../GameScene";
 import { SaveManager, type SaveData } from "../SaveManager";
 import { GameState } from "../GameState";
 
-export default class SaveSlotMenu {
+export default class saveSlotInGameMenu {
   private scene: GameScene;
   private container: Phaser.GameObjects.Container;
   private onBack: () => void;
@@ -14,7 +14,7 @@ export default class SaveSlotMenu {
     this.onBack = onBack;
     this.container = this.scene.add
       .container(0, 0)
-      .setDepth(10001)
+      .setDepth(1000000)
       .setScrollFactor(0)
       .setVisible(false);
     this.escKey = this.scene.input.keyboard?.addKey(

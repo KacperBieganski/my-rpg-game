@@ -1,19 +1,26 @@
 import Phaser from "phaser";
 import GameScene from "../GameScene";
-import SaveSlotMenu from "./SaveSlotMenu";
+import saveSlotInGameMenu from "./saveSlotInGameMenu";
+import optionsInGameMenu from "./optionsInGameMenu";
 import { GameState } from "../GameState";
 
 export default class InGameMenu {
   private scene: GameScene;
   private menuContainer!: Phaser.GameObjects.Container;
-  public saveSlotMenu!: SaveSlotMenu;
+  public saveSlotInGameMenu!: saveSlotInGameMenu;
+  public optionsInGameMenu!: optionsInGameMenu;
   private isVisible = false;
 
   constructor(scene: GameScene) {
     this.scene = scene;
     this.createContainer();
     this.hide();
-    this.saveSlotMenu = new SaveSlotMenu(scene, () => {
+    this.saveSlotInGameMenu = new saveSlotInGameMenu(scene, () => {
+      if (this.menuContainer) {
+        this.show();
+      }
+    });
+    this.optionsInGameMenu = new optionsInGameMenu(scene, () => {
       if (this.menuContainer) {
         this.show();
       }
@@ -23,7 +30,7 @@ export default class InGameMenu {
   private createContainer() {
     this.menuContainer = this.scene.add
       .container(0, 0)
-      .setDepth(10000)
+      .setDepth(1000000)
       .setScrollFactor(0);
   }
 
@@ -54,12 +61,28 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         this.hide();
-        this.saveSlotMenu.show();
+        this.saveSlotInGameMenu.show();
+        this.scene.togglePause(true);
         this.scene.currentState = GameState.IN_SAVE_MENU;
       });
 
+    const optionBtn = this.scene.add
+      .text(centerX, centerY + 50, "Opcje", {
+        fontSize: "20px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
+        this.hide();
+        this.optionsInGameMenu.show();
+        this.scene.togglePause(true);
+        this.scene.currentState = GameState.IN_OPTIONS_MENU;
+      });
+
     const mainMenuBtn = this.scene.add
-      .text(centerX, centerY + 50, "Menu główne", {
+      .text(centerX, centerY + 100, "Menu główne", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -68,7 +91,7 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.showConfirmReturn());
 
-    this.menuContainer.add([bg, resumeBtn, saveBtn, mainMenuBtn]);
+    this.menuContainer.add([bg, resumeBtn, saveBtn, optionBtn, mainMenuBtn]);
   }
 
   public show() {
@@ -87,10 +110,10 @@ export default class InGameMenu {
   }
 
   public hide() {
+    this.scene.togglePause(false);
     this.menuContainer.setVisible(false);
     this.isVisible = false;
     this.scene.currentState = GameState.IN_GAME;
-    this.scene.togglePause(false);
   }
 
   public toggle() {
@@ -146,7 +169,7 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         this.hide();
-        this.saveSlotMenu.show();
+        this.saveSlotInGameMenu.show();
       });
 
     // „Nie” – wróć do menu pauzy
@@ -163,7 +186,9 @@ export default class InGameMenu {
   }
 
   public destroy() {
-    this.saveSlotMenu.destroy();
+    this.scene.togglePause(false);
+    this.saveSlotInGameMenu.destroy();
+    this.optionsInGameMenu.destroy();
     this.menuContainer.destroy();
   }
 }

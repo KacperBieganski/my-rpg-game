@@ -82,7 +82,7 @@ export abstract class NpcBase {
     if (!this.sprite.body) return;
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    this.sprite.setDepth(100000);
+    this.sprite.setDepth(10000);
     body.moves = !isStatic;
 
     if (isStatic) {

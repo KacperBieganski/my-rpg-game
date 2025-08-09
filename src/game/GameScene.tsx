@@ -12,6 +12,7 @@ import MainMenu from "./menu/MainMenu";
 import ClassSelection from "./menu/ClassSelection";
 import InGameMenu from "./menu/InGameMenu";
 import { type SaveData } from "../game/SaveManager";
+import { MusicManager } from "./MusicManager";
 
 type GameInitData = {
   x: number;
@@ -77,12 +78,21 @@ export default class GameScene extends Phaser.Scene {
         case GameState.IN_SAVE_MENU:
           this.closeSaveMenu();
           break;
+        case GameState.IN_OPTIONS_MENU:
+          this.closeOptionsMenu();
+          break;
         // Dodaj inne stany w razie potrzeby
       }
     });
   }
 
   public startNewGame(characterClass: "warrior" | "archer" | "lancer") {
+    MusicManager.getInstance().playPlaylist(this, [
+      "medieval-ambient-1",
+      "medieval-ambient-2",
+      "medieval-ambient-3",
+    ]);
+
     const { x, y } = DefaultGameSettings.player.position;
     this.initGame({ x, y, characterClass });
   }
@@ -193,8 +203,16 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private closeSaveMenu() {
-    if (this.inGameMenu && this.inGameMenu.saveSlotMenu) {
-      this.inGameMenu.saveSlotMenu.destroy();
+    if (this.inGameMenu && this.inGameMenu.saveSlotInGameMenu) {
+      this.inGameMenu.saveSlotInGameMenu.destroy();
+      this.inGameMenu.show();
+    }
+    this.currentState = GameState.IN_PAUSE_MENU;
+  }
+
+  private closeOptionsMenu() {
+    if (this.inGameMenu && this.inGameMenu.optionsInGameMenu) {
+      this.inGameMenu.optionsInGameMenu.destroy();
       this.inGameMenu.show();
     }
     this.currentState = GameState.IN_PAUSE_MENU;

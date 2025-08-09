@@ -33,7 +33,7 @@ export class MaintainDistanceBehavior {
 
     // 1. Jeśli gracz jest zbyt blisko — uciekaj
     if (distanceToPlayer < targetDistance - buffer) {
-      this.handleRetreat(angle, distanceToPlayer, targetDistance);
+      this.handleRetreat(angle);
       this.npc.attack();
       return;
     }
@@ -51,16 +51,8 @@ export class MaintainDistanceBehavior {
     this.handleOptimalDistance(angle);
   }
 
-  private handleRetreat(
-    angle: number,
-    distanceToPlayer: number,
-    targetDistance: number
-  ) {
+  private handleRetreat(angle: number) {
     this.npc.isRetreating = true;
-
-    // Oblicz jak bardzo gracz jest za blisko
-    const distanceRatio = (targetDistance - distanceToPlayer) / targetDistance;
-    const panicMultiplier = 1 + distanceRatio; // 1-2 w zależności od bliskości gracza
 
     if (this.npc.stuckTime > 0) {
       this.findNewRetreatDirection(angle);
@@ -68,7 +60,7 @@ export class MaintainDistanceBehavior {
     }
 
     // Uciekaj z większą prędkością gdy gracz jest bliżej
-    const retreatSpeed = this.npc.speed * panicMultiplier;
+    const retreatSpeed = this.npc.speed;
     const retreatX = Math.cos(angle + Math.PI) * retreatSpeed;
     const retreatY = Math.sin(angle + Math.PI) * retreatSpeed;
 

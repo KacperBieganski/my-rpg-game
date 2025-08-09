@@ -1,5 +1,7 @@
 export const DefaultGameSettings = {
   game: {
+    musicVolume: 1,
+    soundsVolume: 1,
     npcSpawnRadius: 10000,
     autoSaveTime: 60000,
   },
