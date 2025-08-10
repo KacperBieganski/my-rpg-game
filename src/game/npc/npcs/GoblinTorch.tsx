@@ -1,10 +1,9 @@
+import { SoundManager } from "../../SoundManager";
 import { NpcBase } from "../NpcBase";
 import { type NpcConfig } from "../NpcConfig";
 import Phaser from "phaser";
 
 export class GoblinTorch extends NpcBase {
-  private torchSwingSounds: Phaser.Sound.BaseSound[] = [];
-
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -15,18 +14,6 @@ export class GoblinTorch extends NpcBase {
   ) {
     super(scene, x, y, "Red_goblinTorch_idle", player, config);
     this.isStatic = type === "Static";
-
-    this.loadSounds();
-  }
-
-  private loadSounds() {
-    this.torchSwingSounds = [
-      this.scene.sound.add("torchSwing1"),
-      this.scene.sound.add("torchSwing2"),
-      this.scene.sound.add("torchSwing3"),
-    ];
-    this.scene.sound.add("torchHit1");
-    this.scene.sound.add("deathGoblin1");
   }
 
   public attack() {
@@ -35,11 +22,11 @@ export class GoblinTorch extends NpcBase {
     this.isAttacking = true;
     this.attackCooldown = true;
 
-    const randomSoundIndex = Phaser.Math.Between(
-      0,
-      this.torchSwingSounds.length - 1
-    );
-    this.torchSwingSounds[randomSoundIndex].play({ volume: 0.6 });
+    const swingSounds = ["torchSwing1", "torchSwing2", "torchSwing3"];
+    const randomSoundKey = Phaser.Math.RND.pick(swingSounds);
+    SoundManager.getInstance().play(this.scene, randomSoundKey, {
+      volume: 0.6,
+    });
 
     const angle = Phaser.Math.Angle.Between(
       this.sprite.x,
@@ -75,7 +62,7 @@ export class GoblinTorch extends NpcBase {
 
         if (distance <= this.attackRange) {
           this.player.emit("npcAttack", this.damage, this.sprite);
-          this.scene.sound.play("torchHit1", {
+          SoundManager.getInstance().play(this.scene, "torchHit1", {
             volume: 0.6,
             detune: Phaser.Math.Between(-100, 100),
           });
@@ -101,10 +88,7 @@ export class GoblinTorch extends NpcBase {
     this.sprite.anims.play("Red_goblinTorch_idle", true);
   }
 
-  public destroy() {
-    this.scene.sound.play("deathGoblin1", {
-      volume: 0.5,
-      detune: Phaser.Math.Between(-100, 100),
-    });
+  protected getDeathSoundKey(): string {
+    return "deathGoblin1";
   }
 }

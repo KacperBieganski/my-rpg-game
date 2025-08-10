@@ -1,3 +1,4 @@
+import { SoundManager } from "../../SoundManager";
 import { NpcBase } from "../NpcBase";
 import { type NpcConfig } from "../NpcConfig";
 import Phaser from "phaser";
@@ -56,13 +57,6 @@ export class GoblinTNT extends NpcBase {
         }
       },
     });
-    this.loadSounds();
-  }
-
-  private loadSounds() {
-    this.scene.sound.add("explosion");
-    this.scene.sound.add("throw");
-    this.scene.sound.add("deathGoblin1");
   }
 
   public attack(): void {
@@ -74,7 +68,7 @@ export class GoblinTNT extends NpcBase {
     // Skrócony czas animacji ataku podczas ucieczki
     const attackDuration = this.isRetreating ? 200 : 300;
 
-    this.scene.sound.play("throw", {
+    SoundManager.getInstance().play(this.scene, "throw", {
       volume: 0.6,
       detune: Phaser.Math.Between(-100, 100),
     });
@@ -170,7 +164,7 @@ export class GoblinTNT extends NpcBase {
     explosion.play("Explosions");
     explosion.setData("sortY", y);
 
-    this.scene.sound.play("explosion", {
+    SoundManager.getInstance().play(this.scene, "explosion", {
       volume: 0.6,
       detune: Phaser.Math.Between(-100, 100),
     });
@@ -220,10 +214,7 @@ export class GoblinTNT extends NpcBase {
     this.sprite.anims.play("Red_goblinTNT_idle", true);
   }
 
-  public destroy(): void {
-    this.scene.sound.play("deathGoblin1", {
-      volume: 0.5,
-      detune: Phaser.Math.Between(-100, 100),
-    });
+  protected getDeathSoundKey(): string {
+    return "deathGoblin1";
   }
 }

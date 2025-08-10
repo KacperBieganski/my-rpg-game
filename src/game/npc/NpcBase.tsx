@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { type NpcConfig } from "./NpcConfig";
 import { BehaviorCoordinator } from "./npcBehaviors/BehaviorCoordinator";
 import { NpcHealth } from "./NpcHealth";
+import { SoundManager } from "../SoundManager";
 
 export abstract class NpcBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
@@ -34,6 +35,7 @@ export abstract class NpcBase {
 
   public behaviorCoordinator: BehaviorCoordinator;
   public healthSystem: NpcHealth;
+  protected abstract getDeathSoundKey(): string;
 
   public readonly config: NpcConfig;
 
@@ -109,8 +111,8 @@ export abstract class NpcBase {
     this.sprite.setScale(1);
     this.sprite.setDepth(4);
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    body.setSize(40, 20);
-    body.setOffset(74, 110);
+    body.setSize(40, 40);
+    body.setOffset(74, 90);
 
     if (this.isStatic) {
       body.moves = false;
@@ -210,6 +212,10 @@ export abstract class NpcBase {
       (this.sprite.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
       this.sprite.body.enable = false;
     }
+
+    SoundManager.getInstance().play(this.scene, this.getDeathSoundKey(), {
+      volume: 0.5,
+    });
 
     this.sprite.anims.play("dead_anim1");
     this.sprite.once("animationcomplete-dead_anim1", () => {

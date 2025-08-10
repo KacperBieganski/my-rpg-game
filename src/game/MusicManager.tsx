@@ -7,7 +7,7 @@ export class MusicManager {
 
   private constructor() {
     const savedVolume = localStorage.getItem("musicVolume");
-    this.musicVolume = savedVolume ? parseFloat(savedVolume) : 1; // domyślnie 100%
+    this.musicVolume = savedVolume ? parseFloat(savedVolume) : 0.6;
   }
 
   public static getInstance(): MusicManager {

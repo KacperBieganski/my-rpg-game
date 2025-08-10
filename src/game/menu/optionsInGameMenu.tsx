@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import GameScene from "../GameScene";
 import { GameState } from "../GameState";
 import { MusicManager } from "../MusicManager";
+import { SoundManager } from "../SoundManager";
 
 export default class optionsInGameMenu {
   private scene: GameScene;
@@ -63,6 +64,7 @@ export default class optionsInGameMenu {
       .setOrigin(0.5)
       .setScrollFactor(0);
 
+    // głośności muzyki
     const musicVolumeText = this.scene.add
       .text(cx - 170, cy - 70, "Głośność muzyki:", {
         fontSize: "20px",
@@ -71,7 +73,6 @@ export default class optionsInGameMenu {
       .setOrigin(0, 0.5)
       .setDepth(2);
 
-    // Suwak głośności muzyki
     const musicSliderElement = document.createElement("input");
     musicSliderElement.type = "range";
     musicSliderElement.min = "0";
@@ -92,6 +93,34 @@ export default class optionsInGameMenu {
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
+    // głośności efektów
+    const effectsVolumeText = this.scene.add
+      .text(cx - 180, cy - 40, "Głośność efektów:", {
+        fontSize: "20px",
+        color: "#ffffff",
+      })
+      .setOrigin(0, 0.5)
+      .setDepth(2);
+
+    const soundsSliderElement = document.createElement("input");
+    soundsSliderElement.type = "range";
+    soundsSliderElement.min = "0";
+    soundsSliderElement.max = "3";
+    soundsSliderElement.step = "0.1";
+    soundsSliderElement.value = SoundManager.getInstance()
+      .getVolume()
+      .toString();
+
+    soundsSliderElement.addEventListener("input", (event) => {
+      const target = event.target as HTMLInputElement;
+      const value = parseFloat(target.value);
+      SoundManager.getInstance().setVolume(value);
+    });
+
+    const soundsVolumeSlider = this.scene.add
+      .dom(cx + 110, cy - 40, soundsSliderElement)
+      .setOrigin(0.5);
+
     // przycisk „Powrót”
     const back = this.scene.add
       .text(cx, cy + 140, "◀ Powrót", {
@@ -106,7 +135,15 @@ export default class optionsInGameMenu {
         this.onBack();
       });
 
-    this.container.add([bg, title, musicVolumeText, musicVolumeSlider, back]);
+    this.container.add([
+      bg,
+      title,
+      musicVolumeText,
+      musicVolumeSlider,
+      effectsVolumeText,
+      soundsVolumeSlider,
+      back,
+    ]);
   }
 
   public destroy() {

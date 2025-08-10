@@ -2,27 +2,15 @@ import { PlayerBase } from "./PlayerBase";
 import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
+import { SoundManager } from "../SoundManager";
 
 export class LancerPlayer extends PlayerBase {
   private attackToggle = false;
-  private spearThrustSounds: Phaser.Sound.BaseSound[] = [];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "Blue_Lancer_idle", DefaultGameSettings.player.lancer);
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setOffset(140, 155);
-    this.loadSounds();
-  }
-
-  private loadSounds() {
-    this.spearThrustSounds = [
-      this.scene.sound.add("spearThrust1"),
-      this.scene.sound.add("spearThrust2"),
-      this.scene.sound.add("spearThrust3"),
-    ];
-
-    this.scene.sound.add("spearHit");
-    this.scene.sound.add("spearBlock");
   }
 
   update() {
@@ -118,11 +106,11 @@ export class LancerPlayer extends PlayerBase {
     const nearestEnemy = this.findNearestEnemy();
     const classSettings = DefaultGameSettings.player.lancer;
 
-    const randomSoundIndex = Phaser.Math.Between(
-      0,
-      this.spearThrustSounds.length - 1
-    );
-    this.spearThrustSounds[randomSoundIndex].play({ volume: 0.3 });
+    const thrustSounds = ["spearThrust1", "spearThrust2", "spearThrust3"];
+    const randomSoundKey = Phaser.Math.RND.pick(thrustSounds);
+    SoundManager.getInstance().play(this.scene, randomSoundKey, {
+      volume: 0.3,
+    });
 
     let anim = "player_lancer_right_attack";
     let flipX = false;
@@ -204,7 +192,7 @@ export class LancerPlayer extends PlayerBase {
             if (isCrit) {
               this.floatingTextEffects.showCriticalHit(npc.sprite);
             }
-            this.scene.sound.play("spearHit", {
+            SoundManager.getInstance().play(this.scene, "spearHit", {
               volume: 0.6,
               detune: Phaser.Math.Between(-100, 100),
             });
@@ -238,6 +226,10 @@ export class LancerPlayer extends PlayerBase {
 
   protected getIdleAnimation(): string {
     return "player_lancer_idle";
+  }
+
+  protected getBlockSoundKey(): string {
+    return "spearBlock";
   }
 
   protected getRunAnimation(): string {

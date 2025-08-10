@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import GameScene from "../GameScene";
 import MainMenu from "./MainMenu";
 import { MusicManager } from "../MusicManager";
+import { SoundManager } from "../SoundManager";
 
 export class OptionsMenu {
   private scene: GameScene;
@@ -47,15 +48,15 @@ export class OptionsMenu {
       })
       .setOrigin(0.5);
 
+    // głośności muzyki
     const musicVolumeText = this.scene.add
-      .text(centerX - 150, centerY - 100, "Głośność muzyki:", {
+      .text(centerX - 200, centerY - 100, "Głośność muzyki:", {
         fontSize: "20px",
         color: "#ffffff",
       })
       .setOrigin(0, 0.5)
       .setDepth(2);
 
-    // Suwak głośności muzyki
     const musicSliderElement = document.createElement("input");
     musicSliderElement.type = "range";
     musicSliderElement.min = "0";
@@ -72,7 +73,35 @@ export class OptionsMenu {
     });
 
     const musicVolumeSlider = this.scene.add
-      .dom(centerX + 150, centerY - 100, musicSliderElement)
+      .dom(centerX + 90, centerY - 100, musicSliderElement)
+      .setOrigin(0.5);
+
+    // głośności efektów
+    const effectsVolumeText = this.scene.add
+      .text(centerX - 210, centerY - 60, "Głośność efektów:", {
+        fontSize: "20px",
+        color: "#ffffff",
+      })
+      .setOrigin(0, 0.5)
+      .setDepth(2);
+
+    const soundsSliderElement = document.createElement("input");
+    soundsSliderElement.type = "range";
+    soundsSliderElement.min = "0";
+    soundsSliderElement.max = "3";
+    soundsSliderElement.step = "0.1";
+    soundsSliderElement.value = SoundManager.getInstance()
+      .getVolume()
+      .toString();
+
+    soundsSliderElement.addEventListener("input", (event) => {
+      const target = event.target as HTMLInputElement;
+      const value = parseFloat(target.value);
+      SoundManager.getInstance().setVolume(value);
+    });
+
+    const soundsVolumeSlider = this.scene.add
+      .dom(centerX + 90, centerY - 60, soundsSliderElement)
       .setOrigin(0.5);
 
     // Back button
@@ -90,6 +119,8 @@ export class OptionsMenu {
       title,
       musicVolumeText,
       musicVolumeSlider,
+      effectsVolumeText,
+      soundsVolumeSlider,
       backBtn,
     ]);
   }

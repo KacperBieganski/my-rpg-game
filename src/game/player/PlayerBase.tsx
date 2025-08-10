@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import { FloatingTextEffects } from "../FloatingTextEffects";
+import { SoundManager } from "../SoundManager";
 
 export abstract class PlayerBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
@@ -20,8 +21,8 @@ export abstract class PlayerBase {
   };
   protected isBlocking = false;
   protected blockKey: Phaser.Input.Keyboard.Key;
-  protected blockSound: Phaser.Sound.BaseSound;
   protected blockCooldown = false;
+  protected abstract getBlockSoundKey(): string;
   protected floatingTextEffects: FloatingTextEffects;
   protected lastDamageTime: number = 0;
   protected healthRegenTimer: Phaser.Time.TimerEvent;
@@ -41,7 +42,6 @@ export abstract class PlayerBase {
   public critDamageMultiplier: number;
 
   private runningSound: Phaser.Sound.BaseSound;
-  private lvlUpSound: Phaser.Sound.BaseSound;
   private isMoving: boolean = false;
   private soundFadeDuration: number = 200;
 
@@ -111,17 +111,15 @@ export abstract class PlayerBase {
     this.blockKey = this.scene.input.keyboard!.addKey(
       Phaser.Input.Keyboard.KeyCodes.Q
     );
-    this.blockSound = this.scene.sound.add("shieldBlock", { volume: 0.7 });
 
     this.floatingTextEffects = new FloatingTextEffects(scene);
 
-    this.runningSound = this.scene.sound.add("runningGrass", {
+    this.runningSound = SoundManager.getInstance().play(scene, "runningGrass", {
       loop: true,
-      volume: 0,
+      volume: 0, // Początkowo wyciszony
+      rate: 1.0,
     });
-    this.lvlUpSound = this.scene.sound.add("lvlUp", {
-      volume: 1,
-    });
+    this.runningSound.pause();
   }
 
   update() {
@@ -308,7 +306,9 @@ export abstract class PlayerBase {
     if (this.isBlocking) {
       const cost = DefaultGameSettings.player.stamina.blockCost;
       if (this.useStamina(cost)) {
-        this.blockSound.play();
+        SoundManager.getInstance().play(this.scene, this.getBlockSoundKey(), {
+          volume: 0.7,
+        });
         this.floatingTextEffects.showDamage(this.sprite, 0);
         return;
       }
@@ -344,9 +344,9 @@ export abstract class PlayerBase {
     this.level++;
     this.nextLevelExp = Math.floor(this.nextLevelExp * 1.2);
 
-    if (!this.lvlUpSound.isPlaying) {
-      this.lvlUpSound.play();
-    }
+    SoundManager.getInstance().play(this.scene, "lvlUp", {
+      volume: 1,
+    });
 
     // Zapisz poprzednie maksymalne zdrowie
     const previousMaxHealth = this.maxHealth;
@@ -373,13 +373,21 @@ export abstract class PlayerBase {
   private startRunningSound() {
     if (!this.isMoving) {
       this.isMoving = true;
-      if (!this.runningSound.isPlaying) {
-        this.runningSound.play();
+
+      // Wznowienie dźwięku jeśli był wcześniej wstrzymany
+      if (this.runningSound.isPaused) {
+        this.runningSound.resume();
       }
+
+      SoundManager.getInstance().playInstance(this.runningSound, {
+        volume: 0.2,
+        rate: Phaser.Math.FloatBetween(0.9, 1.1),
+      });
+
       // Płynne pojawienie się dźwięku
       this.scene.tweens.add({
         targets: this.runningSound,
-        volume: { from: 0, to: 0.2 },
+        volume: { from: 0, to: 0.2 * SoundManager.getInstance().getVolume() },
         duration: this.soundFadeDuration,
         ease: "Linear",
       });
@@ -389,10 +397,11 @@ export abstract class PlayerBase {
   private stopRunningSound() {
     if (this.isMoving) {
       this.isMoving = false;
+
       // Płynne zanikanie dźwięku przed zatrzymaniem
       this.scene.tweens.add({
         targets: this.runningSound,
-        volume: { from: 0.2, to: 0 },
+        volume: 0,
         duration: this.soundFadeDuration,
         ease: "Linear",
         onComplete: () => {
@@ -405,6 +414,10 @@ export abstract class PlayerBase {
   }
 
   destroy() {
+    SoundManager.getInstance()["activeSounds"] = SoundManager.getInstance()[
+      "activeSounds"
+    ].filter((s) => s !== this.runningSound);
+
     this.runningSound.stop();
     this.healthRegenTimer.destroy();
     this.floatingTextEffects.destroy();

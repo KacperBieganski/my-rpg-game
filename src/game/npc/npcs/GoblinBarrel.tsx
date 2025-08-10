@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { NpcBase } from "../NpcBase";
 import { type NpcConfig } from "../NpcConfig";
+import { SoundManager } from "../../SoundManager";
 
 export class GoblinBarrel extends NpcBase {
   private explodeRadius: number;
@@ -48,17 +49,10 @@ export class GoblinBarrel extends NpcBase {
         }
       },
     });
-    this.loadSounds();
+
     if (this.sprite.body) {
       this.sprite.body.setOffset(45, 75);
     }
-  }
-
-  private loadSounds() {
-    this.scene.sound.add("explosion");
-    this.scene.sound.add("openBox");
-    this.scene.sound.add("closeBox");
-    this.scene.sound.add("deathGoblin1");
   }
 
   public attack(): void {
@@ -79,6 +73,8 @@ export class GoblinBarrel extends NpcBase {
     this.sprite.once("animationcomplete", () => {
       this.createExplosion(this.sprite.x, this.sprite.y);
       this.takeDamage(this.maxHealth);
+      this.activationTimer?.destroy();
+      this.deactivationTimer?.destroy();
     });
   }
 
@@ -92,7 +88,7 @@ export class GoblinBarrel extends NpcBase {
     explosion.play("Explosions");
     explosion.setData("sortY", y);
 
-    this.scene.sound.play("explosion", {
+    SoundManager.getInstance().play(this.scene, "explosion", {
       volume: 0.6,
       detune: Phaser.Math.Between(-100, 100),
     });
@@ -140,7 +136,7 @@ export class GoblinBarrel extends NpcBase {
     this.healthSystem.show();
 
     this.sprite.anims.play("Red_goblinBarrel_Show");
-    this.scene.sound.play("openBox", {
+    SoundManager.getInstance().play(this.scene, "openBox", {
       volume: 0.6,
       detune: Phaser.Math.Between(-100, 100),
     });
@@ -187,7 +183,7 @@ export class GoblinBarrel extends NpcBase {
       callback: () => {
         this.deactivationTimer = undefined;
         this.sprite.anims.play("Red_goblinBarrel_Hide");
-        this.scene.sound.play("closeBox", {
+        SoundManager.getInstance().play(this.scene, "closeBox", {
           volume: 0.6,
           detune: Phaser.Math.Between(-100, 100),
         });
@@ -251,13 +247,7 @@ export class GoblinBarrel extends NpcBase {
     return this.explosions;
   }
 
-  public destroy(): void {
-    this.activationTimer?.destroy();
-    this.deactivationTimer?.destroy();
-
-    this.scene.sound.play("deathGoblin1", {
-      volume: 0.5,
-      detune: Phaser.Math.Between(-100, 100),
-    });
+  protected getDeathSoundKey(): string {
+    return "deathGoblin1";
   }
 }

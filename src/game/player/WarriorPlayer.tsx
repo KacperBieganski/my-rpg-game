@@ -2,24 +2,13 @@ import { PlayerBase } from "./PlayerBase";
 import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
+import { SoundManager } from "../SoundManager";
 
 export class WarriorPlayer extends PlayerBase {
   private attackToggle = false;
-  private swordHitSounds: Phaser.Sound.BaseSound[] = [];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "Blue_warrior_idle", DefaultGameSettings.player.warrior);
-    this.loadSounds();
-  }
-
-  private loadSounds() {
-    this.swordHitSounds = [
-      this.scene.sound.add("swordHit1"),
-      this.scene.sound.add("swordHit2"),
-    ];
-
-    this.scene.sound.add("swordSwing1");
-    this.scene.sound.add("shieldBlock");
   }
 
   update() {
@@ -64,7 +53,7 @@ export class WarriorPlayer extends PlayerBase {
     const nearestEnemy = this.findNearestEnemy();
     const classSettings = DefaultGameSettings.player.warrior;
 
-    this.scene.sound.play("swordSwing1", {
+    SoundManager.getInstance().play(this.scene, "swordSwing1", {
       volume: 0.6,
       detune: Phaser.Math.Between(-100, 100),
     });
@@ -108,11 +97,12 @@ export class WarriorPlayer extends PlayerBase {
             if (isCrit) {
               this.floatingTextEffects.showCriticalHit(npc.sprite);
             }
-            const randomSoundIndex = Phaser.Math.Between(
-              0,
-              this.swordHitSounds.length - 1
-            );
-            this.swordHitSounds[randomSoundIndex].play();
+
+            const hitSounds = ["swordHit1", "swordHit2"];
+            const randomSoundKey = Phaser.Math.RND.pick(hitSounds);
+            SoundManager.getInstance().play(this.scene, randomSoundKey, {
+              volume: 1.5,
+            });
           }
         });
       }
@@ -137,6 +127,10 @@ export class WarriorPlayer extends PlayerBase {
 
   protected getIdleAnimation(): string {
     return "player_warrior_idle";
+  }
+
+  protected getBlockSoundKey(): string {
+    return "shieldBlock";
   }
 
   protected getRunAnimation(): string {

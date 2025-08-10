@@ -2,39 +2,35 @@ import { PlayerBase } from "./PlayerBase";
 import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
+import { SoundManager } from "../SoundManager";
 
 export class ArcherPlayer extends PlayerBase {
   private arrows: Phaser.Physics.Arcade.Group;
   private lastArrowTime: number = 0;
   private arrowSpeed: number =
     DefaultGameSettings.player.archer.attackRange * 3;
-  private looseArrowRange: number = 200;
+  private maxArrowDistance: number =
+    DefaultGameSettings.player.archer.attackRange;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "player_archer_idle", DefaultGameSettings.player.archer);
     this.arrows = this.scene.physics.add.group();
-    this.loadSounds();
-  }
-
-  private loadSounds() {
-    this.scene.sound.add("bowShoot");
-    this.scene.sound.add("bowHit");
   }
 
   private setupArrowCollisions(arrow: Phaser.Physics.Arcade.Sprite) {
-    const worldBounds = this.scene.add.rectangle(
-      0,
-      0,
-      this.scene.physics.world.bounds.width,
-      this.scene.physics.world.bounds.height
+    // Ustawiamy zdarzenie kolizji z granicami świata
+    arrow.setCollideWorldBounds(true);
+
+    this.scene.physics.world.on(
+      "worldbounds",
+      (body: Phaser.Physics.Arcade.Body) => {
+        if (body.gameObject === arrow) {
+          this.handleArrowCollision(arrow);
+        }
+      }
     );
-    this.scene.physics.add.existing(worldBounds);
 
-    this.scene.physics.add.collider(arrow, worldBounds, () => {
-      this.handleArrowCollision(arrow);
-      worldBounds.destroy();
-    });
-
+    // Kolizje z innymi obiektami
     const collisions = (this.scene as any).collisions;
     if (collisions) {
       this.scene.physics.add.collider(arrow, collisions, () => {
@@ -44,12 +40,14 @@ export class ArcherPlayer extends PlayerBase {
   }
 
   private handleArrowCollision(arrow: Phaser.Physics.Arcade.Sprite) {
+    // Zatrzymaj strzałę
     arrow.setVelocity(0, 0);
     if (arrow.body) {
       arrow.body.enable = false;
     }
 
-    this.scene.time.delayedCall(1000, () => {
+    // Zniszcz strzałę po 2 sekundach
+    this.scene.time.delayedCall(2000, () => {
       if (arrow.active) {
         arrow.destroy();
       }
@@ -67,45 +65,38 @@ export class ArcherPlayer extends PlayerBase {
     this.isAttacking = true;
     this.attackCooldown = true;
 
-    const nearestEnemy = this.findNearestEnemy();
-    const classSettings = DefaultGameSettings.player.archer;
-
-    this.scene.sound.play("bowShoot", {
+    SoundManager.getInstance().play(this.scene, "bowShoot", {
       volume: 0.6,
       detune: Phaser.Math.Between(-100, 100),
     });
 
-    //this.sprite.setVelocity(0);
     this.sprite.anims.play("player_archer_shoot", true);
 
-    if (nearestEnemy) {
-      const dist = Phaser.Math.Distance.Between(
-        this.sprite.x,
-        this.sprite.y,
-        nearestEnemy.sprite.x,
-        nearestEnemy.sprite.y
-      );
+    // Pobierz pozycję kursora myszy w świecie gry
+    const pointer = this.scene.input.activePointer;
+    const worldPoint = this.scene.cameras.main.getWorldPoint(
+      pointer.x,
+      pointer.y
+    );
 
-      if (dist <= classSettings.attackRange) {
-        this.sprite.setFlipX(nearestEnemy.sprite.x < this.sprite.x);
-        this.shootAtTarget(nearestEnemy);
-      } else {
-        this.shootLooseArrow(this.sprite.flipX ? -1 : 1);
-      }
-    } else {
-      this.shootLooseArrow(this.sprite.flipX ? -1 : 1);
-    }
+    this.sprite.setFlipX(worldPoint.x < this.sprite.x);
+
+    // Strzel w kierunku kursora
+    this.shootAtPosition(worldPoint.x, worldPoint.y);
 
     this.sprite.once("animationcomplete", () => {
       this.isAttacking = false;
     });
 
-    this.scene.time.delayedCall(classSettings.attackRate, () => {
-      this.attackCooldown = false;
-    });
+    this.scene.time.delayedCall(
+      DefaultGameSettings.player.archer.attackRate,
+      () => {
+        this.attackCooldown = false;
+      }
+    );
   }
 
-  private shootLooseArrow(direction: number) {
+  private shootAtPosition(targetX: number, targetY: number) {
     if (this.scene.time.now - this.lastArrowTime < 300) return;
 
     this.lastArrowTime = this.scene.time.now;
@@ -121,104 +112,85 @@ export class ArcherPlayer extends PlayerBase {
       arrow.body.setSize(10, 3);
     }
 
-    const angle = direction > 0 ? 0 : Math.PI;
-    arrow.setRotation(angle);
-
-    // Ustawiamy prędkość w obu osiach, aby uniknąć problemów z kolizjami
-    const speedX = this.arrowSpeed * direction;
-    const speedY = 0;
-    arrow.setVelocity(speedX, speedY);
-
-    // Dodajemy małą grawitację, aby strzały nie utykały
-    arrow.setGravityY(20);
-
-    this.setupArrowCollisions(arrow);
-
-    // Śledzenie odległości zamiast czasu
-    let distanceTraveled = 0;
-    const updateDistance = () => {
-      if (!arrow.active) return;
-
-      const prevX = arrow.x;
-      const prevY = arrow.y;
-
-      this.scene.time.delayedCall(50, () => {
-        if (!arrow.active) return;
-
-        distanceTraveled += Phaser.Math.Distance.Between(
-          prevX,
-          prevY,
-          arrow.x,
-          arrow.y
-        );
-
-        if (distanceTraveled >= this.looseArrowRange) {
-          this.handleArrowCollision(arrow);
-        } else {
-          updateDistance();
-        }
-      });
-    };
-
-    updateDistance();
-  }
-
-  private shootAtTarget(target: NpcBase) {
-    if (this.scene.time.now - this.lastArrowTime < 300) return;
-
-    this.lastArrowTime = this.scene.time.now;
-    const arrow = this.arrows.create(
-      this.sprite.x,
-      this.sprite.y,
-      "Arrow"
-    ) as Phaser.Physics.Arcade.Sprite;
-
-    arrow.setScale(0.8);
-    arrow.setDepth(10);
-    if (arrow.body) {
-      arrow.body.setSize(10, 3);
-    }
-
+    // Oblicz kąt do celu
     const angle = Phaser.Math.Angle.Between(
       this.sprite.x,
       this.sprite.y,
-      target.sprite.x,
-      target.sprite.y
+      targetX,
+      targetY
     );
 
     arrow.setRotation(angle);
 
-    if (arrow.body) {
-      this.scene.physics.velocityFromRotation(
-        angle,
-        this.arrowSpeed,
-        arrow.body.velocity
-      );
-    }
-
-    this.scene.physics.add.overlap(
-      arrow,
-      target.sprite,
-      () => {
-        const isCrit = this.checkCriticalHit();
-        const baseDmg = DefaultGameSettings.player.archer.attackDamage;
-        const damage = baseDmg * this.getCriticalDamageMultiplier();
-        this.scene.sound.play("bowHit", {
-          volume: 0.5,
-          detune: Phaser.Math.Between(-100, 100),
-        });
-
-        target.takeDamage(damage);
-        if (isCrit) {
-          this.floatingTextEffects.showCriticalHit(target.sprite);
-        }
-        arrow.destroy();
-      },
-      undefined,
-      this
+    // Ustaw prędkość strzały
+    this.scene.physics.velocityFromRotation(
+      angle,
+      this.arrowSpeed,
+      arrow.body?.velocity
     );
 
+    // Sprawdź kolizje z wrogami
+    const npcs = (this.scene as any).npcManager?.getNPCs() as NpcBase[];
+    if (npcs) {
+      npcs.forEach((npc) => {
+        this.scene.physics.add.overlap(
+          arrow,
+          npc.sprite,
+          () => {
+            this.handleArrowHit(arrow, npc);
+          },
+          undefined,
+          this
+        );
+      });
+    }
+
+    // Automatyczne zniszczenie strzały po pewnym czasie/dystansie
     this.setupArrowCollisions(arrow);
+    this.setupArrowLifetime(arrow);
+  }
+
+  private handleArrowHit(arrow: Phaser.Physics.Arcade.Sprite, target: NpcBase) {
+    const isCrit = this.checkCriticalHit();
+    const baseDmg = DefaultGameSettings.player.archer.attackDamage;
+    const damage = baseDmg * this.getCriticalDamageMultiplier();
+
+    SoundManager.getInstance().play(this.scene, "bowHit", {
+      volume: 0.5,
+      detune: Phaser.Math.Between(-100, 100),
+    });
+
+    target.takeDamage(damage);
+    if (isCrit) {
+      this.floatingTextEffects.showCriticalHit(target.sprite);
+    }
+
+    arrow.destroy();
+  }
+
+  private setupArrowLifetime(arrow: Phaser.Physics.Arcade.Sprite) {
+    const startX = arrow.x;
+    const startY = arrow.y;
+
+    // Sprawdzaj odległość co klatkę
+    const checkDistance = () => {
+      if (!arrow.active) return;
+
+      const distance = Phaser.Math.Distance.Between(
+        startX,
+        startY,
+        arrow.x,
+        arrow.y
+      );
+
+      if (distance >= this.maxArrowDistance) {
+        this.handleArrowCollision(arrow);
+      } else {
+        this.scene.time.delayedCall(50, checkDistance);
+      }
+    };
+
+    checkDistance();
   }
 
   protected getCharacterType(): "warrior" | "archer" | "lancer" {
@@ -231,6 +203,10 @@ export class ArcherPlayer extends PlayerBase {
 
   protected getRunAnimation(): string {
     return "player_archer_run";
+  }
+
+  protected getBlockSoundKey(): string {
+    return "shieldBlock"; // Możesz dodać specjalny dźwięk bloku dla łucznika
   }
 
   protected getBlockAnimation(): string {
