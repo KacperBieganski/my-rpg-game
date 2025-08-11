@@ -182,12 +182,17 @@ export default class saveSlotInGameMenu {
       characterClass: this.scene.characterClass,
       health: this.scene.player.health,
       maxHealth: this.scene.player.maxHealth,
+      regenRate: this.scene.player.stats.regenRate,
       level: this.scene.player.level,
       experience: this.scene.player.experience,
+      levelPoints: this.scene.player.levelPoints,
       currentStamina: this.scene.player.currentStamina,
       maxStamina: this.scene.player.maxStamina,
+      staminaRegenRate: this.scene.player.stats.staminaRegenRate,
       critChance: this.scene.player.critChance,
       critDamageMultiplier: this.scene.player.critDamageMultiplier,
+      attackDamage: this.scene.player.stats.attackDamage,
+      speed: this.scene.player.stats.speed,
     };
     SaveManager.save(slot, saveData);
     this.show(); // odśwież listę

@@ -5,6 +5,7 @@ export const GameState = {
   IN_SAVE_MENU: "IN_SAVE_MENU",
   IN_OPTIONS_MENU: "IN_OPTIONS_MENU",
   IN_DIALOGUE: "IN_DIALOGUE",
+  IN_STATS_MENU: "IN_STATS_MENU",
 } as const;
 
 export type GameState = (typeof GameState)[keyof typeof GameState];

@@ -9,6 +9,7 @@ export const DefaultGameSettings = {
     position: { x: 700, y: 3200 },
     level: 1,
     experience: 0,
+    levelPoints: 0,
 
     stamina: {
       maxStamina: 100,
@@ -20,7 +21,6 @@ export const DefaultGameSettings = {
 
     criticalHit: {
       baseChance: 0.1,
-      chancePerLevel: 0.01,
       damageMultiplier: 1.5,
     },
 

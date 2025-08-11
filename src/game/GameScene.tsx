@@ -11,6 +11,7 @@ import { UIComponent } from "./UI/UIComponent";
 import MainMenu from "./menu/MainMenu";
 import ClassSelection from "./menu/ClassSelection";
 import InGameMenu from "./menu/InGameMenu";
+import StatsMenu from "./menu/StatsMenu";
 import { type SaveData } from "../game/SaveManager";
 import { MusicManager } from "./MusicManager";
 
@@ -20,22 +21,29 @@ type GameInitData = {
   characterClass: "warrior" | "archer" | "lancer";
   health?: number;
   maxHealth?: number;
+  regenRate?: number;
   level?: number;
   experience?: number;
+  levelPoints?: number;
   currentStamina?: number;
   maxStamina?: number;
+  staminaRegenRate?: number;
   critChance?: number;
   critDamageMultiplier?: number;
+  attackDamage?: number;
+  speed?: number;
 };
 
 export default class GameScene extends Phaser.Scene {
   private loadingScreen!: LoadingScreen;
   public currentState: GameState = GameState.MAIN_MENU;
   public player!: import("./player/PlayerBase").PlayerBase;
+
   public npcManager!: NpcManager;
   public characterClass: "warrior" | "archer" | "lancer" = "warrior";
   public ui!: UIComponent;
   public inGameMenu!: InGameMenu;
+  public statsMenu!: StatsMenu;
   public isPaused: boolean = false;
   private depthSortedGroup: Phaser.GameObjects.Group | null = null;
 
@@ -81,7 +89,9 @@ export default class GameScene extends Phaser.Scene {
         case GameState.IN_OPTIONS_MENU:
           this.closeOptionsMenu();
           break;
-        // Dodaj inne stany w razie potrzeby
+        case GameState.IN_STATS_MENU:
+          this.closeStatsMenu();
+          break;
       }
     });
   }
@@ -98,18 +108,28 @@ export default class GameScene extends Phaser.Scene {
   }
 
   public loadGame(data: SaveData) {
+    MusicManager.getInstance().playPlaylist(this, [
+      "medieval-ambient-1",
+      "medieval-ambient-2",
+      "medieval-ambient-3",
+    ]);
     this.initGame({
       x: data.x,
       y: data.y,
       characterClass: data.characterClass,
       health: data.health,
       maxHealth: data.maxHealth,
+      regenRate: data.regenRate,
       level: data.level,
       experience: data.experience,
+      levelPoints: data.levelPoints,
       currentStamina: data.currentStamina,
       maxStamina: data.maxStamina,
+      staminaRegenRate: data.staminaRegenRate,
       critChance: data.critChance,
       critDamageMultiplier: data.critDamageMultiplier,
+      attackDamage: data.attackDamage,
+      speed: data.speed,
     });
   }
 
@@ -145,15 +165,34 @@ export default class GameScene extends Phaser.Scene {
 
     // 3. ustaw staty, jeśli są w opts
     if (opts.health != null) this.player.health = opts.health;
-    if (opts.maxHealth != null) this.player.maxHealth = opts.maxHealth;
-    if (opts.level != null) this.player.level = opts.level;
-    if (opts.experience != null) this.player.experience = opts.experience;
+    if (opts.maxHealth != null) {
+      (this.player as any).levelManager["maxHealth"] = opts.maxHealth;
+    }
+    if (opts.regenRate != null) this.player.stats.regenRate = opts.regenRate;
+    if (opts.level != null) {
+      (this.player as any).levelManager["level"] = opts.level;
+      // Oblicz nextLevelExp na podstawie poziomu
+      let nextExp = 100;
+      for (let i = 1; i < opts.level; i++) {
+        nextExp = Math.floor(nextExp * 1.2);
+      }
+      (this.player as any).levelManager["nextLevelExp"] = nextExp;
+    }
+    if (opts.experience != null) {
+      (this.player as any).levelManager["experience"] = opts.experience;
+    }
     if (opts.currentStamina != null)
       this.player.currentStamina = opts.currentStamina;
+    if (opts.levelPoints != null) this.player.levelPoints = opts.levelPoints;
     if (opts.maxStamina != null) this.player.maxStamina = opts.maxStamina;
+    if (opts.staminaRegenRate != null)
+      this.player.stats.staminaRegenRate = opts.staminaRegenRate;
     if (opts.critChance != null) this.player.critChance = opts.critChance;
     if (opts.critDamageMultiplier != null)
       this.player.critDamageMultiplier = opts.critDamageMultiplier;
+    if (opts.attackDamage != null)
+      this.player.stats.attackDamage = opts.attackDamage;
+    if (opts.speed != null) this.player.stats.speed = opts.speed;
 
     // 4. fizyka i kamera
     this.physics.add.collider(this.player.sprite, collisions);
@@ -216,6 +255,19 @@ export default class GameScene extends Phaser.Scene {
       this.inGameMenu.show();
     }
     this.currentState = GameState.IN_PAUSE_MENU;
+  }
+
+  public openStatsMenu() {
+    if (!this.statsMenu) {
+      this.statsMenu = new StatsMenu(this, this.player);
+    }
+    this.statsMenu.show();
+  }
+
+  public closeStatsMenu() {
+    if (this.statsMenu) {
+      this.statsMenu.hide();
+    }
   }
 
   togglePause(state: boolean) {

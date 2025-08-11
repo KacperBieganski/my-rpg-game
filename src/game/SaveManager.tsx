@@ -4,12 +4,17 @@ export interface SaveData {
   characterClass: "warrior" | "archer" | "lancer";
   health: number;
   maxHealth: number;
+  regenRate: number;
   level: number;
   experience: number;
+  levelPoints: number;
   currentStamina: number;
   maxStamina: number;
+  staminaRegenRate: number;
   critChance: number;
   critDamageMultiplier: number;
+  attackDamage: number;
+  speed: number;
   timestamp?: number;
 }
 

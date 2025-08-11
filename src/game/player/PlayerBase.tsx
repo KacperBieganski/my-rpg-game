@@ -3,11 +3,20 @@ import { NpcBase } from "../npc/NpcBase";
 import { DefaultGameSettings } from "../GameSettings";
 import { FloatingTextEffects } from "../FloatingTextEffects";
 import { SoundManager } from "../SoundManager";
+import { LevelManager } from "./LevelManager";
+
+export type StatKey =
+  | "maxStamina"
+  | "staminaRegenRate"
+  | "criticalHitBaseChance"
+  | "criticalHitDamageMultiplier"
+  | "maxHealth"
+  | "regenRate"
+  | "attackDamage"
+  | "speed";
 
 export abstract class PlayerBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
-  public health: number;
-  public maxHealth: number;
   protected scene: Phaser.Scene;
   protected attackCooldown = false;
   protected isAttacking = false;
@@ -26,16 +35,13 @@ export abstract class PlayerBase {
   protected floatingTextEffects: FloatingTextEffects;
   protected lastDamageTime: number = 0;
   protected healthRegenTimer: Phaser.Time.TimerEvent;
-  protected regenRate: number;
+  public regenRate: number;
   protected regenDelay: number;
 
   private lastStaminaUseTime: number = 0;
   private staminaRegenTimer: Phaser.Time.TimerEvent;
   private isStaminaDepleted: boolean = false;
   private lastCriticalHit: boolean = false;
-  public level: number;
-  public experience: number;
-  public nextLevelExp: number = 100;
   public currentStamina: number;
   public maxStamina: number;
   public critChance: number;
@@ -45,6 +51,20 @@ export abstract class PlayerBase {
   private isMoving: boolean = false;
   private soundFadeDuration: number = 200;
 
+  public levelManager: LevelManager;
+  public levelPoints: number;
+  public stats = {
+    maxStamina: DefaultGameSettings.player.stamina.maxStamina,
+    staminaRegenRate: DefaultGameSettings.player.stamina.staminaRegenRate,
+    criticalHitBaseChance: DefaultGameSettings.player.criticalHit.baseChance,
+    criticalHitDamageMultiplier:
+      DefaultGameSettings.player.criticalHit.damageMultiplier,
+    maxHealth: DefaultGameSettings.player.warrior.maxHealth,
+    regenRate: DefaultGameSettings.player.warrior.regenRate,
+    attackDamage: DefaultGameSettings.player.warrior.attackDamage,
+    speed: DefaultGameSettings.player.warrior.speed,
+  };
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -53,8 +73,6 @@ export abstract class PlayerBase {
     settings: typeof DefaultGameSettings.player.warrior
   ) {
     this.scene = scene;
-    this.health = settings.health;
-    this.maxHealth = settings.maxHealth;
     this.maxStamina = DefaultGameSettings.player.stamina.maxStamina;
     this.currentStamina = this.maxStamina;
     this.critChance = DefaultGameSettings.player.criticalHit.baseChance;
@@ -63,13 +81,20 @@ export abstract class PlayerBase {
     this.regenRate = settings.regenRate;
     this.regenDelay = settings.regenDelay;
     this.currentStamina = DefaultGameSettings.player.stamina.maxStamina;
-    this.level = DefaultGameSettings.player.level;
-    this.experience = DefaultGameSettings.player.experience;
+    this.levelPoints = DefaultGameSettings.player.levelPoints;
+
+    this.stats.maxHealth = settings.maxHealth;
+    this.stats.regenRate = settings.regenRate;
+    this.stats.attackDamage = settings.attackDamage;
+    this.stats.speed = settings.speed;
+
+    this.floatingTextEffects = new FloatingTextEffects(scene);
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setScale(1);
     this.sprite.setDepth(5);
+    this.sprite.setData("player", this);
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(40, 20);
@@ -84,6 +109,16 @@ export abstract class PlayerBase {
       SPACE: scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
     };
 
+    this.levelManager = new LevelManager(
+      this,
+      DefaultGameSettings.player.level,
+      DefaultGameSettings.player.experience,
+      settings.maxHealth,
+      settings.health,
+      this.sprite,
+      this.floatingTextEffects
+    );
+
     this.healthRegenTimer = scene.time.addEvent({
       delay: 1000,
       callback: this.regenerateHealth,
@@ -92,13 +127,12 @@ export abstract class PlayerBase {
     });
 
     this.staminaRegenTimer = scene.time.addEvent({
-      delay: 100, // Check every 100ms for better responsiveness
+      delay: 100,
       callback: this.regenerateStamina,
       callbackScope: this,
       loop: true,
     });
 
-    // scene.input.on("pointerdown", this.attack, this);
     this.wasdKeys.SPACE.on("down", this.attack, this);
 
     this.sprite.on(
@@ -112,11 +146,9 @@ export abstract class PlayerBase {
       Phaser.Input.Keyboard.KeyCodes.Q
     );
 
-    this.floatingTextEffects = new FloatingTextEffects(scene);
-
     this.runningSound = SoundManager.getInstance().play(scene, "runningGrass", {
       loop: true,
-      volume: 0, // Początkowo wyciszony
+      volume: 0,
       rate: 1.0,
     });
     this.runningSound.pause();
@@ -128,9 +160,7 @@ export abstract class PlayerBase {
     let vx = 0;
     let vy = 0;
 
-    // Obsługa ruchu - działa nawet podczas ataku i blokowania
     if (!this.isBlocking) {
-      // Tylko jeśli nie blokujemy
       if (this.cursors.left.isDown || this.wasdKeys.A.isDown) vx -= 1;
       if (this.cursors.right.isDown || this.wasdKeys.D.isDown) vx += 1;
       if (this.cursors.up.isDown || this.wasdKeys.W.isDown) vy -= 1;
@@ -140,11 +170,9 @@ export abstract class PlayerBase {
     const length = Math.hypot(vx, vy);
 
     if (this.isBlocking) {
-      // Podczas blokowania pokazujemy tylko animację bloku
       this.sprite.anims.play(this.getBlockAnimation(), true);
-      this.sprite.setVelocity(0, 0); // Zatrzymujemy postać podczas blokowania
+      this.sprite.setVelocity(0, 0);
     } else if (this.isAttacking) {
-      // Podczas ataku pozwalamy na ruch, ale nie zmieniamy animacji
       if (length > 0) {
         vx = (vx / length) * PLAYER_SPEED;
         vy = (vy / length) * PLAYER_SPEED;
@@ -154,7 +182,6 @@ export abstract class PlayerBase {
       }
       this.sprite.setVelocity(vx, vy);
     } else {
-      // Normalny ruch
       if (length > 0) {
         vx = (vx / length) * PLAYER_SPEED;
         vy = (vy / length) * PLAYER_SPEED;
@@ -195,20 +222,20 @@ export abstract class PlayerBase {
   }
 
   private regenerateHealth() {
-    // Jeśli zdrowie jest już pełne, nie ma co regenerować
-    if (this.health >= this.maxHealth) {
+    if (this.levelManager.getHealth() >= this.levelManager.getMaxHealth()) {
       return;
     }
 
     const currentTime = this.scene.time.now;
 
-    // Sprawdź czy minął wymagany czas od ostatnich obrażeń
     if (currentTime - this.lastDamageTime > this.regenDelay) {
-      const healAmount = Math.min(this.regenRate, this.maxHealth - this.health);
+      const healAmount = Math.min(
+        this.regenRate,
+        this.levelManager.getMaxHealth() - this.levelManager.getHealth()
+      );
 
-      // Dodaj tylko jeśli jest co dodawać
       if (healAmount > 0) {
-        this.health += healAmount;
+        this.levelManager.setHealth(this.levelManager.getHealth() + healAmount);
         this.sprite.emit("healthChanged");
         this.floatingTextEffects.showHeal(this.sprite, healAmount);
       }
@@ -216,8 +243,8 @@ export abstract class PlayerBase {
   }
 
   private regenerateStamina() {
-    if (this.currentStamina >= DefaultGameSettings.player.stamina.maxStamina) {
-      this.currentStamina = DefaultGameSettings.player.stamina.maxStamina;
+    if (this.currentStamina >= this.maxStamina) {
+      this.currentStamina = this.maxStamina;
       this.isStaminaDepleted = false;
       return;
     }
@@ -225,18 +252,22 @@ export abstract class PlayerBase {
     const currentTime = this.scene.time.now;
     const staminaSettings = DefaultGameSettings.player.stamina;
 
-    // Check if enough time has passed since last stamina use
     if (
       currentTime - this.lastStaminaUseTime >
       staminaSettings.staminaRegenDelay
     ) {
-      const regenAmount = staminaSettings.staminaRegenRate * 0.1; // Convert to per 100ms
+      const regenRate = this.stats.staminaRegenRate;
+      const regenAmount = regenRate * 0.1;
       this.currentStamina = Phaser.Math.Clamp(
         this.currentStamina + regenAmount,
         0,
-        staminaSettings.maxStamina
+        this.maxStamina
       );
       this.sprite.emit("staminaChanged");
+
+      if (this.currentStamina > 0) {
+        this.isStaminaDepleted = false;
+      }
     }
   }
 
@@ -270,7 +301,7 @@ export abstract class PlayerBase {
   }
 
   public getStaminaPercentage(): number {
-    return this.currentStamina / DefaultGameSettings.player.stamina.maxStamina;
+    return this.currentStamina / this.getMaxStamina();
   }
 
   public getCurrentStamina(): number {
@@ -296,7 +327,6 @@ export abstract class PlayerBase {
       this.startRunningSound();
     }
 
-    // Krótki cooldown przed ponownym blokiem (300ms)
     this.scene.time.delayedCall(200, () => {
       this.blockCooldown = false;
     });
@@ -314,67 +344,55 @@ export abstract class PlayerBase {
       }
     }
 
-    // Normalne obrażenia
-    this.health = Phaser.Math.Clamp(this.health - amount, 0, this.maxHealth);
+    const newHealth = Phaser.Math.Clamp(
+      this.levelManager.getHealth() - amount,
+      0,
+      this.levelManager.getMaxHealth()
+    );
+    this.levelManager.setHealth(newHealth);
     this.sprite.emit("healthChanged");
     this.lastDamageTime = this.scene.time.now;
 
     this.floatingTextEffects.showDamage(this.sprite, amount);
     this.floatingTextEffects.applyDamageEffects(this.sprite);
 
-    if (this.health <= 0) {
+    if (this.levelManager.getHealth() <= 0) {
       this.sprite.setVelocity(0, 0);
     }
   }
 
   public addExperience(amount: number) {
-    this.experience += amount;
-    this.checkLevelUp();
-    this.sprite.emit("statsChanged");
+    this.levelManager.addExperience(amount);
   }
 
-  private checkLevelUp() {
-    while (this.experience >= this.nextLevelExp) {
-      this.experience -= this.nextLevelExp;
-      this.levelUp();
-    }
+  public get health(): number {
+    return this.levelManager.getHealth();
   }
 
-  private levelUp() {
-    this.level++;
-    this.nextLevelExp = Math.floor(this.nextLevelExp * 1.2);
+  public set health(value: number) {
+    this.levelManager.setHealth(value);
+  }
 
-    SoundManager.getInstance().play(this.scene, "lvlUp", {
-      volume: 1,
-    });
+  public get maxHealth(): number {
+    return this.levelManager.getMaxHealth();
+  }
 
-    // Zapisz poprzednie maksymalne zdrowie
-    const previousMaxHealth = this.maxHealth;
+  public get level(): number {
+    return this.levelManager.getLevel();
+  }
 
-    // Zwiększ maksymalne zdrowie
-    this.maxHealth = Math.floor(this.maxHealth * 1.1);
+  public get experience(): number {
+    return this.levelManager.getExperience();
+  }
 
-    // Dodaj różnicę do obecnego zdrowia (zamiast ustawiać na max)
-    const healthIncrease = this.maxHealth - previousMaxHealth;
-    this.health += healthIncrease;
-
-    this.lastDamageTime = 0;
-
-    this.floatingTextEffects.showLevelUp(this.sprite);
-    this.sprite.emit("levelUp");
-    this.sprite.emit("statsChanged");
-
-    // Pokaż efekt uleczenia jeśli było zwiększenie zdrowia
-    if (healthIncrease > 0) {
-      this.floatingTextEffects.showHeal(this.sprite, healthIncrease);
-    }
+  public get nextLevelExp(): number {
+    return this.levelManager.getNextLevelExp();
   }
 
   private startRunningSound() {
     if (!this.isMoving) {
       this.isMoving = true;
 
-      // Wznowienie dźwięku jeśli był wcześniej wstrzymany
       if (this.runningSound.isPaused) {
         this.runningSound.resume();
       }
@@ -384,7 +402,6 @@ export abstract class PlayerBase {
         rate: Phaser.Math.FloatBetween(0.9, 1.1),
       });
 
-      // Płynne pojawienie się dźwięku
       this.scene.tweens.add({
         targets: this.runningSound,
         volume: { from: 0, to: 0.2 * SoundManager.getInstance().getVolume() },
@@ -398,7 +415,6 @@ export abstract class PlayerBase {
     if (this.isMoving) {
       this.isMoving = false;
 
-      // Płynne zanikanie dźwięku przed zatrzymaniem
       this.scene.tweens.add({
         targets: this.runningSound,
         volume: 0,

@@ -34,6 +34,7 @@ export class UIComponent {
 
   private levelText!: Phaser.GameObjects.Text;
   private menuButton!: Phaser.GameObjects.Text;
+  private statsButton!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, player: PlayerBase) {
     this.scene = scene;
@@ -50,6 +51,7 @@ export class UIComponent {
     this.createExpUI();
     this.createLevelUI();
     this.createMenuButton();
+    this.createStatsButton();
     this.updateAll();
   }
 
@@ -72,12 +74,17 @@ export class UIComponent {
       characterClass: (this.scene as GameScene).characterClass,
       health: this.player.health,
       maxHealth: this.player.maxHealth,
+      regenRate: this.player.stats.regenRate,
       level: this.player.level,
       experience: this.player.experience,
+      levelPoints: this.player.levelPoints,
       currentStamina: this.player.currentStamina,
       maxStamina: this.player.maxStamina,
+      staminaRegenRate: this.player.stats.staminaRegenRate,
       critChance: this.player.critChance,
       critDamageMultiplier: this.player.critDamageMultiplier,
+      attackDamage: this.player.stats.attackDamage,
+      speed: this.player.stats.speed,
     };
 
     SaveManager.save("auto", saveData);
@@ -199,6 +206,26 @@ export class UIComponent {
       .on("pointerdown", () => this.scene.events.emit("toggleGameMenu"));
   }
 
+  private createStatsButton() {
+    this.statsButton = this.scene.add
+      .text(
+        this.levelText.x + this.levelText.width + 20,
+        this.LEVEL_Y,
+        "[Stats]",
+        {
+          fontFamily: "serif",
+          fontSize: "20px",
+          color: "#ffdd88",
+          stroke: "#000000",
+          strokeThickness: 4,
+        }
+      )
+      .setScrollFactor(0)
+      .setDepth(9999)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => (this.scene as GameScene).openStatsMenu());
+  }
+
   private setupListeners() {
     this.player.sprite.on("healthChanged", () => this.updateHealthUI());
     this.player.sprite.on("staminaChanged", () => this.updateStaminaUI());
@@ -242,7 +269,6 @@ export class UIComponent {
       g.fillRect(x + i, y, 1, height);
     }
   }
-  // --------------------------
 
   private updateHealthUI() {
     this.createFrame(this.HEALTH_Y, 20, this.healthBg);
@@ -255,7 +281,6 @@ export class UIComponent {
     const w = Math.floor(this.BAR_WIDTH * pct);
 
     this.healthBar.clear();
-    // zamiast fillGradientStyle → drawGradientBar
     this.drawGradientBar(
       this.healthBar,
       this.MARGIN,
