@@ -1,23 +1,16 @@
 import Phaser from "phaser";
 import GameScene from "../GameScene";
-import { GameState } from "../GameState";
 import { MusicManager } from "../MusicManager";
 import { SoundManager } from "../SoundManager";
 
 export default class optionsInGameMenu {
   private scene: GameScene;
-  private container: Phaser.GameObjects.Container;
-  private onBack: () => void;
+  private container!: Phaser.GameObjects.Container;
   private escKey?: Phaser.Input.Keyboard.Key;
 
-  constructor(scene: GameScene, onBack: () => void) {
+  constructor(scene: GameScene) {
     this.scene = scene;
-    this.onBack = onBack;
-    this.container = this.scene.add
-      .container(0, 0)
-      .setDepth(1000000)
-      .setScrollFactor(0)
-      .setVisible(false);
+    this.createOptionsContainer();
     this.escKey = this.scene.input.keyboard?.addKey(
       Phaser.Input.Keyboard.KeyCodes.ESC
     );
@@ -30,18 +23,24 @@ export default class optionsInGameMenu {
     this.build();
   }
 
+  private createOptionsContainer() {
+    this.container = this.scene.add
+      .container(169, 0)
+      .setDepth(1000000)
+      .setScrollFactor(0)
+      .setVisible(false);
+  }
+
   public show() {
     if (!this.container) return;
     this.build();
     this.container.setVisible(true);
-    this.scene.currentState = GameState.IN_OPTIONS_MENU;
   }
 
   public hide() {
     if (this.container) {
       this.container.setVisible(false);
     }
-    this.onBack();
   }
 
   private build() {
@@ -52,12 +51,12 @@ export default class optionsInGameMenu {
 
     // tło i tytuł
     const bg = this.scene.add
-      .rectangle(cx, cy, 390, 360, 0x000000, 0.8)
-      .setStrokeStyle(2, 0xffffff)
+      .rectangle(cx, cy + 38, 683, 500)
+      //.setStrokeStyle(2, 0xffffff)
       .setOrigin(0.5)
       .setScrollFactor(0);
     const title = this.scene.add
-      .text(cx, cy - 130, "Opcje", {
+      .text(cx - 195, cy - 150, "Opcje", {
         fontSize: "22px",
         color: "#ffffff",
       })
@@ -121,20 +120,6 @@ export default class optionsInGameMenu {
       .dom(cx + 110, cy - 40, soundsSliderElement)
       .setOrigin(0.5);
 
-    // przycisk „Powrót”
-    const back = this.scene.add
-      .text(cx, cy + 140, "◀ Powrót", {
-        fontSize: "18px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => {
-        this.hide();
-        this.onBack();
-      });
-
     this.container.add([
       bg,
       title,
@@ -142,7 +127,6 @@ export default class optionsInGameMenu {
       musicVolumeSlider,
       effectsVolumeText,
       soundsVolumeSlider,
-      back,
     ]);
   }
 

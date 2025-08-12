@@ -1,13 +1,15 @@
 {
   "name": "my-rpg-game",
   "private": true,
+  "homepage": "https://kacperbieganski.github.io/my-rpg-game",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build"
   },
   "dependencies": {
     "phaser": "^3.90.0",

@@ -35,7 +35,6 @@ type GameInitData = {
 };
 
 export default class GameScene extends Phaser.Scene {
-  private loadingScreen!: LoadingScreen;
   public currentState: GameState = GameState.MAIN_MENU;
   public player!: import("./player/PlayerBase").PlayerBase;
 
@@ -52,7 +51,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.loadingScreen = new LoadingScreen(this);
+    new LoadingScreen(this);
 
     AssetLoader.preload(this);
     MainMenu.preload(this);
@@ -82,12 +81,6 @@ export default class GameScene extends Phaser.Scene {
           break;
         case GameState.IN_PAUSE_MENU:
           this.closePauseMenu();
-          break;
-        case GameState.IN_SAVE_MENU:
-          this.closeSaveMenu();
-          break;
-        case GameState.IN_OPTIONS_MENU:
-          this.closeOptionsMenu();
           break;
         case GameState.IN_STATS_MENU:
           this.closeStatsMenu();
@@ -136,7 +129,7 @@ export default class GameScene extends Phaser.Scene {
   private initGame(opts: GameInitData) {
     this.children.removeAll();
 
-    this.loadingScreen = new LoadingScreen(this);
+    new LoadingScreen(this);
 
     this.characterClass = opts.characterClass;
     this.isPaused = false;
@@ -239,22 +232,6 @@ export default class GameScene extends Phaser.Scene {
     }
     this.currentState = GameState.IN_GAME;
     this.togglePause(false);
-  }
-
-  private closeSaveMenu() {
-    if (this.inGameMenu && this.inGameMenu.saveSlotInGameMenu) {
-      this.inGameMenu.saveSlotInGameMenu.destroy();
-      this.inGameMenu.show();
-    }
-    this.currentState = GameState.IN_PAUSE_MENU;
-  }
-
-  private closeOptionsMenu() {
-    if (this.inGameMenu && this.inGameMenu.optionsInGameMenu) {
-      this.inGameMenu.optionsInGameMenu.destroy();
-      this.inGameMenu.show();
-    }
-    this.currentState = GameState.IN_PAUSE_MENU;
   }
 
   public openStatsMenu() {

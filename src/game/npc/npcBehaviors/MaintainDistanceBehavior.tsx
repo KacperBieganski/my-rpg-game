@@ -78,7 +78,7 @@ export class MaintainDistanceBehavior {
     this.npc.playRunAnimation();
   }
 
-  private handleOptimalDistance(angle: number) {
+  private handleOptimalDistance(_angle: number) {
     // Płynne zatrzymanie zamiast nagłego
     const body = this.npc.sprite.body as Phaser.Physics.Arcade.Body;
     body.velocity.x *= 0.9;

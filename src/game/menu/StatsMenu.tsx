@@ -10,7 +10,6 @@ export default class StatsMenu {
   private menuContainer!: Phaser.GameObjects.Container;
   private isVisible = false;
   private plusButtons: Phaser.GameObjects.Text[] = [];
-  private pointsText!: Phaser.GameObjects.Text;
 
   constructor(scene: GameScene, player: PlayerBase) {
     this.scene = scene;

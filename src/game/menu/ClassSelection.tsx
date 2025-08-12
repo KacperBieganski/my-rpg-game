@@ -5,7 +5,6 @@ import MainMenu from "./MainMenu";
 export default class ClassSelection {
   private scene: GameScene;
   private selectionContainer!: Phaser.GameObjects.Container;
-  private backgroundImage!: Phaser.GameObjects.TileSprite;
 
   constructor(scene: GameScene) {
     this.scene = scene;
@@ -17,7 +16,7 @@ export default class ClassSelection {
   create() {
     const { width, height } = this.scene.cameras.main;
 
-    this.backgroundImage = this.scene.add
+    this.scene.add
       .tileSprite(0, 0, width, height, "Water_Background_color")
       .setOrigin(0, 0)
       .setTileScale(1)

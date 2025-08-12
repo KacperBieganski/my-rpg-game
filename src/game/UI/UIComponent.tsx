@@ -34,7 +34,6 @@ export class UIComponent {
 
   private levelText!: Phaser.GameObjects.Text;
   private menuButton!: Phaser.GameObjects.Text;
-  private statsButton!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, player: PlayerBase) {
     this.scene = scene;
@@ -51,7 +50,6 @@ export class UIComponent {
     this.createExpUI();
     this.createLevelUI();
     this.createMenuButton();
-    this.createStatsButton();
     this.updateAll();
   }
 
@@ -185,7 +183,9 @@ export class UIComponent {
         strokeThickness: 4,
       })
       .setScrollFactor(0)
-      .setDepth(9999);
+      .setDepth(9999)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => (this.scene as GameScene).openStatsMenu());
   }
 
   private createMenuButton() {
@@ -204,26 +204,6 @@ export class UIComponent {
       .setDepth(9999)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.scene.events.emit("toggleGameMenu"));
-  }
-
-  private createStatsButton() {
-    this.statsButton = this.scene.add
-      .text(
-        this.levelText.x + this.levelText.width + 20,
-        this.LEVEL_Y,
-        "[Stats]",
-        {
-          fontFamily: "serif",
-          fontSize: "20px",
-          color: "#ffdd88",
-          stroke: "#000000",
-          strokeThickness: 4,
-        }
-      )
-      .setScrollFactor(0)
-      .setDepth(9999)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => (this.scene as GameScene).openStatsMenu());
   }
 
   private setupListeners() {

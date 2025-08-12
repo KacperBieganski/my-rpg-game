@@ -1,22 +1,15 @@
 import Phaser from "phaser";
 import GameScene from "../GameScene";
 import { SaveManager, type SaveData } from "../SaveManager";
-import { GameState } from "../GameState";
 
 export default class saveSlotInGameMenu {
   private scene: GameScene;
-  private container: Phaser.GameObjects.Container;
-  private onBack: () => void;
+  private container!: Phaser.GameObjects.Container;
   private escKey?: Phaser.Input.Keyboard.Key;
 
-  constructor(scene: GameScene, onBack: () => void) {
+  constructor(scene: GameScene) {
     this.scene = scene;
-    this.onBack = onBack;
-    this.container = this.scene.add
-      .container(0, 0)
-      .setDepth(1000000)
-      .setScrollFactor(0)
-      .setVisible(false);
+    this.createSavesContainer();
     this.escKey = this.scene.input.keyboard?.addKey(
       Phaser.Input.Keyboard.KeyCodes.ESC
     );
@@ -29,18 +22,24 @@ export default class saveSlotInGameMenu {
     this.build();
   }
 
+  private createSavesContainer() {
+    this.container = this.scene.add
+      .container(169, 0)
+      .setDepth(1000000)
+      .setScrollFactor(0)
+      .setVisible(false);
+  }
+
   public show() {
     if (!this.container) return;
     this.build();
     this.container.setVisible(true);
-    this.scene.currentState = GameState.IN_SAVE_MENU;
   }
 
   public hide() {
     if (this.container) {
       this.container.setVisible(false);
     }
-    this.onBack();
   }
 
   private build() {
@@ -51,12 +50,12 @@ export default class saveSlotInGameMenu {
 
     // tło i tytuł
     const bg = this.scene.add
-      .rectangle(cx, cy, 350, 360, 0x000000, 0.8)
-      .setStrokeStyle(2, 0xffffff)
+      .rectangle(cx, cy + 38, 683, 500)
+      //.setStrokeStyle(2, 0xffffff)
       .setOrigin(0.5)
       .setScrollFactor(0);
     const title = this.scene.add
-      .text(cx, cy - 130, "Wybierz slot zapisu", {
+      .text(cx - 100, cy - 150, "Wybierz slot zapisu", {
         fontSize: "22px",
         color: "#ffffff",
       })
@@ -74,7 +73,7 @@ export default class saveSlotInGameMenu {
         : `Slot ${slot}: pusty`;
 
       const btn = this.scene.add
-        .text(cx, cy - 70 + i * 40, label, {
+        .text(cx, cy - 100 + i * 40, label, {
           fontSize: "18px",
           color: data ? "#aaffaa" : "#aaaaaa",
         })
@@ -98,7 +97,7 @@ export default class saveSlotInGameMenu {
       : "Autozapis: brak";
 
     const autoSaveBtn = this.scene.add
-      .text(cx, cy + 90, autoSaveLabel, {
+      .text(cx, cy + 60, autoSaveLabel, {
         fontSize: "18px",
         color: autoSaveData ? "#ffaa88" : "#aaaaaa",
       })
@@ -106,22 +105,6 @@ export default class saveSlotInGameMenu {
       .setScrollFactor(0);
 
     this.container.add(autoSaveBtn);
-
-    // przycisk „Powrót”
-    const back = this.scene.add
-      .text(cx, cy + 140, "◀ Powrót", {
-        fontSize: "18px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => {
-        this.hide();
-        this.onBack();
-      });
-
-    this.container.add(back);
   }
 
   private showConfirm(slot: 1 | 2 | 3 | 4) {

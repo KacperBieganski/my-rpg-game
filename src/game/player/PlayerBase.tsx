@@ -196,6 +196,9 @@ export abstract class PlayerBase {
       }
       this.sprite.setVelocity(vx, vy);
     }
+
+    if (this.isStaminaDepleted) {
+    }
   }
 
   protected findNearestEnemy(): NpcBase | null {
@@ -437,6 +440,7 @@ export abstract class PlayerBase {
     this.runningSound.stop();
     this.healthRegenTimer.destroy();
     this.floatingTextEffects.destroy();
+    this.staminaRegenTimer.destroy();
   }
 
   abstract attack(): void;

@@ -7,6 +7,7 @@ import { GameState } from "../GameState";
 export default class InGameMenu {
   private scene: GameScene;
   private menuContainer!: Phaser.GameObjects.Container;
+  private exitConfirmContainer!: Phaser.GameObjects.Container;
   public saveSlotInGameMenu!: saveSlotInGameMenu;
   public optionsInGameMenu!: optionsInGameMenu;
   private isVisible = false;
@@ -15,16 +16,8 @@ export default class InGameMenu {
     this.scene = scene;
     this.createContainer();
     this.hide();
-    this.saveSlotInGameMenu = new saveSlotInGameMenu(scene, () => {
-      if (this.menuContainer) {
-        this.show();
-      }
-    });
-    this.optionsInGameMenu = new optionsInGameMenu(scene, () => {
-      if (this.menuContainer) {
-        this.show();
-      }
-    });
+    this.saveSlotInGameMenu = new saveSlotInGameMenu(scene);
+    this.optionsInGameMenu = new optionsInGameMenu(scene);
   }
 
   private createContainer() {
@@ -32,27 +25,22 @@ export default class InGameMenu {
       .container(0, 0)
       .setDepth(1000000)
       .setScrollFactor(0);
+
+    this.exitConfirmContainer = this.scene.add
+      .container(169, 0)
+      .setDepth(1000000)
+      .setScrollFactor(0)
+      .setVisible(false);
   }
 
   private buildMainMenu(centerX: number, centerY: number) {
     const bg = this.scene.add
-      .rectangle(centerX, centerY, 300, 300, 0x000000, 0.8)
-      .setStrokeStyle(2, 0xffffff)
+      .rectangle(centerX, centerY + 38, 1024, 500, 0x000000)
       .setOrigin(0.5)
       .setScrollFactor(0);
 
     const resumeBtn = this.scene.add
-      .text(centerX, centerY - 50, "Wznów grę", {
-        fontSize: "20px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.hide());
-
-    const saveBtn = this.scene.add
-      .text(centerX, centerY, "Zapisz grę", {
+      .text(centerX - 350, centerY - 100, "Wznów grę", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -61,13 +49,26 @@ export default class InGameMenu {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         this.hide();
+        this.saveSlotInGameMenu.hide();
+        this.optionsInGameMenu.hide();
+      });
+
+    const saveBtn = this.scene.add
+      .text(centerX - 345, centerY - 50, "Zapisz grę", {
+        fontSize: "20px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
         this.saveSlotInGameMenu.show();
-        this.scene.togglePause(true);
-        this.scene.currentState = GameState.IN_SAVE_MENU;
+        this.optionsInGameMenu.hide();
+        this.hideExitConfirmContainer();
       });
 
     const optionBtn = this.scene.add
-      .text(centerX, centerY + 50, "Opcje", {
+      .text(centerX - 375, centerY, "Opcje", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -75,21 +76,24 @@ export default class InGameMenu {
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
-        this.hide();
         this.optionsInGameMenu.show();
-        this.scene.togglePause(true);
-        this.scene.currentState = GameState.IN_OPTIONS_MENU;
+        this.saveSlotInGameMenu.hide();
+        this.hideExitConfirmContainer();
       });
 
     const mainMenuBtn = this.scene.add
-      .text(centerX, centerY + 100, "Menu główne", {
+      .text(centerX - 338, centerY + 50, "Menu główne", {
         fontSize: "20px",
         color: "#ffffff",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.showConfirmReturn());
+      .on("pointerdown", () => {
+        this.saveSlotInGameMenu.hide();
+        this.optionsInGameMenu.hide();
+        this.showExitConfirmContainer();
+      });
 
     this.menuContainer.add([bg, resumeBtn, saveBtn, optionBtn, mainMenuBtn]);
   }
@@ -121,8 +125,7 @@ export default class InGameMenu {
   }
 
   private showConfirmReturn() {
-    // wyczyść wszystko
-    this.menuContainer.removeAll(true);
+    this.exitConfirmContainer.removeAll(true);
 
     const cam = this.scene.cameras.main;
     const cx = cam.width / 2;
@@ -130,8 +133,8 @@ export default class InGameMenu {
 
     // tło okna
     const bg = this.scene.add
-      .rectangle(cx, cy, 500, 200, 0x000000, 0.8)
-      .setStrokeStyle(2, 0xffffff)
+      .rectangle(cx, cy + 38, 683, 500)
+      //.setStrokeStyle(2, 0xffffff)
       .setOrigin(0.5)
       .setScrollFactor(0);
 
@@ -152,7 +155,7 @@ export default class InGameMenu {
 
     // „Tak” – powrót do głównego menu
     const yesBtn = this.scene.add
-      .text(cx - 110, cy + 40, "Tak", { fontSize: "18px", color: "#ffffff" })
+      .text(cx - 80, cy + 40, "Tak", { fontSize: "18px", color: "#ffffff" })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
@@ -163,26 +166,32 @@ export default class InGameMenu {
 
     // „Zapisz grę” – otwórz zapis
     const saveBtn = this.scene.add
-      .text(cx, cy + 40, "Zapisz grę", { fontSize: "18px", color: "#ffffff" })
+      .text(cx + 50, cy + 40, "Zapisz grę", {
+        fontSize: "18px",
+        color: "#ffffff",
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
-        this.hide();
         this.saveSlotInGameMenu.show();
+        this.optionsInGameMenu.hide();
+        this.hideExitConfirmContainer();
       });
 
-    // „Nie” – wróć do menu pauzy
-    const noBtn = this.scene.add
-      .text(cx + 110, cy + 40, "Nie", { fontSize: "18px", color: "#ffffff" })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => {
-        this.show();
-      });
+    this.exitConfirmContainer.add([bg, question, yesBtn, saveBtn]);
+  }
 
-    this.menuContainer.add([bg, question, yesBtn, saveBtn, noBtn]);
+  public showExitConfirmContainer() {
+    if (!this.exitConfirmContainer) return;
+    this.showConfirmReturn();
+    this.exitConfirmContainer.setVisible(true);
+  }
+
+  public hideExitConfirmContainer() {
+    if (this.exitConfirmContainer) {
+      this.exitConfirmContainer.setVisible(false);
+    }
   }
 
   public destroy() {
@@ -190,5 +199,6 @@ export default class InGameMenu {
     this.saveSlotInGameMenu.destroy();
     this.optionsInGameMenu.destroy();
     this.menuContainer.destroy();
+    this.exitConfirmContainer.destroy();
   }
 }
