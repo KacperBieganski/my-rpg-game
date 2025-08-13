@@ -4,6 +4,25 @@
   text-align: center;
 }
 
-.game-and-ui-wrapper {
-  position: relative;
+/* Normalny widok gry */
+.game-and-ui-wrapper .game-container canvas {
+  width: 1024px;
+  height: 576px;
+}
+
+/* W trybie fullscreen */
+:fullscreen .game-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:fullscreen .game-container canvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain; /* zachowuje proporcje 16:9 */
 }

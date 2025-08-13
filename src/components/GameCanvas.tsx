@@ -11,8 +11,12 @@ const GameCanvas: React.FC = () => {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.CANVAS,
+      backgroundColor: "#000000",
       width: 1024,
       height: 576,
+      scale: {
+        mode: Phaser.Scale.NONE,
+      },
       parent: containerRef.current,
       physics: {
         default: "arcade",

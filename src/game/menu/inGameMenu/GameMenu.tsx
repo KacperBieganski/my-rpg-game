@@ -52,8 +52,6 @@ export default class GameMenu {
       .on("pointerdown", () => {
         if (this.onResume) {
           this.onResume();
-          this.optionsInGameMenu.hide();
-          this.saveSlotInGameMenu.hide();
         } else {
           this.scene.events.emit("toggleGameMenu");
         }
@@ -119,6 +117,8 @@ export default class GameMenu {
   public hide() {
     if (this.menuContainer) this.menuContainer.setVisible(false);
     if (this.exitConfirmContainer) this.exitConfirmContainer.setVisible(false);
+    if (this.saveSlotInGameMenu) this.saveSlotInGameMenu.hide();
+    if (this.optionsInGameMenu) this.optionsInGameMenu.hide();
   }
 
   private showConfirmReturn() {

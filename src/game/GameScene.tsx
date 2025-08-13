@@ -67,10 +67,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private setupEventListeners() {
-    this.input.keyboard?.off("keydown-ESC");
+    this.input.keyboard?.off("keydown-TAB");
     this.events.off("toggleGameMenu");
 
-    this.input.keyboard?.on("keydown-ESC", () => {
+    this.input.keyboard?.on("keydown-TAB", () => {
       this.events.emit("toggleGameMenu");
     });
 
@@ -315,7 +315,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Remove all event listeners
     this.events.off("toggleGameMenu");
-    this.input.keyboard?.off("keydown-ESC");
+    this.input.keyboard?.off("keydown-TAB");
     this.events.off("npcKilled");
 
     // Restart the scene
