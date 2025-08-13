@@ -12,8 +12,20 @@ export class ArcherPlayer extends PlayerBase {
   private maxArrowDistance: number =
     DefaultGameSettings.player.archer.attackRange;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "player_archer_idle", DefaultGameSettings.player.archer);
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    characterClass: "warrior" | "archer" | "lancer" = "warrior"
+  ) {
+    super(
+      scene,
+      x,
+      y,
+      "archer",
+      characterClass,
+      DefaultGameSettings.player.warrior
+    );
     this.arrows = this.scene.physics.add.group();
   }
 

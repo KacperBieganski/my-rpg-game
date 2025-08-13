@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import GameScene from "../../GameScene";
 
-/** Callbacky dla Navbar */
 type NavbarCallbacks = {
   onMenu: () => void;
   onStats: () => void;
@@ -9,79 +8,101 @@ type NavbarCallbacks = {
 
 export default class Navbar {
   private scene: GameScene;
-  private navContainer!: Phaser.GameObjects.Container;
   private callbacks: NavbarCallbacks;
+  private background!: Phaser.GameObjects.Rectangle;
+  private backgroundImage!: Phaser.GameObjects.TileSprite;
+  private menuButton!: Phaser.GameObjects.Text;
+  private statsButton!: Phaser.GameObjects.Text;
+  private arrow!: Phaser.GameObjects.Triangle;
+  private currentSelection: "menu" | "stats" = "menu";
 
   constructor(scene: GameScene, callbacks: NavbarCallbacks) {
     this.scene = scene;
     this.callbacks = callbacks;
-    this.createNavContainer();
     this.hide();
   }
 
-  private createNavContainer() {
-    this.navContainer = this.scene.add
-      .container(0, 0)
-      .setDepth(20000)
-      .setScrollFactor(0)
-      .setVisible(false);
-  }
-
-  public show() {
-    if (!this.navContainer) return;
-    this.navContainer.removeAll(true);
+  public show(selectedTab: "menu" | "stats" = "menu") {
+    this.hide();
+    this.currentSelection = selectedTab;
 
     const cam = this.scene.cameras.main;
-    const cx = cam.width / 2;
-    const cy = cam.height / 2 - 250;
+    const cx = cam.centerX;
+    const cy = cam.centerY - 250;
 
-    this.build(cx, cy);
-    this.navContainer.setVisible(true);
-  }
-
-  public hide() {
-    if (this.navContainer) {
-      this.navContainer.setVisible(false);
-    }
-  }
-
-  private build(cx: number, cy: number) {
-    this.navContainer.removeAll(true);
-
-    // tło
-    const bg = this.scene.add
-      .rectangle(cx, cy, 1024, 76, 0x000000)
-      .setStrokeStyle(2, 0xaaaa77, 1)
+    this.backgroundImage = this.scene.add
+      .tileSprite(cx, cy, 1024, 75, "background1")
       .setOrigin(0.5)
+      .setDepth(29999)
       .setScrollFactor(0)
-      .disableInteractive();
+      .setTileScale(2, 2);
 
-    const menu = this.scene.add
+    this.background = this.scene.add
+      .rectangle(cx, cy, 1024, 75, 0x000000, 0.5)
+      .setStrokeStyle(5, 0xaaaa77, 1)
+      .setOrigin(0.5)
+      .setDepth(29999)
+      .setScrollFactor(0);
+
+    this.menuButton = this.scene.add
       .text(cx - 70, cy, "Menu", {
         fontSize: "24px",
-        color: "#ffffff",
+        color: this.currentSelection === "menu" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0, 0.5)
-      .setInteractive({ useHandCursor: true })
+      .setDepth(30000)
+      .setScrollFactor(0)
+      .setInteractive({
+        useHandCursor: true,
+      })
       .on("pointerdown", () => {
         this.callbacks.onMenu();
       });
 
-    const stats = this.scene.add
+    this.statsButton = this.scene.add
       .text(cx + 30, cy, "Postać", {
         fontSize: "24px",
-        color: "#ffffff",
+        color: this.currentSelection === "stats" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0, 0.5)
-      .setInteractive({ useHandCursor: true })
+      .setDepth(30000)
+      .setScrollFactor(0)
+      .setInteractive({
+        useHandCursor: true,
+      })
       .on("pointerdown", () => {
         this.callbacks.onStats();
       });
 
-    this.navContainer.add([bg, menu, stats]);
+    // Dodanie trójkątnej strzałki
+    const arrowY = cy + 20;
+    const arrowX =
+      this.currentSelection === "menu"
+        ? cx - 70 + this.menuButton.width / 2
+        : cx + 30 + this.statsButton.width / 2;
+
+    this.arrow = this.scene.add
+      .triangle(arrowX, arrowY, 0, 0, 10, 0, 5, 10, 0xffff00)
+      .setDepth(30000)
+      .setScrollFactor(0);
+  }
+
+  public updateSelection(selectedTab: "menu" | "stats") {
+    if (this.currentSelection !== selectedTab) {
+      this.currentSelection = selectedTab;
+      this.show(selectedTab); // Przerysuj navbar z nowym wyborem
+    }
+  }
+
+  public hide() {
+    if (this.menuButton) this.menuButton.destroy();
+    if (this.statsButton) this.statsButton.destroy();
+    if (this.background) this.background.destroy();
+    if (this.backgroundImage) this.backgroundImage.destroy();
+    if (this.arrow) this.arrow.destroy();
   }
 
   public destroy() {
-    this.navContainer.destroy();
+    this.hide();
   }
 }

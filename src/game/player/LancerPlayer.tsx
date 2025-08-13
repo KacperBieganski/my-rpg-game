@@ -7,8 +7,20 @@ import { SoundManager } from "../SoundManager";
 export class LancerPlayer extends PlayerBase {
   private attackToggle = false;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "Blue_Lancer_idle", DefaultGameSettings.player.lancer);
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    characterClass: "warrior" | "archer" | "lancer" = "warrior"
+  ) {
+    super(
+      scene,
+      x,
+      y,
+      "lancer",
+      characterClass,
+      DefaultGameSettings.player.warrior
+    );
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setOffset(140, 155);
   }

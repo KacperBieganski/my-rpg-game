@@ -2,7 +2,7 @@
   "name": "my-rpg-game",
   "private": true,
   "homepage": "https://kacperbieganski.github.io/my-rpg-game",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite --host",

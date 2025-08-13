@@ -52,20 +52,12 @@ export default class optionsInGameMenu {
     // tło i tytuł
     const bg = this.scene.add
       .rectangle(cx, cy + 38, 683, 500)
-      //.setStrokeStyle(2, 0xffffff)
-      .setOrigin(0.5)
-      .setScrollFactor(0);
-    const title = this.scene.add
-      .text(cx - 195, cy - 150, "Opcje", {
-        fontSize: "22px",
-        color: "#ffffff",
-      })
       .setOrigin(0.5)
       .setScrollFactor(0);
 
     // głośności muzyki
     const musicVolumeText = this.scene.add
-      .text(cx - 170, cy - 70, "Głośność muzyki:", {
+      .text(cx - 180, cy - 70, "Głośność muzyki:", {
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -88,7 +80,7 @@ export default class optionsInGameMenu {
     });
 
     const musicVolumeSlider = this.scene.add
-      .dom(cx + 110, cy - 70, musicSliderElement)
+      .dom(cx + 130, cy - 70, musicSliderElement)
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
@@ -117,12 +109,11 @@ export default class optionsInGameMenu {
     });
 
     const soundsVolumeSlider = this.scene.add
-      .dom(cx + 110, cy - 40, soundsSliderElement)
+      .dom(cx + 130, cy - 40, soundsSliderElement)
       .setOrigin(0.5);
 
     this.container.add([
       bg,
-      title,
       musicVolumeText,
       musicVolumeSlider,
       effectsVolumeText,

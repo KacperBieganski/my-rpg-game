@@ -51,11 +51,11 @@ export default class saveSlotInGameMenu {
     // tło i tytuł
     const bg = this.scene.add
       .rectangle(cx, cy + 38, 683, 500)
-      //.setStrokeStyle(2, 0xffffff)
+      //.setStrokeStyle(2, 0xaaaa77, 1)
       .setOrigin(0.5)
       .setScrollFactor(0);
     const title = this.scene.add
-      .text(cx - 100, cy - 150, "Wybierz slot zapisu", {
+      .text(cx, cy - 110, "Wybierz slot zapisu", {
         fontSize: "22px",
         color: "#ffffff",
       })
@@ -73,7 +73,7 @@ export default class saveSlotInGameMenu {
         : `Slot ${slot}: pusty`;
 
       const btn = this.scene.add
-        .text(cx, cy - 100 + i * 40, label, {
+        .text(cx, cy - 50 + i * 40, label, {
           fontSize: "18px",
           color: data ? "#aaffaa" : "#aaaaaa",
         })
@@ -97,7 +97,7 @@ export default class saveSlotInGameMenu {
       : "Autozapis: brak";
 
     const autoSaveBtn = this.scene.add
-      .text(cx, cy + 60, autoSaveLabel, {
+      .text(cx, cy + 110, autoSaveLabel, {
         fontSize: "18px",
         color: autoSaveData ? "#ffaa88" : "#aaaaaa",
       })
@@ -114,16 +114,9 @@ export default class saveSlotInGameMenu {
     const cx = cam.width / 2;
     const cy = cam.height / 2;
 
-    const bg = this.scene.add
-      .rectangle(cx, cy, 300, 180, 0x000000, 0.8)
-      .setStrokeStyle(2, 0xffffff)
-      .setOrigin(0.5)
-      .setScrollFactor(0);
-    this.container.add(bg);
-
     const q = this.scene.add
       .text(cx, cy - 40, `Nadpisać slot ${slot}?`, {
-        fontSize: "20px",
+        fontSize: "18px",
         color: "#ffffff",
       })
       .setOrigin(0.5)

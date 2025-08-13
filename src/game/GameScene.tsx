@@ -11,7 +11,6 @@ import { UIComponent } from "./UI/UIComponent";
 import MainMenu from "./menu/mainMenu/MainMenu";
 import ClassSelection from "./menu/mainMenu/ClassSelection";
 import InGameMenu from "./menu/inGameMenu/InGameMenu";
-import StatsMenu from "./menu/inGameMenu/StatsMenu";
 import { type SaveData } from "../game/SaveManager";
 import { MusicManager } from "./MusicManager";
 
@@ -42,7 +41,6 @@ export default class GameScene extends Phaser.Scene {
   public characterClass: "warrior" | "archer" | "lancer" = "warrior";
   public ui!: UIComponent;
   public inGameMenu!: InGameMenu;
-  public statsMenu!: StatsMenu;
   public isPaused: boolean = false;
   private depthSortedGroup: Phaser.GameObjects.Group | null = null;
 
@@ -59,8 +57,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.physics.world.drawDebug = true;
-    this.physics.world.debugGraphic.clear();
+    // this.physics.world.drawDebug = true;
+    // this.physics.world.debugGraphic.clear();
 
     this.setupEventListeners();
     new MainMenu(this);
@@ -151,6 +149,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // 3. ustaw staty, jeśli są w opts
+
     if (opts.health != null) this.player.health = opts.health;
     if (opts.maxHealth != null) {
       (this.player as any).levelManager["maxHealth"] = opts.maxHealth;
@@ -193,8 +192,8 @@ export default class GameScene extends Phaser.Scene {
 
     cam.setZoom(1);
 
-    this.physics.world.createDebugGraphic();
-    this.physics.world.drawDebug = true;
+    // this.physics.world.createDebugGraphic();
+    // this.physics.world.drawDebug = true;
 
     // 5. NPC
     // Przekazujemy obiekty spawnu do NPCManager

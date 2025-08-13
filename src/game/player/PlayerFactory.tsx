@@ -12,11 +12,11 @@ export class PlayerFactory {
   ) {
     switch (characterClass) {
       case "warrior":
-        return new WarriorPlayer(scene, x, y);
+        return new WarriorPlayer(scene, x, y, characterClass);
       case "archer":
-        return new ArcherPlayer(scene, x, y);
+        return new ArcherPlayer(scene, x, y, characterClass);
       case "lancer":
-        return new LancerPlayer(scene, x, y);
+        return new LancerPlayer(scene, x, y, characterClass);
       default:
         throw new Error(`Unknown character class: ${characterClass}`);
     }

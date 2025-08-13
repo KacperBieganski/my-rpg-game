@@ -29,14 +29,19 @@ export default class StatsMenu {
 
     // tło
     const bg = this.scene.add
-      .rectangle(cx, cy + 38, 1024, 500, 0x000000)
-      .setStrokeStyle(2, 0xaaaa77, 1)
+      .rectangle(cx, cy + 38, 1024, 500, 0x000000, 0.4)
+      .setStrokeStyle(5, 0xaaaa77, 1)
       .setOrigin(0.5)
       .setScrollFactor(0);
-    this.menuContainer.add(bg);
+    const bgImg = this.scene.add
+      .tileSprite(cx, cy + 38, 1024, 500, "background1")
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setTileScale(2, 2);
+    this.menuContainer.add([bgImg, bg]);
 
     const pointsText = this.scene.add
-      .text(cx - 280, cy - 140, `Dostępne punkty: ${this.player.levelPoints}`, {
+      .text(cx - 450, cy - 170, `Dostępne punkty: ${this.player.levelPoints}`, {
         fontFamily: "serif",
         fontSize: "24px",
         color: "#ffff00",
@@ -97,7 +102,7 @@ export default class StatsMenu {
     let y = cy - 100;
     stats.forEach((stat) => {
       const statText = this.scene.add
-        .text(cx - 280, y, `${stat.name}: ${stat.getValue()}`, {
+        .text(cx - 450, y, `${stat.name}: ${stat.getValue()}`, {
           fontFamily: "serif",
           fontSize: "20px",
           color: "#ffffff",
@@ -109,7 +114,7 @@ export default class StatsMenu {
       this.menuContainer.add(statText);
 
       if (this.player.levelPoints > 0) {
-        const plusX = cx + 240;
+        const plusX = cx - 100;
         const plusButton = this.scene.add
           .text(plusX, y, "+", {
             fontFamily: "serif",
@@ -136,6 +141,25 @@ export default class StatsMenu {
       }
       y += 34;
     });
+
+    const characterSprite = this.scene.add
+      .sprite(cx + 330, cy + 80, this.player.getCharacterTexture())
+      .setScale(2)
+      .setFlipX(true)
+      .setScrollFactor(0);
+
+    const levelText = this.scene.add
+      .text(cx + 330, cy - 50, `Poziom ${this.player.level}`, {
+        fontFamily: "serif",
+        fontSize: "24px",
+        color: "#ffff00",
+        stroke: "#000000",
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+
+    this.menuContainer.add([characterSprite, levelText]);
   }
 
   private hidePlusButtons() {

@@ -69,6 +69,8 @@ export class AssetLoader {
 
   private static gameImages: ImageConfig[] = [
     { key: "save_icon", path: "/assets/save_icon.png" },
+    { key: "background1", path: "/assets/UI/Background1.svg" },
+    { key: "background2", path: "/assets/UI/Background2.png" },
   ];
 
   private static playerSpriteSheets: SpriteSheetConfig[] = [

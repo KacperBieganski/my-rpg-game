@@ -9,6 +9,8 @@ export default class GameMenu {
   private exitConfirmContainer!: Phaser.GameObjects.Container;
   public saveSlotInGameMenu!: saveSlotInGameMenu;
   public optionsInGameMenu!: optionsInGameMenu;
+  private selectedOption: string = "";
+
   private onResume?: () => void;
 
   constructor(scene: GameScene, onResume?: () => void) {
@@ -34,9 +36,14 @@ export default class GameMenu {
   }
 
   private buildMainMenu(centerX: number, centerY: number) {
+    const bgImg = this.scene.add
+      .tileSprite(centerX, centerY + 38, 1024, 500, "background1")
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setTileScale(2, 2);
     const bg = this.scene.add
-      .rectangle(centerX, centerY + 38, 1024, 500, 0x000000)
-      .setStrokeStyle(2, 0xaaaa77, 1)
+      .rectangle(centerX, centerY + 38, 1024, 500, 0x000000, 0.4)
+      .setStrokeStyle(5, 0xaaaa77, 1)
       .setOrigin(0.5)
       .setScrollFactor(0);
 
@@ -48,9 +55,10 @@ export default class GameMenu {
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
-
       .on("pointerdown", () => {
+        this.selectedOption = "";
         if (this.onResume) {
+          this.hide();
           this.onResume();
         } else {
           this.scene.events.emit("toggleGameMenu");
@@ -60,46 +68,59 @@ export default class GameMenu {
     const saveBtn = this.scene.add
       .text(centerX - 345, centerY - 50, "Zapisz grę", {
         fontSize: "20px",
-        color: "#ffffff",
+        color: this.selectedOption === "save" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
+        this.selectedOption = "save";
         this.saveSlotInGameMenu.show();
         this.optionsInGameMenu.hide();
         this.hideExitConfirmContainer();
+        this.show(); // Odśwież menu aby zaktualizować kolory
       });
 
     const optionBtn = this.scene.add
       .text(centerX - 375, centerY, "Opcje", {
         fontSize: "20px",
-        color: "#ffffff",
+        color: this.selectedOption === "options" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
+        this.selectedOption = "options";
         this.optionsInGameMenu.show();
         this.saveSlotInGameMenu.hide();
         this.hideExitConfirmContainer();
+        this.show(); // Odśwież menu aby zaktualizować kolory
       });
 
     const mainMenuBtn = this.scene.add
       .text(centerX - 338, centerY + 50, "Menu główne", {
         fontSize: "20px",
-        color: "#ffffff",
+        color: this.selectedOption === "mainMenu" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
+        this.selectedOption = "mainMenu";
         this.saveSlotInGameMenu.hide();
         this.optionsInGameMenu.hide();
         this.showExitConfirmContainer();
+        this.show(); // Odśwież menu aby zaktualizować kolory
       });
 
-    this.menuContainer.add([bg, resumeBtn, saveBtn, optionBtn, mainMenuBtn]);
+    this.menuContainer.add([
+      bgImg,
+      bg,
+      resumeBtn,
+      saveBtn,
+      optionBtn,
+      mainMenuBtn,
+    ]);
   }
 
   public show() {
@@ -115,6 +136,7 @@ export default class GameMenu {
   }
 
   public hide() {
+    this.selectedOption = "";
     if (this.menuContainer) this.menuContainer.setVisible(false);
     if (this.exitConfirmContainer) this.exitConfirmContainer.setVisible(false);
     if (this.saveSlotInGameMenu) this.saveSlotInGameMenu.hide();
@@ -171,9 +193,11 @@ export default class GameMenu {
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
+        this.selectedOption = "save";
         this.saveSlotInGameMenu.show();
         this.optionsInGameMenu.hide();
         this.hideExitConfirmContainer();
+        this.show();
       });
 
     this.exitConfirmContainer.add([bg, question, yesBtn, saveBtn]);

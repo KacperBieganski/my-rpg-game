@@ -52,6 +52,7 @@ export abstract class PlayerBase {
   private soundFadeDuration: number = 200;
 
   public levelManager: LevelManager;
+  public characterClass!: "warrior" | "archer" | "lancer";
   public levelPoints: number;
   public stats = {
     maxStamina: DefaultGameSettings.player.stamina.maxStamina,
@@ -70,9 +71,12 @@ export abstract class PlayerBase {
     x: number,
     y: number,
     textureKey: string,
+    characterClass: "warrior" | "archer" | "lancer",
     settings: typeof DefaultGameSettings.player.warrior
   ) {
     this.scene = scene;
+    this.characterClass = characterClass;
+
     this.maxStamina = DefaultGameSettings.player.stamina.maxStamina;
     this.currentStamina = this.maxStamina;
     this.critChance = DefaultGameSettings.player.criticalHit.baseChance;
@@ -429,6 +433,19 @@ export abstract class PlayerBase {
           }
         },
       });
+    }
+  }
+
+  public getCharacterTexture(): string {
+    switch (this.characterClass) {
+      case "warrior":
+        return "Blue_warrior_idle";
+      case "archer":
+        return "Blue_archer_idle";
+      case "lancer":
+        return "Blue_lancer_idle";
+      default:
+        return "Blue_warrior_idle";
     }
   }
 

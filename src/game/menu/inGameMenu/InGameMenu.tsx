@@ -21,9 +21,6 @@ export default class InGameMenu {
     this.player = player;
     this.activeTab = initialTab;
 
-    this.gameMenu = new GameMenu(scene, () => this.hide());
-    this.statsMenu = new StatsMenu(scene, this.player);
-
     this.navbar = new Navbar(scene, {
       onMenu: () => {
         this.show("menu");
@@ -33,13 +30,16 @@ export default class InGameMenu {
       },
     });
 
+    this.gameMenu = new GameMenu(scene, () => this.hide());
+    this.statsMenu = new StatsMenu(scene, this.player);
+
     this.hide();
   }
 
   public show(tab?: TabName) {
     if (tab) this.activeTab = tab;
 
-    this.navbar.show();
+    this.navbar.show(this.activeTab);
 
     if (this.isVisible) {
       if (this.activeTab === "menu") {

@@ -7,8 +7,20 @@ import { SoundManager } from "../SoundManager";
 export class WarriorPlayer extends PlayerBase {
   private attackToggle = false;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "Blue_warrior_idle", DefaultGameSettings.player.warrior);
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    characterClass: "warrior" | "archer" | "lancer" = "warrior"
+  ) {
+    super(
+      scene,
+      x,
+      y,
+      "warrior",
+      characterClass,
+      DefaultGameSettings.player.warrior
+    );
   }
 
   update() {
