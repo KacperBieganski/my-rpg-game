@@ -20,7 +20,7 @@ type AudioConfig = {
 export class AssetLoader {
   static preload(scene: Phaser.Scene): void {
     // Tilemap
-    scene.load.tilemapTiledJSON("level1", "../assets/startMap.json");
+    scene.load.tilemapTiledJSON("level1", "/my-rpg-game/assets/startMap.json");
 
     // Kategorie zasobów
     this.loadAssets(scene, this.gameImages, "image");
@@ -48,18 +48,18 @@ export class AssetLoader {
       switch (type) {
         case "spritesheet":
           const ss = asset as SpriteSheetConfig;
-          scene.load.spritesheet(ss.key, ss.path, {
+          scene.load.spritesheet(ss.key, `/my-rpg-game${ss.path}`, {
             frameWidth: ss.frameWidth,
             frameHeight: ss.frameHeight,
           });
           break;
         case "image":
           const img = asset as ImageConfig;
-          scene.load.image(img.key, img.path);
+          scene.load.image(img.key, `/my-rpg-game${img.path}`);
           break;
         case "audio":
           const aud = asset as AudioConfig;
-          scene.load.audio(aud.key, aud.path);
+          scene.load.audio(aud.key, `/my-rpg-game${aud.path}`);
           break;
       }
     }

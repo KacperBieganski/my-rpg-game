@@ -185,7 +185,7 @@ export class UIComponent {
       .setScrollFactor(0)
       .setDepth(9999)
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => (this.scene as GameScene).openStatsMenu());
+      .on("pointerdown", () => (this.scene as GameScene).openPauseMenu("UI"));
   }
 
   private createMenuButton() {
@@ -213,9 +213,6 @@ export class UIComponent {
       this.updateExpUI();
       this.updateLevelUI();
     });
-    this.scene.input.keyboard?.on("keydown-ESC", () =>
-      this.scene.events.emit("toggleGameMenu")
-    );
   }
 
   private updateAll() {

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
-import { SaveManager } from "../SaveManager";
+import GameScene from "../../GameScene";
+import { SaveManager } from "../../SaveManager";
 import MainMenu from "./MainMenu";
 
 export class LoadSlotsMenu {

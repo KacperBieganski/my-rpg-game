@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { LoadingScreen } from "./menu/LoadingScreen";
+import { LoadingScreen } from "../components/LoadingScreen";
 import { loadMap } from "./MapLoader";
 import { AssetLoader } from "./AssetLoader";
 import { GameState } from "./GameState";
@@ -8,10 +8,10 @@ import { NpcManager } from "./npc/NpcManager";
 import { DefaultGameSettings } from "../game/GameSettings";
 import { PlayerFactory } from "./player/PlayerFactory";
 import { UIComponent } from "./UI/UIComponent";
-import MainMenu from "./menu/MainMenu";
-import ClassSelection from "./menu/ClassSelection";
-import InGameMenu from "./menu/InGameMenu";
-import StatsMenu from "./menu/StatsMenu";
+import MainMenu from "./menu/mainMenu/MainMenu";
+import ClassSelection from "./menu/mainMenu/ClassSelection";
+import InGameMenu from "./menu/inGameMenu/InGameMenu";
+import StatsMenu from "./menu/inGameMenu/StatsMenu";
 import { type SaveData } from "../game/SaveManager";
 import { MusicManager } from "./MusicManager";
 
@@ -62,29 +62,23 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.drawDebug = true;
     this.physics.world.debugGraphic.clear();
 
-    if (this.physics.world.debugGraphic) {
-      this.physics.world.debugGraphic.setDepth(9999);
-    }
-
-    this.inGameMenu = undefined as any;
     this.setupEventListeners();
     new MainMenu(this);
   }
 
   private setupEventListeners() {
     this.input.keyboard?.off("keydown-ESC");
+    this.events.off("toggleGameMenu");
 
     this.input.keyboard?.on("keydown-ESC", () => {
-      switch (this.currentState) {
-        case GameState.IN_GAME:
-          this.openPauseMenu();
-          break;
-        case GameState.IN_PAUSE_MENU:
-          this.closePauseMenu();
-          break;
-        case GameState.IN_STATS_MENU:
-          this.closeStatsMenu();
-          break;
+      this.events.emit("toggleGameMenu");
+    });
+
+    this.events.on("toggleGameMenu", () => {
+      if (this.currentState === GameState.IN_GAME) {
+        this.openPauseMenu("GS");
+      } else if (this.currentState === GameState.IN_PAUSE_MENU) {
+        this.closePauseMenu();
       }
     });
   }
@@ -217,33 +211,19 @@ export default class GameScene extends Phaser.Scene {
     this.currentState = GameState.IN_GAME;
   }
 
-  private openPauseMenu() {
+  public openPauseMenu(name: string) {
+    const tab = name === "GS" ? "menu" : "stats";
+
     if (!this.inGameMenu) {
-      this.inGameMenu = new InGameMenu(this);
+      this.inGameMenu = new InGameMenu(this, tab, this.player);
+    } else {
+      this.inGameMenu.show(tab);
     }
-    this.inGameMenu.show();
-    this.currentState = GameState.IN_PAUSE_MENU;
-    this.togglePause(true);
   }
 
   private closePauseMenu() {
     if (this.inGameMenu) {
       this.inGameMenu.hide();
-    }
-    this.currentState = GameState.IN_GAME;
-    this.togglePause(false);
-  }
-
-  public openStatsMenu() {
-    if (!this.statsMenu) {
-      this.statsMenu = new StatsMenu(this, this.player);
-    }
-    this.statsMenu.show();
-  }
-
-  public closeStatsMenu() {
-    if (this.statsMenu) {
-      this.statsMenu.hide();
     }
   }
 

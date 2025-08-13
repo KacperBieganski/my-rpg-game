@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
-import { SaveManager, type SaveData } from "../SaveManager";
+import GameScene from "../../GameScene";
+import { SaveManager, type SaveData } from "../../SaveManager";
 
 export default class saveSlotInGameMenu {
   private scene: GameScene;

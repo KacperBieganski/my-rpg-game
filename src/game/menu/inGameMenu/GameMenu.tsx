@@ -1,19 +1,19 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
+import GameScene from "../../GameScene";
 import saveSlotInGameMenu from "./saveSlotInGameMenu";
 import optionsInGameMenu from "./optionsInGameMenu";
-import { GameState } from "../GameState";
 
-export default class InGameMenu {
+export default class GameMenu {
   private scene: GameScene;
   private menuContainer!: Phaser.GameObjects.Container;
   private exitConfirmContainer!: Phaser.GameObjects.Container;
   public saveSlotInGameMenu!: saveSlotInGameMenu;
   public optionsInGameMenu!: optionsInGameMenu;
-  private isVisible = false;
+  private onResume?: () => void;
 
-  constructor(scene: GameScene) {
+  constructor(scene: GameScene, onResume?: () => void) {
     this.scene = scene;
+    this.onResume = onResume;
     this.createContainer();
     this.hide();
     this.saveSlotInGameMenu = new saveSlotInGameMenu(scene);
@@ -23,12 +23,12 @@ export default class InGameMenu {
   private createContainer() {
     this.menuContainer = this.scene.add
       .container(0, 0)
-      .setDepth(1000000)
+      .setDepth(20000)
       .setScrollFactor(0);
 
     this.exitConfirmContainer = this.scene.add
       .container(169, 0)
-      .setDepth(1000000)
+      .setDepth(20000)
       .setScrollFactor(0)
       .setVisible(false);
   }
@@ -36,6 +36,7 @@ export default class InGameMenu {
   private buildMainMenu(centerX: number, centerY: number) {
     const bg = this.scene.add
       .rectangle(centerX, centerY + 38, 1024, 500, 0x000000)
+      .setStrokeStyle(2, 0xaaaa77, 1)
       .setOrigin(0.5)
       .setScrollFactor(0);
 
@@ -47,10 +48,15 @@ export default class InGameMenu {
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
+
       .on("pointerdown", () => {
-        this.hide();
-        this.saveSlotInGameMenu.hide();
-        this.optionsInGameMenu.hide();
+        if (this.onResume) {
+          this.onResume();
+          this.optionsInGameMenu.hide();
+          this.saveSlotInGameMenu.hide();
+        } else {
+          this.scene.events.emit("toggleGameMenu");
+        }
       });
 
     const saveBtn = this.scene.add
@@ -108,20 +114,11 @@ export default class InGameMenu {
 
     this.buildMainMenu(cx, cy);
     this.menuContainer.setVisible(true);
-    this.isVisible = true;
-    this.scene.currentState = GameState.IN_PAUSE_MENU;
-    this.scene.togglePause(true);
   }
 
   public hide() {
-    this.scene.togglePause(false);
-    this.menuContainer.setVisible(false);
-    this.isVisible = false;
-    this.scene.currentState = GameState.IN_GAME;
-  }
-
-  public toggle() {
-    this.isVisible ? this.hide() : this.show();
+    if (this.menuContainer) this.menuContainer.setVisible(false);
+    if (this.exitConfirmContainer) this.exitConfirmContainer.setVisible(false);
   }
 
   private showConfirmReturn() {
@@ -195,7 +192,6 @@ export default class InGameMenu {
   }
 
   public destroy() {
-    this.scene.togglePause(false);
     this.saveSlotInGameMenu.destroy();
     this.optionsInGameMenu.destroy();
     this.menuContainer.destroy();

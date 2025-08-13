@@ -84,7 +84,7 @@ export abstract class NpcBase {
     if (!this.sprite.body) return;
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    this.sprite.setDepth(10000);
+    this.sprite.setDepth(5000);
     body.moves = !isStatic;
 
     if (isStatic) {
@@ -162,7 +162,7 @@ export abstract class NpcBase {
       this.player.y
     );
 
-    this.sprite.setDepth(100000);
+    this.sprite.setDepth(5000);
 
     if (distanceToPlayer <= this.detectionRange) {
       this.sprite.setFlipX(this.player.x < this.sprite.x);

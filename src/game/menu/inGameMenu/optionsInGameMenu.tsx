@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
-import { MusicManager } from "../MusicManager";
-import { SoundManager } from "../SoundManager";
+import GameScene from "../../GameScene";
+import { MusicManager } from "../../MusicManager";
+import { SoundManager } from "../../SoundManager";
 
 export default class optionsInGameMenu {
   private scene: GameScene;

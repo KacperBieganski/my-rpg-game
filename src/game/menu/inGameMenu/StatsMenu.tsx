@@ -1,8 +1,7 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
-import { GameState } from "../GameState";
-import type { PlayerBase } from "../player/PlayerBase";
-import type { StatKey } from "../player/PlayerBase";
+import GameScene from "../../GameScene";
+import type { PlayerBase } from "../../player/PlayerBase";
+import type { StatKey } from "../../player/PlayerBase";
 
 export default class StatsMenu {
   private scene: GameScene;
@@ -19,34 +18,22 @@ export default class StatsMenu {
   }
 
   private createContainer() {
-    // trzymamy container w (0,0), kiedy show() budujemy elementy w oparciu o kamerę
     this.menuContainer = this.scene.add
       .container(0, 0)
-      .setDepth(1000000)
+      .setDepth(20000)
       .setScrollFactor(0);
   }
 
   private buildMenu(cx: number, cy: number) {
-    // wyczyść poprzednie elementy
     this.menuContainer.removeAll(true);
 
     // tło
     const bg = this.scene.add
-      .rectangle(cx, cy, 620, 420, 0x0a0a0a, 0.95)
+      .rectangle(cx, cy + 38, 1024, 500, 0x000000)
+      .setStrokeStyle(2, 0xaaaa77, 1)
       .setOrigin(0.5)
-      .setStrokeStyle(2, 0xaaaa77)
       .setScrollFactor(0);
     this.menuContainer.add(bg);
-
-    const title = this.scene.add
-      .text(cx, cy - 190, "Statystyki", {
-        fontFamily: "serif",
-        fontSize: "32px",
-        color: "#ffeeaa",
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0);
-    this.menuContainer.add(title);
 
     const pointsText = this.scene.add
       .text(cx - 280, cy - 140, `Dostępne punkty: ${this.player.levelPoints}`, {
@@ -57,7 +44,7 @@ export default class StatsMenu {
       .setScrollFactor(0);
     this.menuContainer.add(pointsText);
 
-    // lista statów (możesz rozszerzyć)
+    // lista statów
     const stats: Array<{ name: string; key: StatKey; getValue: () => string }> =
       [
         {
@@ -134,7 +121,6 @@ export default class StatsMenu {
 
         this.menuContainer.add(plusButton);
 
-        // ustaw interaktywność PO dodaniu do container (unikanie problemów z hitbox)
         plusButton
           .setInteractive({ useHandCursor: true })
           .on("pointerdown", () => {
@@ -150,26 +136,6 @@ export default class StatsMenu {
       }
       y += 34;
     });
-
-    // przycisk Zamknij
-    const closeButton = this.scene.add
-      .text(cx, cy + 170, "Zamknij", {
-        fontFamily: "serif",
-        fontSize: "24px",
-        color: "#ffffff",
-        stroke: "#000000",
-        strokeThickness: 3,
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0);
-    this.menuContainer.add(closeButton);
-
-    // ustaw interaktywność na close PO dodaniu do container
-    closeButton
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => {
-        this.hide();
-      });
   }
 
   private hidePlusButtons() {
@@ -180,11 +146,6 @@ export default class StatsMenu {
     if (!this.menuContainer) return;
     if (this.isVisible) return;
 
-    // pause i stan sceny — kontrola analogiczna do InGameMenu
-    this.scene.togglePause(true);
-    this.scene.currentState = GameState.IN_STATS_MENU;
-
-    // użyj wymiarów kamery (tak jak InGameMenu)
     const cam = this.scene.cameras.main;
     const cx = cam.width / 2;
     const cy = cam.height / 2;
@@ -196,14 +157,9 @@ export default class StatsMenu {
 
   public hide() {
     if (!this.menuContainer) return;
-    // usuwamy elementy ale nie niszczymy containeru (tak jak InGameMenu)
     this.menuContainer.removeAll(true);
     this.menuContainer.setVisible(false);
     this.isVisible = false;
-
-    // przywróć grę
-    this.scene.togglePause(false);
-    this.scene.currentState = GameState.IN_GAME;
   }
 
   private increaseStat(stat: StatKey): boolean {
@@ -249,7 +205,6 @@ export default class StatsMenu {
     }
 
     this.player.levelPoints--;
-    // powiadamiamy UI i inne systemy
     this.player.sprite.emit("statsChanged");
     return true;
   }

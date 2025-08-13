@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
+import GameScene from "../../GameScene";
 import ClassSelection from "./ClassSelection";
-import { MusicManager } from "../MusicManager";
+import { MusicManager } from "../../MusicManager";
 import { LoadSlotsMenu } from "./LoadSlotsMenu";
 import { OptionsMenu } from "./OptionsMenu";
 

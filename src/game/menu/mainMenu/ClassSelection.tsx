@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import GameScene from "../GameScene";
+import GameScene from "../../GameScene";
 import MainMenu from "./MainMenu";
 
 export default class ClassSelection {
