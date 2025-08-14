@@ -11,13 +11,13 @@ export class ChaseBehavior {
   public handleStandardMovement(distanceToPlayer: number) {
     if (distanceToPlayer <= this.npc.attackRange) {
       this.npc.sprite.setVelocity(0, 0);
-      this.npc.sprite.setFlipX(this.npc.player.x < this.npc.sprite.x);
+      this.npc.sprite.setFlipX(this.npc.player.sprite.x < this.npc.sprite.x);
       return;
     }
 
     const direction = new Phaser.Math.Vector2(
-      this.npc.player.x - this.npc.sprite.x,
-      this.npc.player.y - this.npc.sprite.y
+      this.npc.player.sprite.x - this.npc.sprite.x,
+      this.npc.player.sprite.y - this.npc.sprite.y
     ).normalize();
 
     this.npc.sprite.setVelocity(

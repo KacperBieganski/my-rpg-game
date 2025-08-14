@@ -1,3 +1,4 @@
+import type { PlayerBase } from "../../player/PlayerBase";
 import { SoundManager } from "../../SoundManager";
 import { NpcBase } from "../NpcBase";
 import { type NpcConfig } from "../NpcConfig";
@@ -14,15 +15,15 @@ export class GoblinTNT extends NpcBase {
     scene: Phaser.Scene,
     x: number,
     y: number,
-    player: Phaser.Physics.Arcade.Sprite,
+    player: PlayerBase,
     config: NpcConfig & {
       explodeTime: number;
       explodeRadius: number;
     },
-    type: string = "Walkable"
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ) {
-    super(scene, x, y, "Red_goblinTNT_idle", player, config);
-    this.isStatic = type === "Static";
+    super(scene, x, y, "Red_goblinTNT_idle", player, config, terrainLayers);
+
     this.explodeTime = config.explodeTime;
     this.explodeRadius = config.explodeRadius;
 
@@ -73,7 +74,7 @@ export class GoblinTNT extends NpcBase {
       detune: Phaser.Math.Between(-100, 100),
     });
 
-    this.targetPosition.set(this.player.x, this.player.y);
+    this.targetPosition.set(this.player.sprite.x, this.player.sprite.y);
     this.sprite.anims.play("Red_goblinTNT_attack", true);
 
     this.scene.time.delayedCall(attackDuration, () => {
@@ -173,11 +174,11 @@ export class GoblinTNT extends NpcBase {
     const distanceToPlayer = Phaser.Math.Distance.Between(
       x,
       y,
-      this.player.x,
-      this.player.y
+      this.player.sprite.x,
+      this.player.sprite.y
     );
     if (distanceToPlayer <= explosionRadius) {
-      this.player.emit("npcAttack", this.damage, this.sprite);
+      this.player.sprite.emit("npcAttack", this.damage, this.sprite);
     }
 
     const npcs = (this.scene as any).npcManager.getNPCs() as NpcBase[];

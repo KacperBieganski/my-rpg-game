@@ -17,21 +17,29 @@ export class BehaviorCoordinator {
   }
 
   public handlePlayerDetection(distanceToPlayer: number) {
-    if (
-      this.npc.shouldMaintainDistance &&
-      this.npc.distanceFromPlayer !== undefined
-    ) {
-      this.maintainDistanceBehavior.handleMaintainDistance(distanceToPlayer);
-    } else {
-      this.chaseBehavior.handleStandardMovement(distanceToPlayer);
-
+    if (!this.npc.isStatic) {
       if (
-        distanceToPlayer <= this.npc.attackRange &&
-        !this.npc.attackCooldown &&
-        !this.npc.isAttacking
+        this.npc.shouldMaintainDistance &&
+        this.npc.distanceFromPlayer !== undefined
       ) {
-        this.npc.attack();
+        this.maintainDistanceBehavior.handleMaintainDistance(distanceToPlayer);
+      } else {
+        this.chaseBehavior.handleStandardMovement(distanceToPlayer);
+
+        if (
+          distanceToPlayer <= this.npc.attackRange &&
+          !this.npc.attackCooldown &&
+          !this.npc.isAttacking
+        ) {
+          this.npc.attack();
+        }
       }
+    } else if (
+      distanceToPlayer <= this.npc.attackRange &&
+      !this.npc.attackCooldown &&
+      !this.npc.isAttacking
+    ) {
+      this.npc.attack();
     }
   }
 

@@ -32,6 +32,7 @@ export class AssetLoader {
     this.loadAssets(scene, this.otherImages, "image");
     this.loadAssets(scene, this.treeSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.bushSpriteSheets, "spritesheet");
+    this.loadAssets(scene, this.rockSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.rockImages, "image");
 
     this.loadAssets(scene, this.GameAudios, "audio");
@@ -70,7 +71,6 @@ export class AssetLoader {
   private static gameImages: ImageConfig[] = [
     { key: "save_icon", path: "/assets/save_icon.png" },
     { key: "background1", path: "/assets/UI/Background1.svg" },
-    { key: "background2", path: "/assets/UI/Background2.png" },
   ];
 
   private static playerSpriteSheets: SpriteSheetConfig[] = [
@@ -372,6 +372,10 @@ export class AssetLoader {
     { key: "Tilemap_color3", path: "/assets/Terrain/Tilemap_color3.png" },
     { key: "Collisions", path: "/assets/Collisions.png" },
     {
+      key: "Water_Elevation",
+      path: "/assets/Terrain/Water_Elevation.png",
+    },
+    {
       key: "Water_Background_color",
       path: "/assets/Terrain/Water Background color.png",
     },
@@ -404,6 +408,19 @@ export class AssetLoader {
   private static otherImages: ImageConfig[] = [
     { key: "Signpost1", path: "/assets/Decorations/Other/Signpost1.png" },
     { key: "RedBarrel", path: "/assets/Decorations/Other/RedBarrel.png" },
+    { key: "Signpost2", path: "/assets/Decorations/Other/Signpost2.png" },
+    { key: "Bone1", path: "/assets/Decorations/Other/Bone1.png" },
+    { key: "Bone2", path: "/assets/Decorations/Other/Bone2.png" },
+    { key: "Mine1", path: "/assets/Decorations/Other/Mine1.png" },
+    { key: "Mine2", path: "/assets/Decorations/Other/Mine2.png" },
+    { key: "Mine3", path: "/assets/Decorations/Other/Mine3.png" },
+    { key: "Mushroom1", path: "/assets/Decorations/Other/Mushroom1.png" },
+    { key: "Mushroom2", path: "/assets/Decorations/Other/Mushroom2.png" },
+    { key: "Mushroom3", path: "/assets/Decorations/Other/Mushroom3.png" },
+    { key: "Pumpkin1", path: "/assets/Decorations/Other/Pumpkin1.png" },
+    { key: "Pumpkin2", path: "/assets/Decorations/Other/Pumpkin2.png" },
+    { key: "Scarecrow", path: "/assets/Decorations/Other/Scarecrow.png" },
+    { key: "Trunk", path: "/assets/Decorations/Other/Trunk.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [
@@ -460,6 +477,32 @@ export class AssetLoader {
     },
   ];
 
+  private static rockSpriteSheets: SpriteSheetConfig[] = [
+    {
+      key: "RockWater1",
+      path: "/assets/Decorations/Rocks/RockWater1_Sprite.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "RockWater2",
+      path: "/assets/Decorations/Rocks/RockWater2_Sprite.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "RockWater3",
+      path: "/assets/Decorations/Rocks/RockWater3_Sprite.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+    {
+      key: "RockWater4",
+      path: "/assets/Decorations/Rocks/RockWater4_Sprite.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
+  ];
   private static rockImages: ImageConfig[] = [
     { key: "Rock1", path: "/assets/Decorations/Rocks/Rock1.png" },
     { key: "Rock2", path: "/assets/Decorations/Rocks/Rock2.png" },

@@ -32,6 +32,7 @@ export class ArcherPlayer extends PlayerBase {
   private setupArrowCollisions(arrow: Phaser.Physics.Arcade.Sprite) {
     // Ustawiamy zdarzenie kolizji z granicami świata
     arrow.setCollideWorldBounds(true);
+    arrow.setDepth(4000);
 
     this.scene.physics.world.on(
       "worldbounds",
@@ -218,7 +219,7 @@ export class ArcherPlayer extends PlayerBase {
   }
 
   protected getBlockSoundKey(): string {
-    return "shieldBlock"; // Możesz dodać specjalny dźwięk bloku dla łucznika
+    return "shieldBlock";
   }
 
   protected getBlockAnimation(): string {

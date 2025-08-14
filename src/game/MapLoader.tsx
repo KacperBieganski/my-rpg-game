@@ -1,10 +1,19 @@
 import Phaser from "phaser";
 
+interface TileAnimationFrame {
+  duration: number;
+  tileid: number;
+}
+
+interface TileAnimationData {
+  animation?: TileAnimationFrame[];
+}
+
 export function loadMap(scene: Phaser.Scene) {
   const spritesToSort: Phaser.GameObjects.Sprite[] = [];
   const spawnObjects: Phaser.Types.Tilemaps.TiledObject[] = [];
-  //const debugGraphics: Phaser.GameObjects.Graphics[] = [];
   const map = scene.make.tilemap({ key: "level1" });
+  map.setBaseTileSize(64, 64);
 
   // Ładowanie tilesetów
   const tilesets = {
@@ -13,6 +22,7 @@ export function loadMap(scene: Phaser.Scene) {
     tilemapColor2: map.addTilesetImage("Tilemap_color2", "Tilemap_color2"),
     tilemapColor3: map.addTilesetImage("Tilemap_color3", "Tilemap_color3"),
     collisions: map.addTilesetImage("Collisions", "Collisions"),
+    waterAnim: map.addTilesetImage("Water_Elevation", "Water_Elevation"),
     water: map.addTilesetImage(
       "Water_Background_color",
       "Water_Background_color"
@@ -23,16 +33,20 @@ export function loadMap(scene: Phaser.Scene) {
   const createLayer = (name: string, tiles: Phaser.Tilemaps.Tileset[]) =>
     map.createLayer(name, tiles, 0, 0);
 
+  const npcCollisions = createLayer("NpcCollisions", [tilesets.collisions!]);
   const collisions = createLayer("Collisions", [tilesets.collisions!]);
   const decorations = createLayer("Decorations", [tilesets.tilemap!]);
+  const waterAnim = createLayer("WaterAnim", [tilesets.waterAnim!]);
   const terrain_2 = createLayer("Terrain_2", [tilesets.tilemapColor3!]);
   const terrain_1 = createLayer("Terrain_1", [tilesets.tilemapColor2!]);
   const terrain_0 = createLayer("Terrain_0", [tilesets.tilemapColor1!]);
   const water = createLayer("Water", [tilesets.water!]);
 
   if (
+    !npcCollisions ||
     !collisions ||
     !decorations ||
+    !waterAnim ||
     !terrain_0 ||
     !terrain_1 ||
     !terrain_2 ||
@@ -43,19 +57,61 @@ export function loadMap(scene: Phaser.Scene) {
 
   // Kolizje
   collisions.setCollisionByExclusion([-1]);
+  npcCollisions.setCollisionByExclusion([-1]);
 
-  // Debugowanie kolizji
-  // if (scene.physics.world.debugGraphic) {
-  //   scene.physics.world.debugGraphic.clear();
-  //   collisions.forEachTile((tile) => {
-  //     if (tile.index !== -1) {
-  //       const graphics = scene.add.graphics();
-  //       graphics.lineStyle(1, 0xff0000, 0.8);
-  //       graphics.strokeRect(tile.pixelX, tile.pixelY, tile.width, tile.height);
-  //       graphics.setDepth(1000);
-  //     }
-  //   });
-  // }
+  // Dodanie animacji dla kafelków wody
+  const waterTileset = map.getTileset("Water_Elevation");
+  if (waterTileset) {
+    const tileAnimations = waterTileset.tileData as Record<
+      string,
+      TileAnimationData
+    >;
+
+    Object.keys(tileAnimations).forEach((tileIndex) => {
+      const tileId = parseInt(tileIndex);
+      const animationData = tileAnimations[tileIndex].animation;
+
+      if (animationData && animationData.length > 0) {
+        // Znajdź wszystkie kafelki z tym ID
+        waterAnim.forEachTile((tile) => {
+          if (tile.index === tileId + waterTileset.firstgid) {
+            const frames = animationData;
+            const totalDuration = frames.reduce(
+              (sum, frame) => sum + frame.duration,
+              0
+            );
+
+            // Utwórz animację dla tego kafelka
+            scene.tweens.addCounter({
+              from: 0,
+              to: 1,
+              duration: totalDuration,
+              repeat: -1,
+              ease: "Linear",
+              onUpdate: (tween) => {
+                const progress = tween.getValue();
+                const time = progress! * totalDuration;
+                let accumulated = 0;
+                let currentFrame = frames[0].tileid;
+
+                // Znajdź bieżącą klatkę na podstawie czasu
+                for (const frame of frames) {
+                  accumulated += frame.duration;
+                  if (time <= accumulated) {
+                    currentFrame = frame.tileid;
+                    break;
+                  }
+                }
+
+                // Zaktualizuj klatkę kafelka
+                tile.index = currentFrame + waterTileset.firstgid;
+              },
+            });
+          }
+        });
+      }
+    });
+  }
 
   // Ładowanie obiektów z warstwy Objects
   const objectsLayer = map.getObjectLayer("Objects");
@@ -73,14 +129,6 @@ export function loadMap(scene: Phaser.Scene) {
       sprite.setData("sortY", obj.y! - 40);
       spritesToSort.push(sprite);
 
-      // Dodawanie obramowania
-      // const bounds = sprite.getBounds();
-      // const outline = scene.add.graphics();
-      // outline.lineStyle(2, 0x00ff00, 0.8);
-      // outline.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-      // outline.setDepth(sprite.depth + 1);
-      // debugGraphics.push(outline);
-
       // Sprawdzenie właściwości flip i odwrócenie sprite'a jeśli potrzebne
       const flipProperty = obj.properties?.find(
         (p: { name: string }) => p.name === "flip"
@@ -90,12 +138,35 @@ export function loadMap(scene: Phaser.Scene) {
       }
 
       // Dodawanie animacji na podstawie nazwy
+      const handleAnimation = (animKey: string) => {
+        if (!scene.anims.exists(animKey)) {
+          console.warn(`Animation ${animKey} not found`);
+          return;
+        }
+
+        const animation = scene.anims.get(animKey);
+        const randomOffset = Phaser.Math.FloatBetween(0, 1);
+        const startFrame = Math.floor(randomOffset * animation.frames.length);
+
+        sprite.anims.play(
+          {
+            key: animKey,
+            startFrame: startFrame,
+            timeScale: 1.0,
+          },
+          true
+        );
+      };
+
+      // Add animations based on type
       if (isTree(name)) {
-        sprite.play(`${name.toLowerCase()}_anim`);
+        handleAnimation(`${name.toLowerCase()}_anim`);
       } else if (isBush(name)) {
-        sprite.play(`${name.toLowerCase()}_anim`);
+        handleAnimation(`${name.toLowerCase()}_anim`);
+      } else if (isRock(name)) {
+        handleAnimation(`${name.toLowerCase()}_anim`);
       } else if (isTower(name)) {
-        sprite.play(`redTower1_anim`);
+        handleAnimation(`redTower1_anim`);
       }
 
       // Ustawienie głębokości w zależności od pozycji Y
@@ -108,7 +179,8 @@ export function loadMap(scene: Phaser.Scene) {
   terrain_0.setDepth(1);
   terrain_1.setDepth(2);
   terrain_2.setDepth(3);
-  decorations.setDepth(4);
+  waterAnim.setDepth(4);
+  decorations.setDepth(5);
   // Obiekty będą miały depth ustawione dynamicznie na podstawie Y
 
   const spawnLayer = map.getObjectLayer("Spawns");
@@ -116,7 +188,16 @@ export function loadMap(scene: Phaser.Scene) {
     spawnObjects.push(...spawnLayer.objects);
   }
 
-  return { map, collisions, spritesToSort, spawnObjects };
+  return {
+    map,
+    npcCollisions,
+    collisions,
+    spritesToSort,
+    spawnObjects,
+    terrain_0,
+    terrain_1,
+    terrain_2,
+  };
 }
 
 // Funkcje pomocnicze
@@ -131,6 +212,10 @@ function isTree(name: string): boolean {
 
 function isBush(name: string): boolean {
   return name.startsWith("Bushe");
+}
+
+function isRock(name: string): boolean {
+  return name.startsWith("RockWater");
 }
 
 function isTower(name: string): boolean {

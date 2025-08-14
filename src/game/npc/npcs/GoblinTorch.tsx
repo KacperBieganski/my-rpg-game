@@ -1,3 +1,4 @@
+import type { PlayerBase } from "../../player/PlayerBase";
 import { SoundManager } from "../../SoundManager";
 import { NpcBase } from "../NpcBase";
 import { type NpcConfig } from "../NpcConfig";
@@ -8,12 +9,11 @@ export class GoblinTorch extends NpcBase {
     scene: Phaser.Scene,
     x: number,
     y: number,
-    player: Phaser.Physics.Arcade.Sprite,
+    player: PlayerBase,
     config: NpcConfig,
-    type: string = "Walkable"
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ) {
-    super(scene, x, y, "Red_goblinTorch_idle", player, config);
-    this.isStatic = type === "Static";
+    super(scene, x, y, "Red_goblinTorch_idle", player, config, terrainLayers);
   }
 
   public attack() {
@@ -31,8 +31,8 @@ export class GoblinTorch extends NpcBase {
     const angle = Phaser.Math.Angle.Between(
       this.sprite.x,
       this.sprite.y,
-      this.player.x,
-      this.player.y
+      this.player.sprite.x,
+      this.player.sprite.y
     );
     const angleDeg = Phaser.Math.RadToDeg(angle);
 
@@ -56,12 +56,12 @@ export class GoblinTorch extends NpcBase {
         const distance = Phaser.Math.Distance.Between(
           this.sprite.x,
           this.sprite.y,
-          this.player.x,
-          this.player.y
+          this.player.sprite.x,
+          this.player.sprite.y
         );
 
         if (distance <= this.attackRange) {
-          this.player.emit("npcAttack", this.damage, this.sprite);
+          this.player.sprite.emit("npcAttack", this.damage, this.sprite);
           SoundManager.getInstance().play(this.scene, "torchHit1", {
             volume: 0.6,
             detune: Phaser.Math.Between(-100, 100),

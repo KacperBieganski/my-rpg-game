@@ -1,3 +1,5 @@
  // agro npc tylko na tej samej warstwie
  // nowe staty po lvl up
  // archer strzela tam gdzxie myszka
+ // hp npc razem z poziomem npc
+ // fox lvl obrazenia

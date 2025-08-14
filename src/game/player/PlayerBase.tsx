@@ -96,7 +96,7 @@ export abstract class PlayerBase {
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
     this.sprite.setCollideWorldBounds(true);
-    this.sprite.setScale(1);
+    this.sprite.setScale(0.9);
     this.sprite.setDepth(5);
     this.sprite.setData("player", this);
 
@@ -447,6 +447,26 @@ export abstract class PlayerBase {
       default:
         return "Blue_warrior_idle";
     }
+  }
+
+  public getPosition(): { x: number; y: number } {
+    const body = this.sprite.body as Phaser.Physics.Arcade.Body;
+    return {
+      x: body.x + body.halfWidth,
+      y: body.y + body.halfHeight,
+    };
+  }
+
+  public getCurrentLayer(
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
+  ): number {
+    const pos = this.getPosition();
+    for (let i = terrainLayers.length - 1; i >= 0; i--) {
+      if (terrainLayers[i].getTileAtWorldXY(pos.x, pos.y)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   destroy() {

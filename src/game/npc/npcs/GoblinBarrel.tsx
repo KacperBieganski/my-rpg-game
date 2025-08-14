@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { NpcBase } from "../NpcBase";
 import { type NpcConfig } from "../NpcConfig";
 import { SoundManager } from "../../SoundManager";
+import type { PlayerBase } from "../../player/PlayerBase";
 
 export class GoblinBarrel extends NpcBase {
   private explodeRadius: number;
@@ -15,18 +16,13 @@ export class GoblinBarrel extends NpcBase {
     scene: Phaser.Scene,
     x: number,
     y: number,
-    player: Phaser.Physics.Arcade.Sprite,
-    config: NpcConfig & { explodeRadius: number }
+    player: PlayerBase,
+    config: NpcConfig & { explodeRadius: number },
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ) {
-    super(scene, x, y, "Red_goblinBarrel_Idle", player, config);
-
-    this.setStatic(true);
-
-    this.changeDirectionTimer?.destroy();
-    this.changeDirectionTimer = undefined;
+    super(scene, x, y, "Red_goblinBarrel_Idle", player, config, terrainLayers);
 
     this.direction.set(0, 0);
-
     this.explodeRadius = config.explodeRadius;
 
     const gameScene = scene as unknown as {
@@ -97,11 +93,11 @@ export class GoblinBarrel extends NpcBase {
     const distanceToPlayer = Phaser.Math.Distance.Between(
       x,
       y,
-      this.player.x,
-      this.player.y
+      this.player.sprite.x,
+      this.player.sprite.y
     );
     if (distanceToPlayer <= explosionRadius) {
-      this.player.emit("npcAttack", this.damage, this.sprite);
+      this.player.sprite.emit("npcAttack", this.damage, this.sprite);
     }
 
     const npcs = (this.scene as any).npcManager.getNPCs() as NpcBase[];
@@ -205,8 +201,8 @@ export class GoblinBarrel extends NpcBase {
     const distanceToPlayer = Phaser.Math.Distance.Between(
       this.sprite.x,
       this.sprite.y,
-      this.player.x,
-      this.player.y
+      this.player.sprite.x,
+      this.player.sprite.y
     );
 
     // Gracz w zasięgu detekcji
@@ -218,7 +214,7 @@ export class GoblinBarrel extends NpcBase {
       if (this.isFollowing) {
         this.behaviorCoordinator.handlePlayerDetection(distanceToPlayer);
       } else {
-        this.sprite.setFlipX(this.player.x < this.sprite.x);
+        this.sprite.setFlipX(this.player.sprite.x < this.sprite.x);
       }
     } else {
       // Gracz poza zasięgiem -> zatrzymaj się i wróć do idle po sekwencji

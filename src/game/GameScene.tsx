@@ -36,7 +36,7 @@ type GameInitData = {
 export default class GameScene extends Phaser.Scene {
   public currentState: GameState = GameState.MAIN_MENU;
   public player!: import("./player/PlayerBase").PlayerBase;
-
+  public terrainLayers: Phaser.Tilemaps.TilemapLayer[] = [];
   public npcManager!: NpcManager;
   public characterClass: "warrior" | "archer" | "lancer" = "warrior";
   public ui!: UIComponent;
@@ -130,8 +130,19 @@ export default class GameScene extends Phaser.Scene {
 
     // 1. load map + kolizje
     createObjectsAnimations(this);
-    const { map, collisions, spritesToSort, spawnObjects } = loadMap(this);
+    const {
+      map,
+      npcCollisions,
+      collisions,
+      spritesToSort,
+      spawnObjects,
+      terrain_0,
+      terrain_1,
+      terrain_2,
+    } = loadMap(this);
+    (this as any).npcCollisions = npcCollisions;
     (this as any).collisions = collisions;
+    this.terrainLayers = [terrain_0, terrain_1, terrain_2];
 
     // 2. stwórz gracza
     createPlayerAnimations(this);
@@ -142,6 +153,7 @@ export default class GameScene extends Phaser.Scene {
       opts.characterClass
     );
     this.depthSortedGroup.add(this.player.sprite);
+    this.player.sprite.setData("isPlayer", true);
     this.player.sprite.setData("sortY", this.player.sprite.y);
 
     spritesToSort.forEach((sprite) => {
@@ -181,6 +193,7 @@ export default class GameScene extends Phaser.Scene {
     if (opts.speed != null) this.player.stats.speed = opts.speed;
 
     // 4. fizyka i kamera
+    this.physics.add.collider(this.player.sprite, npcCollisions);
     this.physics.add.collider(this.player.sprite, collisions);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
@@ -197,8 +210,15 @@ export default class GameScene extends Phaser.Scene {
 
     // 5. NPC
     // Przekazujemy obiekty spawnu do NPCManager
-    this.npcManager = new NpcManager(this, this.player, spawnObjects);
-    this.npcManager.spawnNPCs();
+    this.npcManager = new NpcManager(
+      this,
+      this.player,
+      spawnObjects,
+      this.terrainLayers,
+      800
+    );
+    this.npcManager.updateNPCsVisibility();
+    this.physics.add.collider(this.npcManager.getGroup(), npcCollisions);
     this.physics.add.collider(this.npcManager.getGroup(), collisions);
     this.events.on("npcKilled", (exp: number) =>
       this.player.addExperience(exp)
@@ -295,7 +315,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (this.npcManager) {
-      this.npcManager.destroy();
+      this.npcManager.getNPCs().forEach((npc) => {
+        if (npc.sprite) {
+          npc.sprite.destroy();
+        }
+      });
       this.npcManager = undefined as any;
     }
 

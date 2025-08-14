@@ -4,6 +4,7 @@ import { GoblinTNT } from "./npcs/GoblinTNT";
 import { GoblinBarrel } from "./npcs/GoblinBarrel";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
+import type { PlayerBase } from "../player/PlayerBase";
 
 export class NpcFactory {
   static createNPC(
@@ -12,12 +13,26 @@ export class NpcFactory {
     y: number,
     name: string,
     type: string,
-    player: Phaser.Physics.Arcade.Sprite
+    player: PlayerBase,
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ): NpcBase {
+    if (!terrainLayers || terrainLayers.length === 0) {
+      console.error("Invalid terrain layers passed to NPC factory");
+      terrainLayers = []; // Fallback to empty array
+    }
+
     const npcType = this.mapNameToType(name);
     const config = this.getConfigForType(npcType);
 
-    const npc = this.createByType(scene, x, y, npcType, player, config);
+    const npc = this.createByType(
+      scene,
+      x,
+      y,
+      npcType,
+      player,
+      config,
+      terrainLayers
+    );
 
     if (type === "Static") {
       npc.setStatic(true);
@@ -51,16 +66,17 @@ export class NpcFactory {
     x: number,
     y: number,
     type: string,
-    player: Phaser.Physics.Arcade.Sprite,
-    config: any
+    player: PlayerBase,
+    config: any,
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ): NpcBase {
     switch (type) {
       case "GoblinTorch":
-        return new GoblinTorch(scene, x, y, player, config);
+        return new GoblinTorch(scene, x, y, player, config, terrainLayers);
       case "GoblinTNT":
-        return new GoblinTNT(scene, x, y, player, config);
+        return new GoblinTNT(scene, x, y, player, config, terrainLayers);
       case "GoblinBarrel":
-        return new GoblinBarrel(scene, x, y, player, config);
+        return new GoblinBarrel(scene, x, y, player, config, terrainLayers);
       default:
         throw new Error(`Unknown NPC type: ${type}`);
     }

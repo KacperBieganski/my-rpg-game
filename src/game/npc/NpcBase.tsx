@@ -3,9 +3,11 @@ import { type NpcConfig } from "./NpcConfig";
 import { BehaviorCoordinator } from "./npcBehaviors/BehaviorCoordinator";
 import { NpcHealth } from "./NpcHealth";
 import { SoundManager } from "../SoundManager";
+import type { PlayerBase } from "../player/PlayerBase";
 
 export abstract class NpcBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
+  protected terrainLayers!: Phaser.Tilemaps.TilemapLayer[];
   public isDead = false;
   private deathAnimationStarted = false;
   public health: number;
@@ -31,7 +33,7 @@ export abstract class NpcBase {
 
   public isAttacking: boolean = false;
   public attackCooldown: boolean = false;
-  public player: Phaser.Physics.Arcade.Sprite;
+  public player: PlayerBase;
 
   public behaviorCoordinator: BehaviorCoordinator;
   public healthSystem: NpcHealth;
@@ -44,14 +46,16 @@ export abstract class NpcBase {
     x: number,
     y: number,
     texture: string,
-    player: Phaser.Physics.Arcade.Sprite,
-    config: NpcConfig
+    player: PlayerBase,
+    config: NpcConfig,
+    terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ) {
     this.scene = scene;
     this.player = player;
     this.sprite = scene.physics.add.sprite(x, y, texture);
     this.sprite.setData("sortY", y);
     this.config = config;
+    this.terrainLayers = terrainLayers;
 
     this.health = config.health;
     this.maxHealth = config.maxHealth;
@@ -70,11 +74,10 @@ export abstract class NpcBase {
 
     if (this.isStatic) {
       this.playIdleAnimation();
-    }
-
-    if (!this.isStatic) {
+    } else {
       this.setupMovement();
     }
+
     this.setupPhysics();
   }
 
@@ -84,18 +87,24 @@ export abstract class NpcBase {
     if (!this.sprite.body) return;
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
-    this.sprite.setDepth(5000);
     body.moves = !isStatic;
 
     if (isStatic) {
       body.setVelocity(0, 0);
       body.setImmovable(true);
+      this.sprite.setDepth(5000);
       this.playIdleAnimation();
+
+      // Usuwanie timerów dla statycznych NPC
+      this.changeDirectionTimer?.destroy();
+      this.changeDirectionTimer = undefined;
+    } else {
+      this.setupMovement();
     }
   }
 
   protected setupMovement() {
-    if (this.isStatic) return;
+    if (this.changeDirectionTimer || this.isStatic) return;
 
     this.changeDirectionTimer = this.scene.time.addEvent({
       delay: Phaser.Math.Between(2000, 5000),
@@ -108,11 +117,11 @@ export abstract class NpcBase {
   }
 
   protected setupPhysics() {
-    this.sprite.setScale(1);
+    this.sprite.setScale(0.8);
     this.sprite.setDepth(4);
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(40, 40);
-    body.setOffset(74, 90);
+    body.setOffset(74, 80);
 
     if (this.isStatic) {
       body.moves = false;
@@ -127,8 +136,29 @@ export abstract class NpcBase {
 
     this.healthSystem.updateHealthBar();
 
-    if (this.isStatic) {
-      this.updateStaticBehavior();
+    const playerPos = this.player.getPosition();
+    const playerX = playerPos.x;
+    const playerY = playerPos.y;
+
+    const npcBody = this.sprite.body as Phaser.Physics.Arcade.Body;
+    const npcX = npcBody.x + npcBody.halfWidth;
+    const npcY = npcBody.y + npcBody.halfHeight;
+
+    // Warstwy NPC i gracza
+    const npcLayer = this.getLayerForPosition(npcX, npcY);
+    const playerLayer = this.getLayerForPosition(playerX, playerY);
+
+    // Zapobiegaj atakom i zachowaniom NPC gdy są na innych warstwach
+    if (npcLayer !== playerLayer) {
+      if (this.isAttacking) {
+        this.cancelAttack();
+      }
+
+      if (!this.isStatic) {
+        this.behaviorCoordinator.handleIdleBehavior();
+      }
+
+      this.sprite.setData("sortY", this.sprite.y);
       return;
     }
 
@@ -139,8 +169,8 @@ export abstract class NpcBase {
     const distanceToPlayer = Phaser.Math.Distance.Between(
       this.sprite.x,
       this.sprite.y,
-      this.player.x,
-      this.player.y
+      playerX,
+      playerY
     );
 
     if (distanceToPlayer <= this.detectionRange) {
@@ -155,17 +185,26 @@ export abstract class NpcBase {
   protected updateStaticBehavior() {
     if (!this.isStatic) return;
 
+    const npcLayer = this.getLayerForPosition(this.sprite.x, this.sprite.y);
+    const playerLayer = this.getLayerForPosition(
+      this.player.sprite.x,
+      this.player.sprite.y
+    );
+
+    if (npcLayer !== playerLayer) {
+      if (this.isAttacking) this.cancelAttack();
+      return;
+    }
+
     const distanceToPlayer = Phaser.Math.Distance.Between(
       this.sprite.x,
       this.sprite.y,
-      this.player.x,
-      this.player.y
+      this.player.sprite.x,
+      this.player.sprite.y
     );
 
-    this.sprite.setDepth(5000);
-
     if (distanceToPlayer <= this.detectionRange) {
-      this.sprite.setFlipX(this.player.x < this.sprite.x);
+      this.sprite.setFlipX(this.player.sprite.x < this.sprite.x);
 
       if (
         distanceToPlayer <= this.attackRange &&
@@ -183,16 +222,28 @@ export abstract class NpcBase {
 
   protected cancelAttack() {
     this.isAttacking = false;
+    this.attackCooldown = false;
 
-    if (
-      this.sprite.anims.currentAnim &&
-      this.sprite.anims.currentAnim.key.includes("attack")
-    ) {
+    if (this.sprite.anims.currentAnim?.key.includes("attack")) {
       this.sprite.anims.stop();
       this.sprite.setTexture(this.sprite.texture.key, 0);
     }
 
-    this.sprite.anims.play("Red_goblinTNT_idle", true);
+    this.playIdleAnimation();
+  }
+
+  private getLayerForPosition(x: number, y: number): number {
+    let topLayer = -1;
+
+    for (let i = this.terrainLayers.length - 1; i >= 0; i--) {
+      const layer = this.terrainLayers[i];
+      if (layer.visible && layer.getTileAtWorldXY(x, y)) {
+        topLayer = i;
+        break;
+      }
+    }
+
+    return topLayer;
   }
 
   abstract attack(): void;

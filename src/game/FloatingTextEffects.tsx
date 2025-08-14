@@ -148,46 +148,46 @@ export class FloatingTextEffects {
   public applyDamageEffects(sprite: Phaser.Physics.Arcade.Sprite) {
     if (!sprite.body) return;
 
-    // Flash effect
-    let flashCount = 0;
-    const flashTimer = this.scene.time.addEvent({
-      delay: 100,
-      callback: () => {
-        flashCount++;
-      },
-      callbackScope: this,
-      repeat: 3,
-    });
+    if (!sprite.getData("isPlayer")) {
+      // Flash effect
+      let flashCount = 0;
+      const flashTimer = this.scene.time.addEvent({
+        delay: 100,
+        callback: () => {
+          flashCount++;
+        },
+        callbackScope: this,
+        repeat: 3,
+      });
 
-    // Shake effect
-    const originalX = sprite.x;
-    const originalY = sprite.y;
-    const shakeIntensity = 3;
+      // Shake effect
+      const originalX = sprite.x;
+      const originalY = sprite.y;
+      const shakeIntensity = 3;
 
-    this.scene.tweens.add({
-      targets: sprite,
-      x: originalX + Phaser.Math.Between(-shakeIntensity, shakeIntensity),
-      y: originalY + Phaser.Math.Between(-shakeIntensity, shakeIntensity),
-      duration: 60,
-      yoyo: true,
-      repeat: 2,
-      onComplete: () => {
+      this.scene.tweens.add({
+        targets: sprite,
+        x: originalX + Phaser.Math.Between(-shakeIntensity, shakeIntensity),
+        y: originalY + Phaser.Math.Between(-shakeIntensity, shakeIntensity),
+        duration: 60,
+        yoyo: true,
+        repeat: 2,
+        onComplete: () => {
+          if (sprite.active) {
+            sprite.x = originalX;
+            sprite.y = originalY;
+          }
+        },
+      });
+      this.scene.time.delayedCall(300, () => {
         if (sprite.active) {
+          sprite.setVelocity(0);
           sprite.x = originalX;
           sprite.y = originalY;
+          flashTimer.remove();
         }
-      },
-    });
-
-    // Reset effects after delay
-    this.scene.time.delayedCall(300, () => {
-      if (sprite.active) {
-        sprite.setVelocity(0);
-        sprite.x = originalX;
-        sprite.y = originalY;
-        flashTimer.remove();
-      }
-    });
+      });
+    }
   }
 
   public destroy() {

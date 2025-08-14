@@ -17,8 +17,8 @@ export class MaintainDistanceBehavior {
     const angle = Phaser.Math.Angle.Between(
       this.npc.sprite.x,
       this.npc.sprite.y,
-      this.npc.player.x,
-      this.npc.player.y
+      this.npc.player.sprite.x,
+      this.npc.player.sprite.y
     );
 
     // Aktualizacja czasu cooldownu ucieczki
@@ -86,7 +86,7 @@ export class MaintainDistanceBehavior {
 
     if (body.velocity.length() < 10) {
       this.npc.sprite.setVelocity(0, 0);
-      this.npc.sprite.setFlipX(this.npc.player.x < this.npc.sprite.x);
+      this.npc.sprite.setFlipX(this.npc.player.sprite.x < this.npc.sprite.x);
       this.npc.playIdleAnimation();
     }
 

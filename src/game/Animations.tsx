@@ -337,6 +337,7 @@ export function createObjectsAnimations(scene: Phaser.Scene) {
   for (let i = 1; i <= 4; i++) {
     const treeKey = `tree${i}_anim`;
     const bushKey = `bushe${i}_anim`;
+    const rockKey = `rockwater${i}_anim`;
 
     if (!scene.anims.exists(treeKey)) {
       scene.anims.create({
@@ -354,6 +355,17 @@ export function createObjectsAnimations(scene: Phaser.Scene) {
       scene.anims.create({
         key: bushKey,
         frames: scene.anims.generateFrameNumbers(`Bushe${i}`, {
+          start: 0,
+          end: 7,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+    if (!scene.anims.exists(rockKey)) {
+      scene.anims.create({
+        key: rockKey,
+        frames: scene.anims.generateFrameNumbers(`RockWater${i}`, {
           start: 0,
           end: 7,
         }),
