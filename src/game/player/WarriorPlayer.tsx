@@ -24,6 +24,8 @@ export class WarriorPlayer extends PlayerBase {
   }
 
   update() {
+    if (this.isDestroyed) return;
+
     // Logika bloku - tylko gdy nie atakujemy
     if (!this.isAttacking) {
       if (this.blockKey.isDown && !this.isBlocking && !this.blockCooldown) {

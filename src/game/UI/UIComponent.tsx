@@ -331,6 +331,8 @@ export class UIComponent {
     this.levelText.setText(`Lvl ${this.player.level}`);
   }
 
+  public hide() {}
+
   public destroy() {
     [
       this.healthBg,
@@ -344,9 +346,8 @@ export class UIComponent {
       this.expText,
       this.levelText,
       this.menuButton,
+      this.autoSaveIcon,
+      this.autoSaveTimer,
     ].forEach((obj) => obj.destroy());
-    this.scene.input.keyboard?.off("keydown-ESC");
-    this.autoSaveIcon.destroy();
-    this.autoSaveTimer.destroy();
   }
 }

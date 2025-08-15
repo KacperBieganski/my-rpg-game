@@ -4,6 +4,8 @@ import { DefaultGameSettings } from "../GameSettings";
 import { FloatingTextEffects } from "../FloatingTextEffects";
 import { SoundManager } from "../SoundManager";
 import { LevelManager } from "./LevelManager";
+import { DeathScene } from "../menu/inGameMenu/DeathScene";
+import GameScene from "../GameScene";
 
 export type StatKey =
   | "maxStamina"
@@ -17,6 +19,7 @@ export type StatKey =
 
 export abstract class PlayerBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
+  public isDestroyed: boolean = false;
   protected scene: Phaser.Scene;
   protected attackCooldown = false;
   protected isAttacking = false;
@@ -159,6 +162,8 @@ export abstract class PlayerBase {
   }
 
   update() {
+    if (this.isDestroyed || !this.sprite) return;
+
     const PLAYER_SPEED =
       DefaultGameSettings.player[this.getCharacterType()].speed;
     let vx = 0;
@@ -206,6 +211,8 @@ export abstract class PlayerBase {
   }
 
   protected findNearestEnemy(): NpcBase | null {
+    if (this.isDestroyed) return null;
+
     const npcs = (this.scene as any).npcManager.getNPCs() as NpcBase[];
     if (npcs.length === 0) return null;
 
@@ -340,6 +347,8 @@ export abstract class PlayerBase {
   }
 
   public takeDamage(amount: number, _attacker?: Phaser.Physics.Arcade.Sprite) {
+    if (this.levelManager.getHealth() <= 0 || this.isDestroyed) return;
+
     if (this.isBlocking) {
       const cost = DefaultGameSettings.player.stamina.blockCost;
       if (this.useStamina(cost)) {
@@ -364,7 +373,19 @@ export abstract class PlayerBase {
     this.floatingTextEffects.applyDamageEffects(this.sprite);
 
     if (this.levelManager.getHealth() <= 0) {
-      this.sprite.setVelocity(0, 0);
+      SoundManager.getInstance().play(this.scene, "deathPlayer", {
+        volume: 0.7,
+      });
+      this.destroy();
+      (this.scene as GameScene).ui.destroy();
+
+      this.scene.time.delayedCall(1500, () => {
+        if (!this.scene.scene.isActive()) return;
+        SoundManager.getInstance().play(this.scene, "deathScene", {
+          volume: 1,
+        });
+        new DeathScene(this.scene as GameScene).show();
+      });
     }
   }
 
@@ -449,7 +470,11 @@ export abstract class PlayerBase {
     }
   }
 
-  public getPosition(): { x: number; y: number } {
+  public getPosition(): { x: number; y: number } | null {
+    if (this.isDestroyed || !this.sprite || !this.sprite.body) {
+      return null;
+    }
+
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     return {
       x: body.x + body.halfWidth,
@@ -461,6 +486,10 @@ export abstract class PlayerBase {
     terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ): number {
     const pos = this.getPosition();
+    if (!pos) {
+      return -1;
+    }
+
     for (let i = terrainLayers.length - 1; i >= 0; i--) {
       if (terrainLayers[i].getTileAtWorldXY(pos.x, pos.y)) {
         return i;
@@ -470,6 +499,9 @@ export abstract class PlayerBase {
   }
 
   destroy() {
+    if (this.isDestroyed) return;
+    this.isDestroyed = true;
+
     SoundManager.getInstance()["activeSounds"] = SoundManager.getInstance()[
       "activeSounds"
     ].filter((s) => s !== this.runningSound);
@@ -478,6 +510,19 @@ export abstract class PlayerBase {
     this.healthRegenTimer.destroy();
     this.floatingTextEffects.destroy();
     this.staminaRegenTimer.destroy();
+
+    if (this.sprite.body) {
+      (this.sprite.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
+      this.sprite.body.enable = false;
+    }
+
+    this.sprite.anims.play("dead_anim1");
+    this.sprite.once("animationcomplete-dead_anim1", () => {
+      this.sprite.anims.play("dead_anim2");
+      this.sprite.once("animationcomplete-dead_anim2", () => {
+        this.sprite.destroy();
+      });
+    });
   }
 
   abstract attack(): void;

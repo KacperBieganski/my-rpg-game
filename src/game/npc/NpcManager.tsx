@@ -39,7 +39,7 @@ export class NpcManager {
     this.npcGroup = this.scene.add.group();
     if (spawnRange) {
       this.spawnRange = spawnRange;
-      this.despawnRange = spawnRange + 100; // DespawnRange zawsze większy o 100
+      this.despawnRange = spawnRange + 200; // DespawnRange zawsze większy o 100
     }
 
     this.initializeSpawnData();
@@ -82,6 +82,15 @@ export class NpcManager {
 
       npc.sprite.setData("spawnId", spawnId);
 
+      // nasłuchiwanie na zdarzenie śmierci NPC
+      npc.onDeath = () => {
+        const spawnId = npc.sprite.getData("spawnId");
+        if (spawnId) {
+          this.killedNpcs.add(spawnId);
+          this.despawnNPC(spawnId);
+        }
+      };
+
       this.npcs.push(npc);
       this.npcGroup.add(npc.sprite);
       npc.sprite.setData("sortY", npc.sprite.y);
@@ -99,23 +108,23 @@ export class NpcManager {
     const npc = this.activeNpcs.get(spawnId);
     if (!npc) return;
 
-    if (npc.healthSystem) npc.healthSystem.destroy();
+    if (npc.isDead && !npc.deathAnimationStarted) {
+      if (npc.healthSystem) npc.healthSystem.destroy();
 
-    // Usuń NPC z listy i zniszcz jego obiekty
-    this.npcs = this.npcs.filter((n) => n !== npc);
-    this.npcGroup.remove(npc.sprite, true);
+      this.npcs = this.npcs.filter((n) => n !== npc);
+      this.npcGroup.remove(npc.sprite, true);
 
-    // Dodatkowe czyszczenie dla specjalnych NPC
-    if (npc instanceof GoblinTNT) {
-      npc.getDynamites().clear(true, true);
-      npc.getExplosions().clear(true, true);
+      if (npc instanceof GoblinTNT) {
+        npc.getDynamites().clear(true, true);
+        npc.getExplosions().clear(true, true);
+      }
+
+      if (npc instanceof GoblinBarrel) {
+        npc.getExplosions().clear(true, true);
+      }
+
+      this.activeNpcs.delete(spawnId);
     }
-
-    if (npc instanceof GoblinBarrel) {
-      npc.getExplosions().clear(true, true);
-    }
-
-    this.activeNpcs.delete(spawnId);
   }
 
   updateNPCsVisibility() {
@@ -152,11 +161,6 @@ export class NpcManager {
     this.npcs = this.npcs.filter((npc) => {
       if (npc.health <= 0) {
         if (!npc.isDead) {
-          const spawnId = npc.sprite.getData("spawnId");
-          if (spawnId) {
-            this.killedNpcs.add(spawnId);
-          }
-
           npc.startDeathAnimation();
           this.npcGroup.remove(npc.sprite);
         }

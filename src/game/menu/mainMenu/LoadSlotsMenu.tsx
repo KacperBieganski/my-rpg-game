@@ -114,6 +114,7 @@ export class LoadSlotsMenu {
       return;
     }
 
+    MainMenu.isMusicPlaying = false;
     this.destroy();
     this.scene.loadGame(data);
   }

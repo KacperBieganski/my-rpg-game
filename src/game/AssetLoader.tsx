@@ -230,6 +230,8 @@ export class AssetLoader {
     { key: "spearThrust3", path: "/assets/sounds/thrust-spear-3.ogg" },
     { key: "spearHit", path: "/assets/sounds/hit-spear.ogg" },
     { key: "spearBlock", path: "/assets/sounds/block-spear.ogg" },
+    { key: "deathScene", path: "/assets/sounds/death-scene.ogg" },
+    { key: "deathPlayer", path: "/assets/sounds/death-player.ogg" },
   ];
 
   private static enemySpriteSheets: SpriteSheetConfig[] = [
@@ -421,6 +423,7 @@ export class AssetLoader {
     { key: "Pumpkin2", path: "/assets/Decorations/Other/Pumpkin2.png" },
     { key: "Scarecrow", path: "/assets/Decorations/Other/Scarecrow.png" },
     { key: "Trunk", path: "/assets/Decorations/Other/Trunk.png" },
+    { key: "Skull", path: "/assets/Decorations/Other/Skull.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [

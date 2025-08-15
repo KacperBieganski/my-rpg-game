@@ -308,6 +308,8 @@ export default class GameScene extends Phaser.Scene {
       this.inGameMenu.destroy();
       this.inGameMenu = undefined as any;
     }
+    const music = MusicManager.getInstance();
+    music.stopAll();
 
     if (this.ui) {
       this.ui.destroy();

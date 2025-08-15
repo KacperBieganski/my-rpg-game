@@ -9,7 +9,7 @@ export default class MainMenu {
   private scene: GameScene;
   private container: Phaser.GameObjects.Container;
   private backgroundImage!: Phaser.GameObjects.TileSprite;
-  private static isMusicPlaying: boolean = false;
+  public static isMusicPlaying: boolean = false;
 
   constructor(scene: GameScene) {
     this.scene = scene;

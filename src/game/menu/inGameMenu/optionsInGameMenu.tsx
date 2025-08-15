@@ -2,10 +2,13 @@ import Phaser from "phaser";
 import GameScene from "../../GameScene";
 import { MusicManager } from "../../MusicManager";
 import { SoundManager } from "../../SoundManager";
+import { CustomSlider } from "../CustomSlider";
 
 export default class optionsInGameMenu {
   private scene: GameScene;
   private container!: Phaser.GameObjects.Container;
+  private musicSlider!: CustomSlider;
+  private effectsSlider!: CustomSlider;
   private escKey?: Phaser.Input.Keyboard.Key;
 
   constructor(scene: GameScene) {
@@ -64,25 +67,23 @@ export default class optionsInGameMenu {
       .setOrigin(0, 0.5)
       .setDepth(2);
 
-    const musicSliderElement = document.createElement("input");
-    musicSliderElement.type = "range";
-    musicSliderElement.min = "0";
-    musicSliderElement.max = "3";
-    musicSliderElement.step = "0.1";
-    musicSliderElement.value = MusicManager.getInstance()
-      .getVolume()
-      .toString();
-
-    musicSliderElement.addEventListener("input", (event) => {
-      const target = event.target as HTMLInputElement;
-      const value = parseFloat(target.value);
-      MusicManager.getInstance().setVolume(value);
-    });
-
-    const musicVolumeSlider = this.scene.add
-      .dom(cx + 130, cy - 70, musicSliderElement)
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
+    this.musicSlider = new CustomSlider(
+      this.scene,
+      cx + 130,
+      cy - 70,
+      180,
+      10,
+      0,
+      3,
+      MusicManager.getInstance().getVolume(),
+      (value: number) => {
+        MusicManager.getInstance().setVolume(value);
+      },
+      {
+        showValue: false,
+        depth: 2,
+      }
+    );
 
     // głośności efektów
     const effectsVolumeText = this.scene.add
@@ -93,31 +94,30 @@ export default class optionsInGameMenu {
       .setOrigin(0, 0.5)
       .setDepth(2);
 
-    const soundsSliderElement = document.createElement("input");
-    soundsSliderElement.type = "range";
-    soundsSliderElement.min = "0";
-    soundsSliderElement.max = "3";
-    soundsSliderElement.step = "0.1";
-    soundsSliderElement.value = SoundManager.getInstance()
-      .getVolume()
-      .toString();
-
-    soundsSliderElement.addEventListener("input", (event) => {
-      const target = event.target as HTMLInputElement;
-      const value = parseFloat(target.value);
-      SoundManager.getInstance().setVolume(value);
-    });
-
-    const soundsVolumeSlider = this.scene.add
-      .dom(cx + 130, cy - 40, soundsSliderElement)
-      .setOrigin(0.5);
+    this.effectsSlider = new CustomSlider(
+      this.scene,
+      cx + 130,
+      cy - 40,
+      180,
+      10,
+      0,
+      3,
+      SoundManager.getInstance().getVolume(),
+      (value: number) => {
+        SoundManager.getInstance().setVolume(value);
+      },
+      {
+        showValue: false,
+        depth: 2,
+      }
+    );
 
     this.container.add([
       bg,
       musicVolumeText,
-      musicVolumeSlider,
       effectsVolumeText,
-      soundsVolumeSlider,
+      ...this.musicSlider.getGameObjects(),
+      ...this.effectsSlider.getGameObjects(),
     ]);
   }
 
@@ -129,6 +129,13 @@ export default class optionsInGameMenu {
 
     if (this.container) {
       this.container.destroy();
+    }
+
+    if (this.musicSlider) {
+      this.musicSlider.destroy();
+    }
+    if (this.effectsSlider) {
+      this.effectsSlider.destroy();
     }
   }
 }

@@ -9,7 +9,7 @@ export abstract class NpcBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
   protected terrainLayers!: Phaser.Tilemaps.TilemapLayer[];
   public isDead = false;
-  private deathAnimationStarted = false;
+  public deathAnimationStarted = false;
   public health: number;
   public maxHealth: number;
   public scene: Phaser.Scene;
@@ -38,6 +38,7 @@ export abstract class NpcBase {
   public behaviorCoordinator: BehaviorCoordinator;
   public healthSystem: NpcHealth;
   protected abstract getDeathSoundKey(): string;
+  public onDeath?: () => void;
 
   public readonly config: NpcConfig;
 
@@ -137,6 +138,9 @@ export abstract class NpcBase {
     this.healthSystem.updateHealthBar();
 
     const playerPos = this.player.getPosition();
+    if (!playerPos) {
+      return;
+    }
     const playerX = playerPos.x;
     const playerY = playerPos.y;
 
@@ -255,6 +259,10 @@ export abstract class NpcBase {
     this.deathAnimationStarted = true;
 
     this.isDead = true;
+
+    if (this.onDeath) {
+      this.onDeath();
+    }
 
     this.healthSystem.destroy();
     this.changeDirectionTimer?.destroy();

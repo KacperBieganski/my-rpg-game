@@ -108,6 +108,7 @@ export default class ClassSelection {
   }
 
   private selectClass(characterClass: "warrior" | "archer" | "lancer") {
+    MainMenu.isMusicPlaying = false;
     this.destroy();
     this.scene.startNewGame(characterClass);
   }
