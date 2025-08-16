@@ -51,8 +51,8 @@ export class NpcManager {
 
       const spawnId = this.getSpawnId(spawnObj);
       this.spawnData.set(spawnId, {
-        x: spawnObj.x!,
-        y: spawnObj.y!,
+        x: spawnObj.x! + 30,
+        y: spawnObj.y! + 10,
         name: spawnObj.name,
         type: spawnObj.type,
       });

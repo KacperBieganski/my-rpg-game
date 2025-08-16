@@ -6,13 +6,13 @@ import { GameState } from "./GameState";
 import { createPlayerAnimations, createObjectsAnimations } from "./Animations";
 import { NpcManager } from "./npc/NpcManager";
 import { DefaultGameSettings } from "../game/GameSettings";
-import { PlayerFactory } from "./player/PlayerFactory";
 import { UIComponent } from "./UI/UIComponent";
 import MainMenu from "./menu/mainMenu/MainMenu";
 import ClassSelection from "./menu/mainMenu/ClassSelection";
 import InGameMenu from "./menu/inGameMenu/InGameMenu";
 import { type SaveData } from "../game/SaveManager";
 import { MusicManager } from "./MusicManager";
+import { ObjectHandler } from "./ObjectHandler";
 
 type GameInitData = {
   x: number;
@@ -125,7 +125,6 @@ export default class GameScene extends Phaser.Scene {
 
     this.characterClass = opts.characterClass;
     this.isPaused = false;
-
     this.depthSortedGroup = this.add.group();
 
     // 1. load map + kolizje
@@ -136,22 +135,23 @@ export default class GameScene extends Phaser.Scene {
       collisions,
       spritesToSort,
       spawnObjects,
+      interactiveObjects,
       terrain_0,
       terrain_1,
       terrain_2,
     } = loadMap(this);
+
+    // Inicjalizacja ObjectHandler i przekazanie obiektów
+    const objectHandler = new ObjectHandler(this);
+    objectHandler.handleObjects(interactiveObjects);
+
     (this as any).npcCollisions = npcCollisions;
     (this as any).collisions = collisions;
     this.terrainLayers = [terrain_0, terrain_1, terrain_2];
 
     // 2. stwórz gracza
     createPlayerAnimations(this);
-    this.player = PlayerFactory.createPlayer(
-      this,
-      opts.x,
-      opts.y,
-      opts.characterClass
-    );
+    this.player = objectHandler.createPlayer(opts.characterClass);
     this.depthSortedGroup.add(this.player.sprite);
     this.player.sprite.setData("isPlayer", true);
     this.player.sprite.setData("sortY", this.player.sprite.y);

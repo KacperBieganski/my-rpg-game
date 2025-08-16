@@ -424,6 +424,11 @@ export class AssetLoader {
     { key: "Scarecrow", path: "/assets/Decorations/Other/Scarecrow.png" },
     { key: "Trunk", path: "/assets/Decorations/Other/Trunk.png" },
     { key: "Skull", path: "/assets/Decorations/Other/Skull.png" },
+    { key: "Ruins1", path: "/assets/Buildings/Ruins/Ruins1.png" },
+    { key: "Ruins2", path: "/assets/Buildings/Ruins/Ruins2.png" },
+    { key: "Ruins3", path: "/assets/Buildings/Ruins/Ruins3.png" },
+    { key: "Ruins4", path: "/assets/Buildings/Ruins/Ruins4.png" },
+    { key: "Ruins5", path: "/assets/Buildings/Ruins/Ruins5.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [

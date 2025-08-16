@@ -11,6 +11,7 @@ interface TileAnimationData {
 
 export function loadMap(scene: Phaser.Scene) {
   const spritesToSort: Phaser.GameObjects.Sprite[] = [];
+  const interactiveObjects: Phaser.Types.Tilemaps.TiledObject[] = [];
   const spawnObjects: Phaser.Types.Tilemaps.TiledObject[] = [];
   const map = scene.make.tilemap({ key: "level1" });
   map.setBaseTileSize(64, 64);
@@ -37,9 +38,18 @@ export function loadMap(scene: Phaser.Scene) {
   const collisions = createLayer("Collisions", [tilesets.collisions!]);
   const decorations = createLayer("Decorations", [tilesets.tilemap!]);
   const waterAnim = createLayer("WaterAnim", [tilesets.waterAnim!]);
-  const terrain_2 = createLayer("Terrain_2", [tilesets.tilemapColor3!]);
-  const terrain_1 = createLayer("Terrain_1", [tilesets.tilemapColor2!]);
-  const terrain_0 = createLayer("Terrain_0", [tilesets.tilemapColor1!]);
+  const terrain_2 = createLayer("Terrain_2", [
+    tilesets.tilemapColor3!,
+    tilesets.tilemap!,
+  ]);
+  const terrain_1 = createLayer("Terrain_1", [
+    tilesets.tilemapColor2!,
+    tilesets.tilemap!,
+  ]);
+  const terrain_0 = createLayer("Terrain_0", [
+    tilesets.tilemapColor1!,
+    tilesets.tilemap!,
+  ]);
   const water = createLayer("Water", [tilesets.water!]);
 
   if (
@@ -188,12 +198,18 @@ export function loadMap(scene: Phaser.Scene) {
     spawnObjects.push(...spawnLayer.objects);
   }
 
+  const interactiveLayer = map.getObjectLayer("Interactive");
+  if (interactiveLayer) {
+    interactiveObjects.push(...interactiveLayer.objects);
+  }
+
   return {
     map,
     npcCollisions,
     collisions,
     spritesToSort,
     spawnObjects,
+    interactiveObjects,
     terrain_0,
     terrain_1,
     terrain_2,
