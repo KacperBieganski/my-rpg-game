@@ -23,6 +23,7 @@ export class GoblinBarrel extends NpcBase {
     super(scene, x, y, "Red_goblinBarrel_Idle", player, config, terrainLayers);
 
     this.sprite.setScale(1);
+    this.sprite.setData("isEnemy", true);
     this.direction.set(0, 0);
     this.explodeRadius = config.explodeRadius;
 

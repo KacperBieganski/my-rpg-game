@@ -61,6 +61,7 @@ export default class optionsInGameMenu {
     // głośności muzyki
     const musicVolumeText = this.scene.add
       .text(cx - 180, cy - 70, "Głośność muzyki:", {
+        fontFamily: "Kereru",
         fontSize: "20px",
         color: "#ffffff",
       })
@@ -88,6 +89,7 @@ export default class optionsInGameMenu {
     // głośności efektów
     const effectsVolumeText = this.scene.add
       .text(cx - 180, cy - 40, "Głośność efektów:", {
+        fontFamily: "Kereru",
         fontSize: "20px",
         color: "#ffffff",
       })

@@ -316,6 +316,56 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       frameRate: 8,
       repeat: 0,
     },
+
+    // Red Pawn
+    {
+      key: "Red_Pawn_Idle",
+      sprite: "Red_Pawn_Idle",
+      start: 0,
+      end: 5,
+      frameRate: 8,
+      repeat: -1,
+    },
+    {
+      key: "Red_Pawn_Run",
+      sprite: "Red_Pawn_Run",
+      start: 0,
+      end: 5,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Red_Pawn_Axe",
+      sprite: "Red_Pawn_Axe",
+      start: 0,
+      end: 5,
+      frameRate: 10,
+      repeat: 0,
+    },
+    {
+      key: "Red_Pawn_Hammer",
+      sprite: "Red_Pawn_Hammer",
+      start: 0,
+      end: 5,
+      frameRate: 10,
+      repeat: 0,
+    },
+    {
+      key: "Red_Pawn_Panic1",
+      sprite: "Red_Pawn_Panic1",
+      start: 0,
+      end: 5,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Red_Pawn_Panic2",
+      sprite: "Red_Pawn_Panic2",
+      start: 0,
+      end: 5,
+      frameRate: 10,
+      repeat: -1,
+    },
   ];
 
   for (const anim of animations) {

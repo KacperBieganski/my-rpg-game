@@ -24,6 +24,8 @@ export class GoblinTNT extends NpcBase {
   ) {
     super(scene, x, y, "Red_goblinTNT_idle", player, config, terrainLayers);
 
+    this.sprite.setData("isEnemy", true);
+
     this.explodeTime = config.explodeTime;
     this.explodeRadius = config.explodeRadius;
 

@@ -42,7 +42,7 @@ export default class StatsMenu {
 
     const pointsText = this.scene.add
       .text(cx - 450, cy - 170, `Dostępne punkty: ${this.player.levelPoints}`, {
-        fontFamily: "serif",
+        fontFamily: "KereruBold",
         fontSize: "24px",
         color: "#ffff00",
       })
@@ -103,7 +103,7 @@ export default class StatsMenu {
     stats.forEach((stat) => {
       const statText = this.scene.add
         .text(cx - 450, y, `${stat.name}: ${stat.getValue()}`, {
-          fontFamily: "serif",
+          fontFamily: "Kereru",
           fontSize: "20px",
           color: "#ffffff",
           stroke: "#000000",
@@ -117,7 +117,7 @@ export default class StatsMenu {
         const plusX = cx - 100;
         const plusButton = this.scene.add
           .text(plusX, y, "+", {
-            fontFamily: "serif",
+            fontFamily: "Kereru",
             fontSize: "24px",
             color: "#00ff00",
           })
@@ -150,7 +150,7 @@ export default class StatsMenu {
 
     const levelText = this.scene.add
       .text(cx + 330, cy - 50, `Poziom ${this.player.level}`, {
-        fontFamily: "serif",
+        fontFamily: "KereruBold",
         fontSize: "24px",
         color: "#ffff00",
         stroke: "#000000",

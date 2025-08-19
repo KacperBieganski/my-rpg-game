@@ -49,7 +49,8 @@ export default class GameMenu {
 
     const resumeBtn = this.scene.add
       .text(centerX - 350, centerY - 100, "Wznów grę", {
-        fontSize: "20px",
+        fontFamily: "KereruBold",
+        fontSize: "24px",
         color: "#ffffff",
       })
       .setOrigin(0.5)
@@ -66,8 +67,9 @@ export default class GameMenu {
       });
 
     const saveBtn = this.scene.add
-      .text(centerX - 345, centerY - 50, "Zapisz grę", {
-        fontSize: "20px",
+      .text(centerX - 355, centerY - 50, "Zapisz grę", {
+        fontFamily: "KereruBold",
+        fontSize: "24px",
         color: this.selectedOption === "save" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0.5)
@@ -83,7 +85,8 @@ export default class GameMenu {
 
     const optionBtn = this.scene.add
       .text(centerX - 375, centerY, "Opcje", {
-        fontSize: "20px",
+        fontFamily: "KereruBold",
+        fontSize: "24px",
         color: this.selectedOption === "options" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0.5)
@@ -99,7 +102,8 @@ export default class GameMenu {
 
     const mainMenuBtn = this.scene.add
       .text(centerX - 338, centerY + 50, "Menu główne", {
-        fontSize: "20px",
+        fontFamily: "KereruBold",
+        fontSize: "24px",
         color: this.selectedOption === "mainMenu" ? "#ffff00" : "#ffffff",
       })
       .setOrigin(0.5)
@@ -164,7 +168,8 @@ export default class GameMenu {
         cy - 50,
         "Niezapisany postęp zostanie utracony.\nNa pewno wrócić do menu głównego?",
         {
-          fontSize: "18px",
+          fontFamily: "KereruBold",
+          fontSize: "28px",
           color: "#ffffff",
           align: "center",
         }
@@ -174,7 +179,11 @@ export default class GameMenu {
 
     // „Tak” – powrót do głównego menu
     const yesBtn = this.scene.add
-      .text(cx - 80, cy + 40, "Tak", { fontSize: "18px", color: "#ffffff" })
+      .text(cx - 80, cy + 40, "Tak", {
+        fontFamily: "KereruBold",
+        fontSize: "24px",
+        color: "#ffffff",
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setInteractive({ useHandCursor: true })
@@ -186,7 +195,8 @@ export default class GameMenu {
     // „Zapisz grę” – otwórz zapis
     const saveBtn = this.scene.add
       .text(cx + 50, cy + 40, "Zapisz grę", {
-        fontSize: "18px",
+        fontFamily: "KereruBold",
+        fontSize: "24px",
         color: "#ffffff",
       })
       .setOrigin(0.5)

@@ -46,6 +46,7 @@ export default class Navbar {
 
     this.menuButton = this.scene.add
       .text(cx - 70, cy, "Menu", {
+        fontFamily: "KereruBold",
         fontSize: "24px",
         color: this.currentSelection === "menu" ? "#ffff00" : "#ffffff",
       })
@@ -61,6 +62,7 @@ export default class Navbar {
 
     this.statsButton = this.scene.add
       .text(cx + 30, cy, "Postać", {
+        fontFamily: "KereruBold",
         fontSize: "24px",
         color: this.currentSelection === "stats" ? "#ffff00" : "#ffffff",
       })

@@ -19,6 +19,13 @@ type AudioConfig = {
 
 export class AssetLoader {
   static preload(scene: Phaser.Scene): void {
+    // Font
+    scene.load.font("Kereru", "/my-rpg-game/assets/Fonts/Kereru/Kereru.otf");
+    scene.load.font(
+      "KereruBold",
+      "/my-rpg-game/assets/Fonts/Kereru/KereruBold.otf"
+    );
+
     // Tilemap
     scene.load.tilemapTiledJSON("level1", "/my-rpg-game/assets/startMap.json");
 
@@ -71,6 +78,11 @@ export class AssetLoader {
   private static gameImages: ImageConfig[] = [
     { key: "save_icon", path: "/assets/save_icon.png" },
     { key: "background1", path: "/assets/UI/Background1.svg" },
+    { key: "background2", path: "/assets/UI/Banners/tall.png" },
+    {
+      key: "background3",
+      path: "/assets/UI/silhouette-medieval-background.jpg",
+    },
   ];
 
   private static playerSpriteSheets: SpriteSheetConfig[] = [
@@ -349,6 +361,44 @@ export class AssetLoader {
       path: "/assets/Units/Red Units/Goblin/GoblinBarrel/Goblin_Barrel_Explode.png",
       frameWidth: 128,
       frameHeight: 128,
+    },
+
+    // Red Pawn
+    {
+      key: "Red_Pawn_Idle",
+      path: "/assets/Units/Red Units/Pawn/Pawn_Idle.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_Pawn_Run",
+      path: "/assets/Units/Red Units/Pawn/Pawn_Run.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_Pawn_Axe",
+      path: "/assets/Units/Red Units/Pawn/Pawn_Axe.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_Pawn_Hammer",
+      path: "/assets/Units/Red Units/Pawn/Pawn_Hammer.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_Pawn_Panic1",
+      path: "/assets/Units/Red Units/Pawn/Pawn_Panic1.png",
+      frameWidth: 192,
+      frameHeight: 192,
+    },
+    {
+      key: "Red_Pawn_Panic2",
+      path: "/assets/Units/Red Units/Pawn/Pawn_Panic2.png",
+      frameWidth: 192,
+      frameHeight: 192,
     },
   ];
 

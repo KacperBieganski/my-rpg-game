@@ -91,5 +91,15 @@ export const DefaultGameSettings = {
       explodeRadius: 100,
       expGain: 30,
     },
+    Pawn: {
+      health: 100,
+      maxHealth: 100,
+      speed: 100,
+      damage: 10,
+      detectionRange: 150,
+      attackRange: 80,
+      attackRate: 1000,
+      expGain: 10,
+    },
   },
 };

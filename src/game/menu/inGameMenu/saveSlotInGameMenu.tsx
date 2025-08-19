@@ -56,7 +56,8 @@ export default class saveSlotInGameMenu {
       .setScrollFactor(0);
     const title = this.scene.add
       .text(cx, cy - 110, "Wybierz slot zapisu", {
-        fontSize: "22px",
+        fontFamily: "KereruBold",
+        fontSize: "28px",
         color: "#ffffff",
       })
       .setOrigin(0.5)
@@ -68,12 +69,17 @@ export default class saveSlotInGameMenu {
     const slots = [1, 2, 3, 4] as const;
     slots.forEach((slot, i) => {
       const data = SaveManager.load(slot);
-      const label = data
-        ? `Slot ${slot}: ${data.characterClass} Lvl ${data.level}`
-        : `Slot ${slot}: pusty`;
+      let label: string;
+      if (data && data.timestamp) {
+        const formattedDate = this.formatTimestamp(data.timestamp);
+        label = `Slot ${slot}: ${data.characterClass} Lvl ${data.level} (${formattedDate})`;
+      } else {
+        label = `Slot ${slot}: pusty`;
+      }
 
       const btn = this.scene.add
         .text(cx, cy - 50 + i * 40, label, {
+          fontFamily: "Kereru",
           fontSize: "18px",
           color: data ? "#aaffaa" : "#aaaaaa",
         })
@@ -92,12 +98,17 @@ export default class saveSlotInGameMenu {
     });
 
     const autoSaveData = SaveManager.getAutoSaveData();
-    const autoSaveLabel = autoSaveData
-      ? `Autozapis: ${autoSaveData.characterClass} Lvl ${autoSaveData.level}`
-      : "Autozapis: brak";
+    let autoSaveLabel: string;
+    if (autoSaveData && autoSaveData.timestamp) {
+      const formattedDate = this.formatTimestamp(autoSaveData.timestamp);
+      autoSaveLabel = `Autozapis: ${autoSaveData.characterClass} Lvl ${autoSaveData.level} (${formattedDate})`;
+    } else {
+      autoSaveLabel = "Autozapis: brak";
+    }
 
     const autoSaveBtn = this.scene.add
       .text(cx, cy + 110, autoSaveLabel, {
+        fontFamily: "Kereru",
         fontSize: "18px",
         color: autoSaveData ? "#ffaa88" : "#aaaaaa",
       })
@@ -116,6 +127,7 @@ export default class saveSlotInGameMenu {
 
     const q = this.scene.add
       .text(cx, cy - 40, `Nadpisać slot ${slot}?`, {
+        fontFamily: "Kereru",
         fontSize: "18px",
         color: "#ffffff",
       })
@@ -125,6 +137,7 @@ export default class saveSlotInGameMenu {
 
     const yes = this.scene.add
       .text(cx - 60, cy + 40, "Tak", {
+        fontFamily: "Kereru",
         fontSize: "18px",
         color: "#ffffff",
       })
@@ -138,6 +151,7 @@ export default class saveSlotInGameMenu {
 
     const no = this.scene.add
       .text(cx + 60, cy + 40, "Nie", {
+        fontFamily: "Kereru",
         fontSize: "18px",
         color: "#ffffff",
       })
@@ -172,6 +186,19 @@ export default class saveSlotInGameMenu {
     };
     SaveManager.save(slot, saveData);
     this.show(); // odśwież listę
+  }
+
+  private formatTimestamp(timestamp: number): string {
+    const date = new Date(timestamp);
+
+    // Format: DD.MM.YYYY HH:MM
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
   }
 
   public destroy() {

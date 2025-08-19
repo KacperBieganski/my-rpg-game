@@ -5,6 +5,7 @@ import { GoblinBarrel } from "./npcs/GoblinBarrel";
 import { DefaultGameSettings } from "../GameSettings";
 import Phaser from "phaser";
 import type { PlayerBase } from "../player/PlayerBase";
+import { Pawn } from "./npcs/Pawn";
 
 export class NpcFactory {
   static createNPC(
@@ -45,6 +46,7 @@ export class NpcFactory {
     if (name.includes("Torch")) return "GoblinTorch";
     if (name.includes("TNT")) return "GoblinTNT";
     if (name.includes("Barrel")) return "GoblinBarrel";
+    if (name.includes("Pawn")) return "Pawn";
     return "GoblinTorch";
   }
 
@@ -56,6 +58,8 @@ export class NpcFactory {
         return DefaultGameSettings.npc.GoblinTNT;
       case "GoblinBarrel":
         return DefaultGameSettings.npc.GoblinBarrel;
+      case "Pawn":
+        return DefaultGameSettings.npc.Pawn;
       default:
         throw new Error(`No config found for NPC type: ${type}`);
     }
@@ -77,6 +81,8 @@ export class NpcFactory {
         return new GoblinTNT(scene, x, y, player, config, terrainLayers);
       case "GoblinBarrel":
         return new GoblinBarrel(scene, x, y, player, config, terrainLayers);
+      case "Pawn":
+        return new Pawn(scene, x, y, player, config, terrainLayers);
       default:
         throw new Error(`Unknown NPC type: ${type}`);
     }

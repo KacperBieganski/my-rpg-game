@@ -44,6 +44,8 @@ export class BehaviorCoordinator {
   }
 
   public handleIdleBehavior() {
-    this.idleBehavior.handleIdleBehavior();
+    if (!this.npc.isStatic) {
+      this.idleBehavior.handleIdleBehavior();
+    }
   }
 }

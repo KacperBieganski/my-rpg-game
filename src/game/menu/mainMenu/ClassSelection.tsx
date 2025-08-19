@@ -16,28 +16,27 @@ export default class ClassSelection {
   create() {
     const { width, height } = this.scene.cameras.main;
 
-    this.scene.add
-      .tileSprite(0, 0, width, height, "Water_Background_color")
+    const backgroundImage = this.scene.add
+      .image(0, 0, "background3")
       .setOrigin(0, 0)
-      .setTileScale(1)
-      .setScrollFactor(0);
+      .setScrollFactor(0)
+      .setDisplaySize(width, height);
 
     const centerX = width / 2;
     const centerY = height / 2;
 
-    const classMenuBg = this.scene.add.rectangle(
-      centerX,
-      centerY,
-      width * 0.6,
-      height * 0.8,
-      0x000000,
-      0.5
-    );
+    const classMenuBg = this.scene.add
+      .image(centerX, centerY, "background2")
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setAngle(90)
+      .setDisplaySize(height * 0.9, width * 0.8);
 
     const title = this.scene.add
       .text(centerX, centerY - 160, "Wybierz klasę postaci", {
-        fontSize: "28px",
-        color: "#ffffff",
+        fontFamily: "KereruBold",
+        fontSize: "38px",
+        color: "#000000",
       })
       .setOrigin(0.5);
 
@@ -47,8 +46,9 @@ export default class ClassSelection {
       .setScale(1.5);
     const warriorBtn = this.scene.add
       .text(centerX - 200, centerY + 110, "Rycerz", {
+        fontFamily: "Kereru",
         fontSize: "20px",
-        color: "#ffffff",
+        color: "#000000",
       })
       .setInteractive({ useHandCursor: true })
       .setOrigin(0.5)
@@ -60,8 +60,9 @@ export default class ClassSelection {
       .setScale(1.5);
     const archerBtn = this.scene.add
       .text(centerX, centerY + 110, "Łucznik", {
+        fontFamily: "Kereru",
         fontSize: "20px",
-        color: "#ffffff",
+        color: "#000000",
       })
       .setInteractive({ useHandCursor: true })
       .setOrigin(0.5)
@@ -73,8 +74,9 @@ export default class ClassSelection {
       .setScale(1.5);
     const lancerBtn = this.scene.add
       .text(centerX + 200, centerY + 110, "Lancer", {
+        fontFamily: "Kereru",
         fontSize: "20px",
-        color: "#ffffff",
+        color: "#000000",
       })
       .setInteractive({ useHandCursor: true })
       .setOrigin(0.5)
@@ -82,14 +84,16 @@ export default class ClassSelection {
 
     const cancelBtn = this.scene.add
       .text(centerX, centerY + 160, "◀ Powrót", {
+        fontFamily: "Kereru",
         fontSize: "20px",
-        color: "#fff",
+        color: "#000000",
       })
       .setInteractive({ useHandCursor: true })
       .setOrigin(0.5)
       .setInteractive();
 
     this.selectionContainer = this.scene.add.container(0, 0, [
+      backgroundImage,
       classMenuBg,
       title,
       warriorSprite,

@@ -14,6 +14,8 @@ export class GoblinTorch extends NpcBase {
     terrainLayers: Phaser.Tilemaps.TilemapLayer[]
   ) {
     super(scene, x, y, "Red_goblinTorch_idle", player, config, terrainLayers);
+
+    this.sprite.setData("isEnemy", true);
   }
 
   public attack() {
