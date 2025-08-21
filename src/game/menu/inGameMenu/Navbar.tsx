@@ -4,6 +4,7 @@ import GameScene from "../../GameScene";
 type NavbarCallbacks = {
   onMenu: () => void;
   onStats: () => void;
+  onInventory: () => void;
 };
 
 export default class Navbar {
@@ -13,8 +14,9 @@ export default class Navbar {
   private backgroundImage!: Phaser.GameObjects.TileSprite;
   private menuButton!: Phaser.GameObjects.Text;
   private statsButton!: Phaser.GameObjects.Text;
+  private inventoryButton!: Phaser.GameObjects.Text;
   private arrow!: Phaser.GameObjects.Triangle;
-  private currentSelection: "menu" | "stats" = "menu";
+  private currentSelection: "menu" | "stats" | "inventory" = "menu";
 
   constructor(scene: GameScene, callbacks: NavbarCallbacks) {
     this.scene = scene;
@@ -22,7 +24,7 @@ export default class Navbar {
     this.hide();
   }
 
-  public show(selectedTab: "menu" | "stats" = "menu") {
+  public show(selectedTab: "menu" | "stats" | "inventory" = "menu") {
     this.hide();
     this.currentSelection = selectedTab;
 
@@ -45,7 +47,7 @@ export default class Navbar {
       .setScrollFactor(0);
 
     this.menuButton = this.scene.add
-      .text(cx - 70, cy, "Menu", {
+      .text(cx - 160, cy, "M e n u", {
         fontFamily: "KereruBold",
         fontSize: "24px",
         color: this.currentSelection === "menu" ? "#ffff00" : "#ffffff",
@@ -61,7 +63,7 @@ export default class Navbar {
       });
 
     this.statsButton = this.scene.add
-      .text(cx + 30, cy, "Postać", {
+      .text(cx - 50, cy, "P o s t a ć", {
         fontFamily: "KereruBold",
         fontSize: "24px",
         color: this.currentSelection === "stats" ? "#ffff00" : "#ffffff",
@@ -76,12 +78,30 @@ export default class Navbar {
         this.callbacks.onStats();
       });
 
+    this.inventoryButton = this.scene.add
+      .text(cx + 80, cy, "E k w i p u n e k", {
+        fontFamily: "KereruBold",
+        fontSize: "24px",
+        color: this.currentSelection === "inventory" ? "#ffff00" : "#ffffff",
+      })
+      .setOrigin(0, 0.5)
+      .setDepth(30000)
+      .setScrollFactor(0)
+      .setInteractive({
+        useHandCursor: true,
+      })
+      .on("pointerdown", () => {
+        this.callbacks.onInventory();
+      });
+
     // Dodanie trójkątnej strzałki
     const arrowY = cy + 20;
     const arrowX =
       this.currentSelection === "menu"
-        ? cx - 70 + this.menuButton.width / 2
-        : cx + 30 + this.statsButton.width / 2;
+        ? cx - 160 + this.menuButton.width / 2
+        : this.currentSelection === "stats"
+        ? cx - 50 + this.statsButton.width / 2
+        : cx + 80 + this.inventoryButton.width / 2;
 
     this.arrow = this.scene.add
       .triangle(arrowX, arrowY, 0, 0, 10, 0, 5, 10, 0xffff00)
@@ -99,6 +119,7 @@ export default class Navbar {
   public hide() {
     if (this.menuButton) this.menuButton.destroy();
     if (this.statsButton) this.statsButton.destroy();
+    if (this.inventoryButton) this.inventoryButton.destroy();
     if (this.background) this.background.destroy();
     if (this.backgroundImage) this.backgroundImage.destroy();
     if (this.arrow) this.arrow.destroy();

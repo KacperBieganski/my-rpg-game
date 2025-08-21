@@ -6,6 +6,8 @@ import { SoundManager } from "../SoundManager";
 import { LevelManager } from "./LevelManager";
 import { DeathScene } from "../menu/inGameMenu/DeathScene";
 import GameScene from "../GameScene";
+import { Item } from "../items/Item";
+import { ItemManager } from "./ItemManager";
 
 export type StatKey =
   | "maxStamina"
@@ -69,6 +71,9 @@ export abstract class PlayerBase {
     speed: DefaultGameSettings.player.warrior.speed,
   };
 
+  public gold: number = 0;
+  public itemManager: ItemManager;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -94,6 +99,9 @@ export abstract class PlayerBase {
     this.stats.regenRate = settings.regenRate;
     this.stats.attackDamage = settings.attackDamage;
     this.stats.speed = settings.speed;
+
+    this.gold = DefaultGameSettings.player.startingGold || 0;
+    this.itemManager = new ItemManager(scene, this);
 
     this.floatingTextEffects = new FloatingTextEffects(scene);
 
@@ -496,6 +504,41 @@ export abstract class PlayerBase {
       }
     }
     return -1;
+  }
+
+  addToInventory(item: Item) {
+    this.itemManager.addToInventory(item);
+  }
+
+  removeFromInventory(itemId: string, quantity: number = 1) {
+    this.itemManager.removeFromInventory(itemId, quantity);
+  }
+
+  equipItem(itemId: string) {
+    return this.itemManager.equipItem(itemId, () => {
+      this.sprite.emit("statsChanged");
+    });
+  }
+
+  unequipItem(itemId: string) {
+    return this.itemManager.unequipItem(itemId, () => {
+      this.sprite.emit("statsChanged");
+    });
+  }
+
+  useItem(itemId: string) {
+    return this.itemManager.useItem(itemId, () => {
+      this.sprite.emit("statsChanged");
+    });
+  }
+
+  // Dodajemy gettery dla kompatybilności z istniejącym kodem
+  get inventory() {
+    return this.itemManager.inventory;
+  }
+
+  get equippedItems() {
+    return this.itemManager.equippedItems;
   }
 
   destroy() {

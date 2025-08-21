@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { PlayerFactory } from "./player/PlayerFactory";
-import { DefaultGameSettings } from "../game/GameSettings";
 import type { PlayerBase } from "./player/PlayerBase";
 
 export class ObjectHandler {
@@ -16,27 +15,41 @@ export class ObjectHandler {
   }
 
   public createPlayer(
+    x: number | undefined,
+    y: number | undefined,
     characterClass: "warrior" | "archer" | "lancer"
   ): PlayerBase {
-    let x = DefaultGameSettings.player.position.x;
-    let y = DefaultGameSettings.player.position.y;
-
-    if (this.spawnPoint) {
-      x = this.spawnPoint.x || x;
-      y = this.spawnPoint.y || y;
-
-      x += 30;
-      y += 10;
-    } else {
-      console.warn(
-        "Nie znaleziono SpawnPoint, używam domyślnych współrzędnych"
-      );
+    // Użyj współrzędnych z zapisu, jeśli są dostępne
+    if (x !== undefined && y !== undefined) {
+      return PlayerFactory.createPlayer(
+        this.scene,
+        x,
+        y,
+        characterClass
+      ) as PlayerBase;
     }
 
+    // W przeciwnym razie użyj SpawnPoint
+    if (this.spawnPoint) {
+      const spawnX = (this.spawnPoint.x || 0) + 30;
+      const spawnY = (this.spawnPoint.y || 0) + 10;
+
+      return PlayerFactory.createPlayer(
+        this.scene,
+        spawnX,
+        spawnY,
+        characterClass
+      ) as PlayerBase;
+    }
+
+    // Jeśli nie ma ani zapisanych współrzędnych, ani SpawnPoint, użyj domyślnych wartości
+    console.warn(
+      "Brak zapisanych współrzędnych i SpawnPoint, używam domyślnych wartości (100, 100)"
+    );
     return PlayerFactory.createPlayer(
       this.scene,
-      x,
-      y,
+      100,
+      100,
       characterClass
     ) as PlayerBase;
   }

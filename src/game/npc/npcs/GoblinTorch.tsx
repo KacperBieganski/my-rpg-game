@@ -87,7 +87,7 @@ export class GoblinTorch extends NpcBase {
   }
 
   public playIdleAnimation(): void {
-    this.sprite.anims.play("Red_goblinTorch_idle", true);
+    if (this.sprite) this.sprite.anims.play("Red_goblinTorch_idle", true);
   }
 
   protected getDeathSoundKey(): string {

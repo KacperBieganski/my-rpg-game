@@ -4,6 +4,9 @@ import { BehaviorCoordinator } from "./npcBehaviors/BehaviorCoordinator";
 import { NpcHealth } from "./NpcHealth";
 import { SoundManager } from "../SoundManager";
 import type { PlayerBase } from "../player/PlayerBase";
+import { Item } from "../items/Item";
+import { LootBag } from "../items/LootBag";
+import type GameScene from "../GameScene";
 
 export abstract class NpcBase {
   public sprite: Phaser.Physics.Arcade.Sprite;
@@ -254,11 +257,47 @@ export abstract class NpcBase {
   public abstract playRunAnimation(): void;
   public abstract playIdleAnimation(): void;
 
+  protected dropLoot() {
+    const dropChance = Phaser.Math.FloatBetween(0, 1);
+
+    if (dropChance < 0.9) {
+      // 30% chance to drop loot
+      const goldAmount = Phaser.Math.Between(2, 10);
+      const items: Item[] = [];
+
+      const itemsData = this.scene.cache.json.get("items");
+
+      // Chance to drop an item
+      if (itemsData && dropChance < 0.9) {
+        // 10% chance to drop an item
+        const randomItemData = Phaser.Utils.Array.GetRandom(itemsData);
+        if (randomItemData) {
+          items.push(new Item(randomItemData));
+        }
+      }
+
+      // Loot bag
+      const lootBag = new LootBag(
+        this.scene,
+        this.sprite.x,
+        this.sprite.y,
+        goldAmount,
+        items
+      );
+
+      const gameScene = this.scene as GameScene;
+      gameScene.getDepthSortedGroup().add(lootBag);
+      lootBag.setData("sortY", this.sprite.y);
+    }
+  }
+
   public startDeathAnimation(): void {
     if (this.deathAnimationStarted) return;
     this.deathAnimationStarted = true;
 
     this.isDead = true;
+
+    this.dropLoot();
 
     if (this.onDeath) {
       this.onDeath();

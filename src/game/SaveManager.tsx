@@ -15,7 +15,15 @@ export interface SaveData {
   critDamageMultiplier: number;
   attackDamage: number;
   speed: number;
+  gold: number;
+  inventory: InventoryItem[];
+  equippedItems: string[];
   timestamp?: number;
+}
+
+export interface InventoryItem {
+  id: string;
+  quantity: number;
 }
 
 const PREFIX = "myrpg_save_";
@@ -34,7 +42,16 @@ export class SaveManager {
   static load(slot: 1 | 2 | 3 | 4 | "auto"): SaveData | null {
     const key = slot === "auto" ? AUTO_SAVE_KEY : PREFIX + slot;
     const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as SaveData) : null;
+
+    if (!raw) return null;
+
+    const data = JSON.parse(raw);
+
+    // Return loaded data
+    return {
+      ...data,
+      //timestamp: data.timestamp || Date.now(),
+    };
   }
 
   static has(slot: 1 | 2 | 3 | 4 | "auto"): boolean {

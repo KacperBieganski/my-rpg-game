@@ -1,0 +1,42 @@
+[
+  {
+    "id": "health_potion",
+    "name": "Mikstura zdrowia",
+    "description": "Przywraca 50 punktów zdrowia",
+    "type": "consumable",
+    "properties": {
+      "healthRestore": 50
+    },
+    "rarity": "common"
+  },
+  {
+    "id": "iron_sword",
+    "name": "Żelazny Miecz",
+    "description": "Zwiększa obrażenia od ataku o 5",
+    "type": "equipment",
+    "properties": {
+      "attackDamage": 5
+    },
+    "rarity": "uncommon"
+  },
+  {
+    "id": "steel_armor",
+    "name": "Stalowa zbroja",
+    "description": "Zwiększa maksymalne zdrowie o 20",
+    "type": "equipment",
+    "properties": {
+      "maxHealth": 20
+    },
+    "rarity": "rare"
+  },
+  {
+    "id": "amulet_of_crit",
+    "name": "Amulet Krytycznych Uderzeń",
+    "description": "Zwiększa szansę na trafienie krytyczne o 5%",
+    "type": "equipment",
+    "properties": {
+      "critChance": 0.05
+    },
+    "rarity": "epic"
+  }
+]

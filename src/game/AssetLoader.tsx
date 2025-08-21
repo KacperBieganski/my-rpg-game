@@ -29,6 +29,9 @@ export class AssetLoader {
     // Tilemap
     scene.load.tilemapTiledJSON("level1", "/my-rpg-game/assets/startMap.json");
 
+    // Items
+    scene.load.json("items", "/my-rpg-game/assets/Items/items.json");
+
     // Kategorie zasobów
     this.loadAssets(scene, this.gameImages, "image");
     this.loadAssets(scene, this.playerSpriteSheets, "spritesheet");
@@ -37,6 +40,7 @@ export class AssetLoader {
     this.loadAssets(scene, this.buildingImages, "image");
     this.loadAssets(scene, this.buildingSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.otherImages, "image");
+    this.loadAssets(scene, this.itemsImages, "image");
     this.loadAssets(scene, this.treeSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.bushSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.rockSpriteSheets, "spritesheet");
@@ -83,6 +87,7 @@ export class AssetLoader {
       key: "background3",
       path: "/assets/UI/silhouette-medieval-background.jpg",
     },
+    { key: "Frame", path: "/assets/UI/Frame.png" },
   ];
 
   private static playerSpriteSheets: SpriteSheetConfig[] = [
@@ -446,6 +451,26 @@ export class AssetLoader {
       key: "RedCottage1",
       path: "/assets/Buildings/Red_Buildings/RedCottage1.png",
     },
+    {
+      key: "RedCottage2",
+      path: "/assets/Buildings/Red_Buildings/RedCottage2.png",
+    },
+    {
+      key: "Construction1",
+      path: "/assets/Buildings/Construction/Construction1.png",
+    },
+    {
+      key: "Construction2",
+      path: "/assets/Buildings/Construction/Construction2.png",
+    },
+    {
+      key: "Construction3",
+      path: "/assets/Buildings/Construction/Construction3.png",
+    },
+    {
+      key: "Construction4",
+      path: "/assets/Buildings/Construction/Construction4.png",
+    },
   ];
 
   private static buildingSpriteSheets: SpriteSheetConfig[] = [
@@ -479,6 +504,24 @@ export class AssetLoader {
     { key: "Ruins3", path: "/assets/Buildings/Ruins/Ruins3.png" },
     { key: "Ruins4", path: "/assets/Buildings/Ruins/Ruins4.png" },
     { key: "Ruins5", path: "/assets/Buildings/Ruins/Ruins5.png" },
+
+    { key: "Fence1", path: "/assets/Decorations/Fences/Fence1.png" },
+
+    { key: "Fence2", path: "/assets/Decorations/Fences/Fence2.png" },
+    { key: "Fence3", path: "/assets/Decorations/Fences/Fence3.png" },
+    { key: "Fence4", path: "/assets/Decorations/Fences/Fence4.png" },
+    { key: "Fence5", path: "/assets/Decorations/Fences/Fence5.png" },
+    { key: "Fence6", path: "/assets/Decorations/Fences/Fence6.png" },
+    { key: "Fence7", path: "/assets/Decorations/Fences/Fence7.png" },
+    { key: "Fence8", path: "/assets/Decorations/Fences/Fence8.png" },
+  ];
+
+  private static itemsImages: ImageConfig[] = [
+    { key: "loot_bag", path: "/assets/Resources/LootBag.png" },
+    { key: "health_potion", path: "/assets/Items/health_potion.png" },
+    { key: "iron_sword", path: "/assets/Items/iron_sword.png" },
+    { key: "steel_armor", path: "/assets/Items/steel_armor.png" },
+    { key: "amulet_of_crit", path: "/assets/Items/amulet_of_crit.png" },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [

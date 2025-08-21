@@ -43,10 +43,10 @@ export class Pawn extends NpcBase {
     return "deathGoblin1";
   }
 
-  public takeDamage(amount: number) {
-    super.takeDamage(amount);
+  public takeDamage() {
+    //super.takeDamage(amount);
 
-    // Uruchom ucieczkę po otrzymaniu obrażeń
+    // Uruchom ucieczkę
     if (!this.isDead && !this.isDamagePanic) {
       this.startDamagePanic();
     }

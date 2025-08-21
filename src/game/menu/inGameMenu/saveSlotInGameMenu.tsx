@@ -183,6 +183,9 @@ export default class saveSlotInGameMenu {
       critDamageMultiplier: this.scene.player.critDamageMultiplier,
       attackDamage: this.scene.player.stats.attackDamage,
       speed: this.scene.player.stats.speed,
+      gold: this.scene.player.gold,
+      inventory: this.scene.player.inventory,
+      equippedItems: this.scene.player.equippedItems,
     };
     SaveManager.save(slot, saveData);
     this.show(); // odśwież listę

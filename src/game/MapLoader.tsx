@@ -36,7 +36,8 @@ export function loadMap(scene: Phaser.Scene) {
 
   const npcCollisions = createLayer("NpcCollisions", [tilesets.collisions!]);
   const collisions = createLayer("Collisions", [tilesets.collisions!]);
-  const decorations = createLayer("Decorations", [tilesets.tilemap!]);
+  const decorations_2 = createLayer("Decorations_2", [tilesets.tilemap!]);
+  const decorations_1 = createLayer("Decorations_1", [tilesets.tilemap!]);
   const waterAnim = createLayer("WaterAnim", [tilesets.waterAnim!]);
   const terrain_2 = createLayer("Terrain_2", [
     tilesets.tilemapColor3!,
@@ -55,7 +56,8 @@ export function loadMap(scene: Phaser.Scene) {
   if (
     !npcCollisions ||
     !collisions ||
-    !decorations ||
+    !decorations_1 ||
+    !decorations_2 ||
     !waterAnim ||
     !terrain_0 ||
     !terrain_1 ||
@@ -190,7 +192,8 @@ export function loadMap(scene: Phaser.Scene) {
   terrain_1.setDepth(2);
   terrain_2.setDepth(3);
   waterAnim.setDepth(4);
-  decorations.setDepth(5);
+  decorations_1.setDepth(5);
+  decorations_2.setDepth(6);
   // Obiekty będą miały depth ustawione dynamicznie na podstawie Y
 
   const spawnLayer = map.getObjectLayer("Spawns");
@@ -235,5 +238,5 @@ function isRock(name: string): boolean {
 }
 
 function isTower(name: string): boolean {
-  return name.startsWith("RedTower");
+  return name.startsWith("RedTower1");
 }

@@ -40,7 +40,8 @@ export class IdleBehavior {
     if (
       this.currentAction === "idle" ||
       this.npc.isFollowing ||
-      this.npc.isAttacking
+      this.npc.isAttacking ||
+      this.npc.isDead
     )
       return;
 

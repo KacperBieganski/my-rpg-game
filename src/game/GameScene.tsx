@@ -5,18 +5,17 @@ import { AssetLoader } from "./AssetLoader";
 import { GameState } from "./GameState";
 import { createPlayerAnimations, createObjectsAnimations } from "./Animations";
 import { NpcManager } from "./npc/NpcManager";
-import { DefaultGameSettings } from "../game/GameSettings";
 import { UIComponent } from "./UI/UIComponent";
 import MainMenu from "./menu/mainMenu/MainMenu";
 import ClassSelection from "./menu/mainMenu/ClassSelection";
 import InGameMenu from "./menu/inGameMenu/InGameMenu";
-import { type SaveData } from "../game/SaveManager";
+import { type InventoryItem, type SaveData } from "../game/SaveManager";
 import { MusicManager } from "./MusicManager";
 import { ObjectHandler } from "./ObjectHandler";
 
 type GameInitData = {
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
   characterClass: "warrior" | "archer" | "lancer";
   health?: number;
   maxHealth?: number;
@@ -31,6 +30,9 @@ type GameInitData = {
   critDamageMultiplier?: number;
   attackDamage?: number;
   speed?: number;
+  inventory?: InventoryItem[];
+  equippedItems?: string[];
+  gold?: number;
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -88,8 +90,7 @@ export default class GameScene extends Phaser.Scene {
       "medieval-ambient-3",
     ]);
 
-    const { x, y } = DefaultGameSettings.player.position;
-    this.initGame({ x, y, characterClass });
+    this.initGame({ characterClass });
   }
 
   public loadGame(data: SaveData) {
@@ -115,6 +116,9 @@ export default class GameScene extends Phaser.Scene {
       critDamageMultiplier: data.critDamageMultiplier,
       attackDamage: data.attackDamage,
       speed: data.speed,
+      inventory: data.inventory,
+      equippedItems: data.equippedItems,
+      gold: data.gold,
     });
   }
 
@@ -151,7 +155,11 @@ export default class GameScene extends Phaser.Scene {
 
     // 2. stwórz gracza
     createPlayerAnimations(this);
-    this.player = objectHandler.createPlayer(opts.characterClass);
+    this.player = objectHandler.createPlayer(
+      opts.x,
+      opts.y,
+      opts.characterClass
+    );
     this.depthSortedGroup.add(this.player.sprite);
     this.player.sprite.setData("isPlayer", true);
     this.player.sprite.setData("sortY", this.player.sprite.y);
@@ -191,6 +199,10 @@ export default class GameScene extends Phaser.Scene {
     if (opts.attackDamage != null)
       this.player.stats.attackDamage = opts.attackDamage;
     if (opts.speed != null) this.player.stats.speed = opts.speed;
+    if (opts.inventory && opts.equippedItems) {
+      this.player.itemManager.loadState(opts.inventory, opts.equippedItems);
+    }
+    if (opts.gold) this.player.gold = opts.gold;
 
     // 4. fizyka i kamera
     this.physics.add.collider(this.player.sprite, npcCollisions);

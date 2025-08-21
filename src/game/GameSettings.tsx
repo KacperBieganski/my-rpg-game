@@ -10,6 +10,7 @@ export const DefaultGameSettings = {
     level: 1,
     experience: 0,
     levelPoints: 0,
+    startingGold: 0,
 
     stamina: {
       maxStamina: 100,

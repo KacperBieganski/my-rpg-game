@@ -83,6 +83,9 @@ export class UIComponent {
       critDamageMultiplier: this.player.critDamageMultiplier,
       attackDamage: this.player.stats.attackDamage,
       speed: this.player.stats.speed,
+      gold: this.player.gold,
+      inventory: this.player.inventory,
+      equippedItems: this.player.equippedItems,
     };
 
     SaveManager.save("auto", saveData);

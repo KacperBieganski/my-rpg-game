@@ -2,10 +2,11 @@ import GameScene from "../../GameScene";
 import Navbar from "./Navbar";
 import GameMenu from "./GameMenu";
 import StatsMenu from "./StatsMenu";
+import InventoryMenu from "./InventoryMenu";
 import type { PlayerBase } from "../../player/PlayerBase";
 import { GameState } from "../../GameState";
 
-type TabName = "menu" | "stats";
+type TabName = "menu" | "stats" | "inventory";
 
 export default class InGameMenu {
   private scene: GameScene;
@@ -14,6 +15,7 @@ export default class InGameMenu {
   private navbar!: Navbar;
   private gameMenu!: GameMenu;
   private statsMenu!: StatsMenu;
+  private inventoryMenu!: InventoryMenu;
   private isVisible = false;
 
   constructor(scene: GameScene, initialTab: TabName, player: PlayerBase) {
@@ -28,10 +30,14 @@ export default class InGameMenu {
       onStats: () => {
         this.show("stats");
       },
+      onInventory: () => {
+        this.show("inventory");
+      },
     });
 
     this.gameMenu = new GameMenu(scene, () => this.hide());
     this.statsMenu = new StatsMenu(scene, this.player);
+    this.inventoryMenu = new InventoryMenu(scene, this.player);
 
     this.hide();
   }
@@ -42,20 +48,26 @@ export default class InGameMenu {
     this.navbar.show(this.activeTab);
 
     if (this.isVisible) {
+      this.gameMenu.hide();
+      this.statsMenu.hide();
+      this.inventoryMenu.hide();
+
       if (this.activeTab === "menu") {
-        this.statsMenu.hide();
         this.gameMenu.show();
-      } else {
-        this.gameMenu.hide();
+      } else if (this.activeTab === "stats") {
         this.statsMenu.show();
+      } else if (this.activeTab === "inventory") {
+        this.inventoryMenu.show();
       }
       return;
     }
 
     if (this.activeTab === "menu") {
       this.gameMenu.show();
-    } else {
+    } else if (this.activeTab === "stats") {
       this.statsMenu.show();
+    } else if (this.activeTab === "inventory") {
+      this.inventoryMenu.show();
     }
 
     this.isVisible = true;
@@ -69,6 +81,7 @@ export default class InGameMenu {
     this.navbar.hide();
     this.gameMenu.hide();
     this.statsMenu.hide();
+    this.inventoryMenu.hide();
 
     this.scene.togglePause(false);
     this.isVisible = false;
