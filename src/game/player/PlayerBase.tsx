@@ -8,6 +8,7 @@ import { DeathScene } from "../menu/inGameMenu/DeathScene";
 import GameScene from "../GameScene";
 import { Item } from "../items/Item";
 import { ItemManager } from "./ItemManager";
+import { StatsManager } from "./StatsManager";
 
 export type StatKey =
   | "maxStamina"
@@ -40,17 +41,10 @@ export abstract class PlayerBase {
   protected floatingTextEffects: FloatingTextEffects;
   protected lastDamageTime: number = 0;
   protected healthRegenTimer: Phaser.Time.TimerEvent;
-  public regenRate: number;
-  protected regenDelay: number;
-
   private lastStaminaUseTime: number = 0;
   private staminaRegenTimer: Phaser.Time.TimerEvent;
   private isStaminaDepleted: boolean = false;
   private lastCriticalHit: boolean = false;
-  public currentStamina: number;
-  public maxStamina: number;
-  public critChance: number;
-  public critDamageMultiplier: number;
 
   private runningSound: Phaser.Sound.BaseSound;
   private isMoving: boolean = false;
@@ -58,20 +52,7 @@ export abstract class PlayerBase {
 
   public levelManager: LevelManager;
   public characterClass!: "warrior" | "archer" | "lancer";
-  public levelPoints: number;
-  public stats = {
-    maxStamina: DefaultGameSettings.player.stamina.maxStamina,
-    staminaRegenRate: DefaultGameSettings.player.stamina.staminaRegenRate,
-    criticalHitBaseChance: DefaultGameSettings.player.criticalHit.baseChance,
-    criticalHitDamageMultiplier:
-      DefaultGameSettings.player.criticalHit.damageMultiplier,
-    maxHealth: DefaultGameSettings.player.warrior.maxHealth,
-    regenRate: DefaultGameSettings.player.warrior.regenRate,
-    attackDamage: DefaultGameSettings.player.warrior.attackDamage,
-    speed: DefaultGameSettings.player.warrior.speed,
-  };
-
-  public gold: number = 0;
+  public stats: StatsManager;
   public itemManager: ItemManager;
 
   constructor(
@@ -85,24 +66,28 @@ export abstract class PlayerBase {
     this.scene = scene;
     this.characterClass = characterClass;
 
-    this.maxStamina = DefaultGameSettings.player.stamina.maxStamina;
-    this.currentStamina = this.maxStamina;
-    this.critChance = DefaultGameSettings.player.criticalHit.baseChance;
-    this.critDamageMultiplier =
-      DefaultGameSettings.player.criticalHit.damageMultiplier;
-    this.regenRate = settings.regenRate;
-    this.regenDelay = settings.regenDelay;
-    this.currentStamina = DefaultGameSettings.player.stamina.maxStamina;
-    this.levelPoints = DefaultGameSettings.player.levelPoints;
+    this.stats = new StatsManager({
+      maxHealth: settings.maxHealth,
+      health: settings.health,
+      maxStamina: DefaultGameSettings.player.stamina.maxStamina,
+      currentStamina: DefaultGameSettings.player.stamina.maxStamina,
+      attackDamage: settings.attackDamage,
+      speed: settings.speed,
+      regenRate: settings.regenRate,
+      regenDelay: settings.regenDelay,
+      staminaRegenRate: DefaultGameSettings.player.stamina.staminaRegenRate,
+      staminaRegenDelay: DefaultGameSettings.player.stamina.staminaRegenDelay,
+      critChance: DefaultGameSettings.player.criticalHit.baseChance,
+      critDamageMultiplier:
+        DefaultGameSettings.player.criticalHit.damageMultiplier,
+      level: DefaultGameSettings.player.level,
+      experience: DefaultGameSettings.player.experience,
+      nextLevelExp: 100,
+      levelPoints: DefaultGameSettings.player.levelPoints,
+      gold: DefaultGameSettings.player.gold || 0,
+    });
 
-    this.stats.maxHealth = settings.maxHealth;
-    this.stats.regenRate = settings.regenRate;
-    this.stats.attackDamage = settings.attackDamage;
-    this.stats.speed = settings.speed;
-
-    this.gold = DefaultGameSettings.player.startingGold || 0;
     this.itemManager = new ItemManager(scene, this);
-
     this.floatingTextEffects = new FloatingTextEffects(scene);
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
@@ -126,10 +111,6 @@ export abstract class PlayerBase {
 
     this.levelManager = new LevelManager(
       this,
-      DefaultGameSettings.player.level,
-      DefaultGameSettings.player.experience,
-      settings.maxHealth,
-      settings.health,
       this.sprite,
       this.floatingTextEffects
     );
@@ -244,20 +225,20 @@ export abstract class PlayerBase {
   }
 
   private regenerateHealth() {
-    if (this.levelManager.getHealth() >= this.levelManager.getMaxHealth()) {
+    if (this.stats.health >= this.stats.maxHealth) {
       return;
     }
 
     const currentTime = this.scene.time.now;
 
-    if (currentTime - this.lastDamageTime > this.regenDelay) {
+    if (currentTime - this.lastDamageTime > this.stats.regenDelay) {
       const healAmount = Math.min(
-        this.regenRate,
-        this.levelManager.getMaxHealth() - this.levelManager.getHealth()
+        this.stats.regenRate,
+        this.stats.maxHealth - this.stats.health
       );
 
       if (healAmount > 0) {
-        this.levelManager.setHealth(this.levelManager.getHealth() + healAmount);
+        this.stats.addHealth(healAmount);
         this.sprite.emit("healthChanged");
         this.floatingTextEffects.showHeal(this.sprite, healAmount);
       }
@@ -265,48 +246,33 @@ export abstract class PlayerBase {
   }
 
   private regenerateStamina() {
-    if (this.currentStamina >= this.maxStamina) {
-      this.currentStamina = this.maxStamina;
+    if (this.stats.currentStamina >= this.stats.maxStamina) {
+      this.stats.currentStamina = this.stats.maxStamina;
       this.isStaminaDepleted = false;
       return;
     }
 
     const currentTime = this.scene.time.now;
-    const staminaSettings = DefaultGameSettings.player.stamina;
 
-    if (
-      currentTime - this.lastStaminaUseTime >
-      staminaSettings.staminaRegenDelay
-    ) {
-      const regenRate = this.stats.staminaRegenRate;
-      const regenAmount = regenRate * 0.1;
-      this.currentStamina = Phaser.Math.Clamp(
-        this.currentStamina + regenAmount,
-        0,
-        this.maxStamina
-      );
+    if (currentTime - this.lastStaminaUseTime > this.stats.staminaRegenDelay) {
+      const regenAmount = this.stats.staminaRegenRate * 0.1;
+      this.stats.addStamina(regenAmount);
       this.sprite.emit("staminaChanged");
 
-      if (this.currentStamina > 0) {
+      if (this.stats.currentStamina > 0) {
         this.isStaminaDepleted = false;
       }
     }
   }
 
   protected useStamina(amount: number): boolean {
-    if (this.currentStamina < amount) return false;
+    if (this.stats.currentStamina < amount) return false;
 
-    this.currentStamina -= amount;
+    this.stats.reduceStamina(amount);
     this.lastStaminaUseTime = this.scene.time.now;
-    this.currentStamina = Phaser.Math.Clamp(
-      this.currentStamina,
-      0,
-      this.getMaxStamina()
-    );
-
     this.sprite.emit("staminaChanged");
 
-    if (this.currentStamina <= 0) {
+    if (this.stats.currentStamina <= 0) {
       this.isStaminaDepleted = true;
     }
 
@@ -314,24 +280,25 @@ export abstract class PlayerBase {
   }
 
   protected checkCriticalHit(): boolean {
-    this.lastCriticalHit = Phaser.Math.FloatBetween(0, 1) < this.critChance;
+    this.lastCriticalHit =
+      Phaser.Math.FloatBetween(0, 1) < this.stats.critChance;
     return this.lastCriticalHit;
   }
 
   protected getCriticalDamageMultiplier(): number {
-    return this.lastCriticalHit ? this.critDamageMultiplier : 1;
+    return this.lastCriticalHit ? this.stats.critDamageMultiplier : 1;
   }
 
   public getStaminaPercentage(): number {
-    return this.currentStamina / this.getMaxStamina();
+    return this.stats.currentStamina / this.stats.maxStamina;
   }
 
   public getCurrentStamina(): number {
-    return this.currentStamina;
+    return this.stats.currentStamina;
   }
 
   public getMaxStamina(): number {
-    return this.maxStamina;
+    return this.stats.maxStamina;
   }
 
   protected startBlock() {
@@ -402,27 +369,43 @@ export abstract class PlayerBase {
   }
 
   public get health(): number {
-    return this.levelManager.getHealth();
+    return this.stats.health;
   }
 
   public set health(value: number) {
-    this.levelManager.setHealth(value);
+    this.stats.health = value;
   }
 
   public get maxHealth(): number {
-    return this.levelManager.getMaxHealth();
+    return this.stats.maxHealth;
   }
 
   public get level(): number {
-    return this.levelManager.getLevel();
+    return this.stats.level;
   }
 
   public get experience(): number {
-    return this.levelManager.getExperience();
+    return this.stats.experience;
   }
 
   public get nextLevelExp(): number {
-    return this.levelManager.getNextLevelExp();
+    return this.stats.nextLevelExp;
+  }
+
+  public get levelPoints(): number {
+    return this.stats.levelPoints;
+  }
+
+  public set levelPoints(value: number) {
+    this.stats.levelPoints = value;
+  }
+
+  public get gold(): number {
+    return this.stats.gold;
+  }
+
+  public set gold(value: number) {
+    this.stats.gold = value;
   }
 
   private startRunningSound() {

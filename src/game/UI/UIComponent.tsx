@@ -70,22 +70,27 @@ export class UIComponent {
       x: this.player.sprite.x,
       y: this.player.sprite.y,
       characterClass: (this.scene as GameScene).characterClass,
-      health: this.player.health,
-      maxHealth: this.player.maxHealth,
-      regenRate: this.player.stats.regenRate,
-      level: this.player.level,
-      experience: this.player.experience,
-      levelPoints: this.player.levelPoints,
-      currentStamina: this.player.currentStamina,
-      maxStamina: this.player.maxStamina,
-      staminaRegenRate: this.player.stats.staminaRegenRate,
-      critChance: this.player.critChance,
-      critDamageMultiplier: this.player.critDamageMultiplier,
-      attackDamage: this.player.stats.attackDamage,
-      speed: this.player.stats.speed,
-      gold: this.player.gold,
-      inventory: this.player.inventory,
-      equippedItems: this.player.equippedItems,
+      stats: {
+        health: this.player.health,
+        maxHealth: this.player.maxHealth,
+        maxStamina: this.player.getMaxStamina(),
+        currentStamina: this.player.getCurrentStamina(),
+        attackDamage: this.player.stats.attackDamage,
+        speed: this.player.stats.speed,
+        regenRate: this.player.stats.regenRate,
+        staminaRegenRate: this.player.stats.staminaRegenRate,
+        critChance: this.player.stats.critChance,
+        critDamageMultiplier: this.player.stats.critDamageMultiplier,
+        level: this.player.level,
+        experience: this.player.experience,
+        levelPoints: this.player.levelPoints,
+        gold: this.player.gold,
+        regenDelay: 0,
+        staminaRegenDelay: 0,
+        nextLevelExp: this.player.nextLevelExp || 0,
+      },
+      inventory: this.player.itemManager.inventory,
+      equippedItems: this.player.itemManager.equippedItems,
     };
 
     SaveManager.save("auto", saveData);
@@ -215,10 +220,15 @@ export class UIComponent {
     this.player.sprite.on("statsChanged", () => {
       this.updateExpUI();
       this.updateLevelUI();
+      this.updateHealthUI();
+      this.updateStaminaUI();
+    });
+    this.player.sprite.on("equipmentChanged", () => {
+      this.updateAll();
     });
   }
 
-  private updateAll() {
+  public updateAll() {
     this.updateHealthUI();
     this.updateStaminaUI();
     this.updateExpUI();

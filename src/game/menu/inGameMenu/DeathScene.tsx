@@ -99,7 +99,7 @@ export class DeathScene {
           centerX,
           centerY - 80 + i * 40,
           `Slot ${slot}: ${
-            data ? `${data.characterClass} Lvl ${data.level}` : "pusty"
+            data ? `${data.characterClass} Lvl ${data.stats.level}` : "pusty"
           }`,
           {
             fontSize: "20px",
@@ -124,7 +124,7 @@ export class DeathScene {
         centerY + 80,
         `Autozapis: ${
           autoSaveData
-            ? `${autoSaveData.characterClass} Lvl ${autoSaveData.level}`
+            ? `${autoSaveData.characterClass} Lvl ${autoSaveData.stats.level}`
             : "brak"
         }`,
         {

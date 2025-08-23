@@ -41,11 +41,16 @@ export default class StatsMenu {
     this.menuContainer.add([bgImg, bg]);
 
     const pointsText = this.scene.add
-      .text(cx - 450, cy - 170, `Dostępne punkty: ${this.player.levelPoints}`, {
-        fontFamily: "KereruBold",
-        fontSize: "24px",
-        color: "#ffff00",
-      })
+      .text(
+        cx - 450,
+        cy - 170,
+        `Dostępne punkty: ${this.player.stats.levelPoints}`,
+        {
+          fontFamily: "KereruBold",
+          fontSize: "24px",
+          color: "#ffff00",
+        }
+      )
       .setScrollFactor(0);
     this.menuContainer.add(pointsText);
 
@@ -65,16 +70,13 @@ export default class StatsMenu {
         {
           name: "Szansa na krytyczne trafienie",
           key: "criticalHitBaseChance",
-          getValue: () =>
-            `${(this.player.stats.criticalHitBaseChance * 100).toFixed(1)}%`,
+          getValue: () => `${(this.player.stats.critChance * 100).toFixed(1)}%`,
         },
         {
           name: "Mnożnik krytycznego trafienia",
           key: "criticalHitDamageMultiplier",
           getValue: () =>
-            `${(this.player.stats.criticalHitDamageMultiplier * 100).toFixed(
-              0
-            )}%`,
+            `${(this.player.stats.critDamageMultiplier * 100).toFixed(0)}%`,
         },
         {
           name: "Maksymalne zdrowie",
@@ -113,7 +115,7 @@ export default class StatsMenu {
 
       this.menuContainer.add(statText);
 
-      if (this.player.levelPoints > 0) {
+      if (this.player.stats.levelPoints > 0) {
         const plusX = cx - 100;
         const plusButton = this.scene.add
           .text(plusX, y, "+", {
@@ -129,27 +131,30 @@ export default class StatsMenu {
         plusButton
           .setInteractive({ useHandCursor: true })
           .on("pointerdown", () => {
-            if (this.player.levelPoints <= 0) return;
+            if (this.player.stats.levelPoints <= 0) return;
             if (this.increaseStat(stat.key)) {
               // aktualizacja tekstów
               statText.setText(`${stat.name}: ${stat.getValue()}`);
-              pointsText.setText(`Dostępne punkty: ${this.player.levelPoints}`);
+              pointsText.setText(
+                `Dostępne punkty: ${this.player.stats.levelPoints}`
+              );
 
-              if (this.player.levelPoints === 0) this.hidePlusButtons();
+              if (this.player.stats.levelPoints === 0) this.hidePlusButtons();
             }
           });
       }
       y += 34;
     });
 
+    const { centerX, centerY } = this.scene.cameras.main;
     const characterSprite = this.scene.add
-      .sprite(cx + 330, cy + 80, this.player.getCharacterTexture())
+      .sprite(centerX + 280, centerY + 120, this.player.getCharacterTexture())
       .setScale(2)
       .setFlipX(true)
       .setScrollFactor(0);
 
     const levelText = this.scene.add
-      .text(cx + 330, cy - 50, `Poziom ${this.player.level}`, {
+      .text(centerX + 280, centerY - 20, `Poziom ${this.player.stats.level}`, {
         fontFamily: "KereruBold",
         fontSize: "24px",
         color: "#ffff00",
@@ -187,28 +192,24 @@ export default class StatsMenu {
   }
 
   private increaseStat(stat: StatKey): boolean {
-    if (this.player.levelPoints <= 0) return false;
+    if (this.player.stats.levelPoints <= 0) return false;
 
     switch (stat) {
       case "maxStamina":
         this.player.stats.maxStamina += 10;
-        this.player.maxStamina = this.player.stats.maxStamina;
-        this.player.currentStamina = Math.min(
-          this.player.currentStamina,
-          this.player.maxStamina
+        this.player.stats.currentStamina = Math.min(
+          this.player.stats.currentStamina,
+          this.player.stats.maxStamina
         );
         break;
       case "staminaRegenRate":
         this.player.stats.staminaRegenRate += 0.5;
         break;
       case "criticalHitBaseChance":
-        this.player.stats.criticalHitBaseChance += 0.01;
-        this.player.critChance = this.player.stats.criticalHitBaseChance;
+        this.player.stats.critChance += 0.01;
         break;
       case "criticalHitDamageMultiplier":
-        this.player.stats.criticalHitDamageMultiplier += 0.05;
-        this.player.critDamageMultiplier =
-          this.player.stats.criticalHitDamageMultiplier;
+        this.player.stats.critDamageMultiplier += 0.02;
         break;
       case "maxHealth":
         this.player.stats.maxHealth += 10;
@@ -216,7 +217,6 @@ export default class StatsMenu {
         break;
       case "regenRate":
         this.player.stats.regenRate += 0.5;
-        this.player.regenRate = this.player.stats.regenRate;
         break;
       case "attackDamage":
         this.player.stats.attackDamage += 2;
@@ -228,7 +228,7 @@ export default class StatsMenu {
         return false;
     }
 
-    this.player.levelPoints--;
+    this.player.stats.levelPoints--;
     this.player.sprite.emit("statsChanged");
     return true;
   }

@@ -49,7 +49,7 @@ export class LoadSlotsMenu {
       let label: string;
       if (data && data.timestamp) {
         const formattedDate = this.formatTimestamp(data.timestamp);
-        label = `Slot ${slot}: ${data.characterClass} Lvl ${data.level} (${formattedDate})`;
+        label = `Slot ${slot}: ${data.characterClass} Lvl ${data.stats.level} (${formattedDate})`;
       } else {
         label = `Slot ${slot}: pusty`;
       }
@@ -71,8 +71,9 @@ export class LoadSlotsMenu {
     const autoSaveData = SaveManager.getAutoSaveData();
     let autoSaveLabel: string;
     if (autoSaveData && autoSaveData.timestamp) {
+      const level = autoSaveData.stats?.level ?? "?";
       const formattedDate = this.formatTimestamp(autoSaveData.timestamp);
-      autoSaveLabel = `Autozapis: ${autoSaveData.characterClass} Lvl ${autoSaveData.level} (${formattedDate})`;
+      autoSaveLabel = `Autozapis: ${autoSaveData.characterClass} Lvl ${level} (${formattedDate})`;
     } else {
       autoSaveLabel = "Autozapis: brak";
     }

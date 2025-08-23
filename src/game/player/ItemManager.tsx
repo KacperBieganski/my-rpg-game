@@ -1,4 +1,3 @@
-// ItemManager.ts
 import Phaser from "phaser";
 import { Item } from "../items/Item";
 import type { InventoryItem } from "../SaveManager";
@@ -50,13 +49,14 @@ export class ItemManager {
       const item = new Item(itemData);
 
       // Equip the item - przekazujemy player zamiast this
-      item.equip(this.player);
+      item.equip(this.player.stats);
       this.equippedItems.push(itemId);
 
       // Remove one from inventory
       this.removeFromInventory(itemId, 1);
 
       // Update UI if needed
+      this.player.sprite.emit("statsChanged");
       onStatsChange();
       return true;
     }
@@ -75,13 +75,14 @@ export class ItemManager {
       const item = new Item(itemData);
 
       // Unequip the item - przekazujemy player zamiast this
-      item.unequip(this.player);
+      item.unequip(this.player.stats);
       this.equippedItems.splice(itemIndex, 1);
 
       // Add back to inventory
       this.addToInventory(item);
 
       // Update UI if needed
+      this.player.sprite.emit("statsChanged");
       onStatsChange();
       return true;
     }
@@ -101,10 +102,12 @@ export class ItemManager {
       const item = new Item(itemData);
 
       // Use the item - przekazujemy player zamiast this
-      item.use(this.player);
+      item.use(this.player.stats);
       this.removeFromInventory(itemId, 1);
 
       // Update UI if needed
+      this.player.sprite.emit("healthChanged");
+      this.player.sprite.emit("staminaChanged");
       onStatsChange();
       return true;
     }

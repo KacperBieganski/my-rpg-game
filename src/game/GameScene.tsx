@@ -103,22 +103,22 @@ export default class GameScene extends Phaser.Scene {
       x: data.x,
       y: data.y,
       characterClass: data.characterClass,
-      health: data.health,
-      maxHealth: data.maxHealth,
-      regenRate: data.regenRate,
-      level: data.level,
-      experience: data.experience,
-      levelPoints: data.levelPoints,
-      currentStamina: data.currentStamina,
-      maxStamina: data.maxStamina,
-      staminaRegenRate: data.staminaRegenRate,
-      critChance: data.critChance,
-      critDamageMultiplier: data.critDamageMultiplier,
-      attackDamage: data.attackDamage,
-      speed: data.speed,
+      health: data.stats.health,
+      maxHealth: data.stats.maxHealth,
+      regenRate: data.stats.regenRate,
+      level: data.stats.level,
+      experience: data.stats.experience,
+      levelPoints: data.stats.levelPoints,
+      currentStamina: data.stats.currentStamina,
+      maxStamina: data.stats.maxStamina,
+      staminaRegenRate: data.stats.staminaRegenRate,
+      critChance: data.stats.critChance,
+      critDamageMultiplier: data.stats.critDamageMultiplier,
+      attackDamage: data.stats.attackDamage,
+      speed: data.stats.speed,
       inventory: data.inventory,
       equippedItems: data.equippedItems,
-      gold: data.gold,
+      gold: data.stats.gold,
     });
   }
 
@@ -169,40 +169,28 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // 3. ustaw staty, jeśli są w opts
-
     if (opts.health != null) this.player.health = opts.health;
-    if (opts.maxHealth != null) {
-      (this.player as any).levelManager["maxHealth"] = opts.maxHealth;
-    }
+    if (opts.maxHealth != null) this.player.stats.maxHealth = opts.maxHealth;
     if (opts.regenRate != null) this.player.stats.regenRate = opts.regenRate;
-    if (opts.level != null) {
-      (this.player as any).levelManager["level"] = opts.level;
-      // Oblicz nextLevelExp na podstawie poziomu
-      let nextExp = 100;
-      for (let i = 1; i < opts.level; i++) {
-        nextExp = Math.floor(nextExp * 1.2);
-      }
-      (this.player as any).levelManager["nextLevelExp"] = nextExp;
-    }
-    if (opts.experience != null) {
-      (this.player as any).levelManager["experience"] = opts.experience;
-    }
+    if (opts.level != null) this.player.stats.level = opts.level;
+    if (opts.experience != null) this.player.stats.experience = opts.experience;
     if (opts.currentStamina != null)
-      this.player.currentStamina = opts.currentStamina;
-    if (opts.levelPoints != null) this.player.levelPoints = opts.levelPoints;
-    if (opts.maxStamina != null) this.player.maxStamina = opts.maxStamina;
+      this.player.stats.currentStamina = opts.currentStamina;
+    if (opts.levelPoints != null)
+      this.player.stats.levelPoints = opts.levelPoints;
+    if (opts.maxStamina != null) this.player.stats.maxStamina = opts.maxStamina;
     if (opts.staminaRegenRate != null)
       this.player.stats.staminaRegenRate = opts.staminaRegenRate;
-    if (opts.critChance != null) this.player.critChance = opts.critChance;
+    if (opts.critChance != null) this.player.stats.critChance = opts.critChance;
     if (opts.critDamageMultiplier != null)
-      this.player.critDamageMultiplier = opts.critDamageMultiplier;
+      this.player.stats.critDamageMultiplier = opts.critDamageMultiplier;
     if (opts.attackDamage != null)
       this.player.stats.attackDamage = opts.attackDamage;
     if (opts.speed != null) this.player.stats.speed = opts.speed;
     if (opts.inventory && opts.equippedItems) {
       this.player.itemManager.loadState(opts.inventory, opts.equippedItems);
     }
-    if (opts.gold) this.player.gold = opts.gold;
+    if (opts.gold) this.player.stats.gold = opts.gold;
 
     // 4. fizyka i kamera
     this.physics.add.collider(this.player.sprite, npcCollisions);
@@ -217,11 +205,7 @@ export default class GameScene extends Phaser.Scene {
 
     cam.setZoom(1);
 
-    // this.physics.world.createDebugGraphic();
-    // this.physics.world.drawDebug = true;
-
     // 5. NPC
-    // Przekazujemy obiekty spawnu do NPCManager
     this.npcManager = new NpcManager(
       this,
       this.player,

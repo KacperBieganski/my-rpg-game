@@ -5,51 +5,40 @@ import type { PlayerBase } from "./PlayerBase";
 
 export class LevelManager {
   private playerRef: PlayerBase;
-  public level: number;
-  public experience: number;
-  public nextLevelExp: number;
-  public maxHealth: number;
-  public health: number;
-  public sprite: Phaser.Physics.Arcade.Sprite;
-  public floatingTextEffects: FloatingTextEffects;
+  private sprite: Phaser.Physics.Arcade.Sprite;
+  private floatingTextEffects: FloatingTextEffects;
 
   constructor(
     playerRef: PlayerBase,
-    initialLevel: number,
-    initialExp: number,
-    initialMaxHealth: number,
-    initialHealth: number,
     sprite: Phaser.Physics.Arcade.Sprite,
     floatingTextEffects: FloatingTextEffects
   ) {
     this.playerRef = playerRef;
-    this.level = initialLevel;
-    this.experience = initialExp;
-    this.nextLevelExp = 100;
-    this.maxHealth = initialMaxHealth;
-    this.health = initialHealth;
     this.sprite = sprite;
     this.floatingTextEffects = floatingTextEffects;
   }
 
   public addExperience(amount: number): void {
-    this.experience += amount;
+    this.playerRef.stats.experience += amount;
     this.checkLevelUp();
     this.sprite.emit("statsChanged");
   }
 
   private checkLevelUp(): void {
-    while (this.experience >= this.nextLevelExp) {
-      this.experience -= this.nextLevelExp;
+    while (
+      this.playerRef.stats.experience >= this.playerRef.stats.nextLevelExp
+    ) {
+      this.playerRef.stats.experience -= this.playerRef.stats.nextLevelExp;
       this.levelUp();
     }
   }
 
   private levelUp(): void {
-    this.level++;
-    this.nextLevelExp = Math.floor(this.nextLevelExp * 1.2);
-
-    this.playerRef.levelPoints++;
+    this.playerRef.stats.level++;
+    this.playerRef.stats.nextLevelExp = Math.floor(
+      this.playerRef.stats.nextLevelExp * 1.2
+    );
+    this.playerRef.stats.levelPoints++;
 
     SoundManager.getInstance().play(this.sprite.scene, "lvlUp", {
       volume: 1,
@@ -60,36 +49,36 @@ export class LevelManager {
     this.sprite.emit("statsChanged");
   }
 
-  public setMaxHealth(value: number) {
-    this.maxHealth = value;
+  public getLevel(): number {
+    return this.playerRef.stats.level;
+  }
+
+  public getExperience(): number {
+    return this.playerRef.stats.experience;
+  }
+
+  public getNextLevelExp(): number {
+    return this.playerRef.stats.nextLevelExp;
+  }
+
+  public getMaxHealth(): number {
+    return this.playerRef.stats.maxHealth;
+  }
+
+  public setMaxHealth(value: number): void {
+    this.playerRef.stats.maxHealth = value;
     // Upewnij się, że zdrowie nie przekracza nowego maksimum
-    if (this.health > this.maxHealth) {
-      this.health = this.maxHealth;
+    if (this.playerRef.stats.health > this.playerRef.stats.maxHealth) {
+      this.playerRef.stats.health = this.playerRef.stats.maxHealth;
     }
     this.sprite.emit("healthChanged");
   }
 
-  public getLevel(): number {
-    return this.level;
-  }
-
-  public getExperience(): number {
-    return this.experience;
-  }
-
-  public getNextLevelExp(): number {
-    return this.nextLevelExp;
-  }
-
-  public getMaxHealth(): number {
-    return this.maxHealth;
-  }
-
   public setHealth(value: number): void {
-    this.health = value;
+    this.playerRef.stats.health = value;
   }
 
   public getHealth(): number {
-    return this.health;
+    return this.playerRef.stats.health;
   }
 }

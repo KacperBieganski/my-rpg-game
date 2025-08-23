@@ -41,7 +41,7 @@ export class WarriorPlayer extends PlayerBase {
   public takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
     super.takeDamage(amount, attacker);
 
-    if (this.isBlocking && this.currentStamina >= 0 && amount > 0) {
+    if (this.isBlocking && this.stats.currentStamina >= 0 && amount > 0) {
       if (attacker) {
         this.sprite.setFlipX(attacker.x < this.sprite.x);
       }

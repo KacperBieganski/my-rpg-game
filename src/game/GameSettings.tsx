@@ -10,7 +10,7 @@ export const DefaultGameSettings = {
     level: 1,
     experience: 0,
     levelPoints: 0,
-    startingGold: 0,
+    gold: 0,
 
     stamina: {
       maxStamina: 100,
@@ -57,6 +57,9 @@ export const DefaultGameSettings = {
     },
   },
   npc: {
+    ChanceToDropLoot: 0.9, // 0.4
+    ChanceToDropItem: 0.9, // 0.3
+
     GoblinTorch: {
       health: 100,
       maxHealth: 100,

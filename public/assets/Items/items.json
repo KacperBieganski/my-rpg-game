@@ -2,30 +2,51 @@
   {
     "id": "health_potion",
     "name": "Mikstura zdrowia",
-    "description": "Przywraca 50 punktów zdrowia",
+    "description": "Przywraca 20 punktów zdrowia",
     "type": "consumable",
     "properties": {
-      "healthRestore": 50
+      "healthRestore": 20
     },
     "rarity": "common"
   },
   {
-    "id": "iron_sword",
-    "name": "Żelazny Miecz",
-    "description": "Zwiększa obrażenia od ataku o 5",
+    "id": "endurance_potion",
+    "name": "mikstura wytrzymałości",
+    "description": "Przywraca 20 punktów wytrzymałości",
+    "type": "consumable",
+    "properties": {
+      "staminaRestore": 20
+    },
+    "rarity": "common"
+  },
+  {
+    "id": "wooden_sword",
+    "name": "Drewniany Miecz",
+    "description": "Zwiększa obrażenia od ataku o 3",
     "type": "equipment",
     "properties": {
-      "attackDamage": 5
+      "attackDamage": 3
+    },
+    "rarity": "uncommon"
+  },
+
+  {
+    "id": "wooden_armor",
+    "name": "Drewniany pancerz",
+    "description": "Zwiększa maksymalne zdrowie o 10",
+    "type": "equipment",
+    "properties": {
+      "maxHealth": 3
     },
     "rarity": "uncommon"
   },
   {
-    "id": "steel_armor",
-    "name": "Stalowa zbroja",
-    "description": "Zwiększa maksymalne zdrowie o 20",
+    "id": "wooden_helmet",
+    "name": "Drewniany hełm",
+    "description": "Zwiększa maksymalne zdrowie o 5",
     "type": "equipment",
     "properties": {
-      "maxHealth": 20
+      "maxHealth": 5
     },
     "rarity": "rare"
   },

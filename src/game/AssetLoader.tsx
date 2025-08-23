@@ -88,6 +88,23 @@ export class AssetLoader {
       path: "/assets/UI/silhouette-medieval-background.jpg",
     },
     { key: "Frame", path: "/assets/UI/Frame.png" },
+    { key: "X-symbol", path: "/assets/UI/X-symbol.png" },
+    {
+      key: "paper_panel_601_x_478",
+      path: "/assets/UI/Banners/paper_panels/paper_panel_601_x_478.png",
+    },
+    {
+      key: "paper_panel_150_x_478",
+      path: "/assets/UI/Banners/paper_panels/paper_panel_150_x_478.png",
+    },
+    {
+      key: "paper_panel_601_x_150",
+      path: "/assets/UI/Banners/paper_panels/paper_panel_601_x_150.png",
+    },
+    {
+      key: "paper_panel_200_x_170",
+      path: "/assets/UI/Banners/paper_panels/paper_panel_200_x_170.png",
+    },
   ];
 
   private static playerSpriteSheets: SpriteSheetConfig[] = [
@@ -517,10 +534,13 @@ export class AssetLoader {
   ];
 
   private static itemsImages: ImageConfig[] = [
+    { key: "coins", path: "/assets/Resources/Coins.png" },
     { key: "loot_bag", path: "/assets/Resources/LootBag.png" },
     { key: "health_potion", path: "/assets/Items/health_potion.png" },
-    { key: "iron_sword", path: "/assets/Items/iron_sword.png" },
-    { key: "steel_armor", path: "/assets/Items/steel_armor.png" },
+    { key: "endurance_potion", path: "/assets/Items/endurance_potion.png" },
+    { key: "wooden_sword", path: "/assets/Items/wooden_sword.png" },
+    { key: "wooden_armor", path: "/assets/Items/wooden_armor.png" },
+    { key: "wooden_helmet", path: "/assets/Items/wooden_helmet.png" },
     { key: "amulet_of_crit", path: "/assets/Items/amulet_of_crit.png" },
   ];
 

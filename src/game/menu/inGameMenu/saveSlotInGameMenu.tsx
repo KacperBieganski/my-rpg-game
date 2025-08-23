@@ -72,7 +72,7 @@ export default class saveSlotInGameMenu {
       let label: string;
       if (data && data.timestamp) {
         const formattedDate = this.formatTimestamp(data.timestamp);
-        label = `Slot ${slot}: ${data.characterClass} Lvl ${data.level} (${formattedDate})`;
+        label = `Slot ${slot}: ${data.characterClass} Lvl ${data.stats.level} (${formattedDate})`;
       } else {
         label = `Slot ${slot}: pusty`;
       }
@@ -100,8 +100,9 @@ export default class saveSlotInGameMenu {
     const autoSaveData = SaveManager.getAutoSaveData();
     let autoSaveLabel: string;
     if (autoSaveData && autoSaveData.timestamp) {
+      const level = autoSaveData.stats?.level ?? "?";
       const formattedDate = this.formatTimestamp(autoSaveData.timestamp);
-      autoSaveLabel = `Autozapis: ${autoSaveData.characterClass} Lvl ${autoSaveData.level} (${formattedDate})`;
+      autoSaveLabel = `Autozapis: ${autoSaveData.characterClass} Lvl ${level} (${formattedDate})`;
     } else {
       autoSaveLabel = "Autozapis: brak";
     }
@@ -170,22 +171,27 @@ export default class saveSlotInGameMenu {
       x,
       y,
       characterClass: this.scene.characterClass,
-      health: this.scene.player.health,
-      maxHealth: this.scene.player.maxHealth,
-      regenRate: this.scene.player.stats.regenRate,
-      level: this.scene.player.level,
-      experience: this.scene.player.experience,
-      levelPoints: this.scene.player.levelPoints,
-      currentStamina: this.scene.player.currentStamina,
-      maxStamina: this.scene.player.maxStamina,
-      staminaRegenRate: this.scene.player.stats.staminaRegenRate,
-      critChance: this.scene.player.critChance,
-      critDamageMultiplier: this.scene.player.critDamageMultiplier,
-      attackDamage: this.scene.player.stats.attackDamage,
-      speed: this.scene.player.stats.speed,
-      gold: this.scene.player.gold,
-      inventory: this.scene.player.inventory,
-      equippedItems: this.scene.player.equippedItems,
+      stats: {
+        health: this.scene.player.stats.health,
+        maxHealth: this.scene.player.stats.maxHealth,
+        maxStamina: this.scene.player.stats.maxStamina,
+        currentStamina: this.scene.player.stats.currentStamina,
+        attackDamage: this.scene.player.stats.attackDamage,
+        speed: this.scene.player.stats.speed,
+        regenRate: this.scene.player.stats.regenRate,
+        staminaRegenRate: this.scene.player.stats.staminaRegenRate,
+        critChance: this.scene.player.stats.critChance,
+        critDamageMultiplier: this.scene.player.stats.critDamageMultiplier,
+        level: this.scene.player.stats.level,
+        experience: this.scene.player.stats.experience,
+        levelPoints: this.scene.player.stats.levelPoints,
+        gold: this.scene.player.stats.gold,
+        regenDelay: 0,
+        staminaRegenDelay: 0,
+        nextLevelExp: 0,
+      },
+      inventory: this.scene.player.itemManager.inventory,
+      equippedItems: this.scene.player.itemManager.equippedItems,
     };
     SaveManager.save(slot, saveData);
     this.show(); // odśwież listę

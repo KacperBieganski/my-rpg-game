@@ -43,7 +43,7 @@ export class LancerPlayer extends PlayerBase {
   takeDamage(amount: number, attacker?: Phaser.Physics.Arcade.Sprite) {
     super.takeDamage(amount, attacker);
 
-    if (this.isBlocking && this.currentStamina >= 0 && amount > 0) {
+    if (this.isBlocking && this.stats.currentStamina >= 0 && amount > 0) {
       if (attacker) {
         this.playDirectionalBlockAnimation(attacker);
       } else {

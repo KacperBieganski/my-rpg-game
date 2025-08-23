@@ -1,4 +1,4 @@
-import type { PlayerBase } from "../player/PlayerBase";
+import type { StatsManager } from "../player/StatsManager";
 
 export class Item {
   id: string;
@@ -17,47 +17,47 @@ export class Item {
     this.rarity = data.rarity;
   }
 
-  use(player: PlayerBase) {
+  use(stats: StatsManager) {
     if (this.type === "consumable") {
       if (this.properties.healthRestore) {
-        player.health = Math.min(
-          player.maxHealth,
-          player.health + this.properties.healthRestore
-        );
+        stats.addHealth(this.properties.healthRestore);
+      }
+      if (this.properties.staminaRestore) {
+        stats.addStamina(this.properties.staminaRestore);
       }
       // Handle other consumable effects
     }
   }
 
-  equip(player: PlayerBase) {
+  equip(stats: StatsManager) {
     if (this.type === "equipment") {
       // Apply item stats to player
       if (this.properties.attackDamage) {
-        player.stats.attackDamage += this.properties.attackDamage;
+        stats.attackDamage += this.properties.attackDamage;
       }
       if (this.properties.maxHealth) {
-        player.stats.maxHealth += this.properties.maxHealth;
-        player.health += this.properties.maxHealth;
+        stats.maxHealth += this.properties.maxHealth;
+        stats.addHealth(this.properties.maxHealth);
       }
       if (this.properties.critChance) {
-        player.critChance += this.properties.critChance;
+        stats.critChance += this.properties.critChance;
       }
       // Add more stat modifications as needed
     }
   }
 
-  unequip(player: PlayerBase) {
+  unequip(stats: StatsManager) {
     if (this.type === "equipment") {
       // Remove item stats from player
       if (this.properties.attackDamage) {
-        player.stats.attackDamage -= this.properties.attackDamage;
+        stats.attackDamage -= this.properties.attackDamage;
       }
       if (this.properties.maxHealth) {
-        player.stats.maxHealth -= this.properties.maxHealth;
-        player.health = Math.min(player.health, player.stats.maxHealth);
+        stats.maxHealth -= this.properties.maxHealth;
+        stats.health = Math.min(stats.health, stats.maxHealth);
       }
       if (this.properties.critChance) {
-        player.critChance -= this.properties.critChance;
+        stats.critChance -= this.properties.critChance;
       }
       // Add more stat reversions as needed
     }
