@@ -1,0 +1,63 @@
+[
+  {
+    "id": "health_potion",
+    "name": "Mikstura zdrowia",
+    "description": "Przywraca 20 punktów zdrowia",
+    "type": "consumable",
+    "properties": {
+      "healthRestore": 20
+    },
+    "rarity": "common"
+  },
+  {
+    "id": "endurance_potion",
+    "name": "mikstura wytrzymałości",
+    "description": "Przywraca 20 punktów wytrzymałości",
+    "type": "consumable",
+    "properties": {
+      "staminaRestore": 20
+    },
+    "rarity": "common"
+  },
+  {
+    "id": "wooden_sword",
+    "name": "Drewniany Miecz",
+    "description": "Zwiększa obrażenia od ataku o 3",
+    "type": "equipment",
+    "properties": {
+      "attackDamage": 3
+    },
+    "rarity": "uncommon"
+  },
+
+  {
+    "id": "wooden_armor",
+    "name": "Drewniany pancerz",
+    "description": "Zwiększa maksymalne zdrowie o 10",
+    "type": "equipment",
+    "properties": {
+      "maxHealth": 3
+    },
+    "rarity": "uncommon"
+  },
+  {
+    "id": "wooden_helmet",
+    "name": "Drewniany hełm",
+    "description": "Zwiększa maksymalne zdrowie o 5",
+    "type": "equipment",
+    "properties": {
+      "maxHealth": 5
+    },
+    "rarity": "rare"
+  },
+  {
+    "id": "amulet_of_crit",
+    "name": "Amulet Krytycznych Uderzeń",
+    "description": "Zwiększa szansę na trafienie krytyczne o 5%",
+    "type": "equipment",
+    "properties": {
+      "critChance": 0.05
+    },
+    "rarity": "epic"
+  }
+]
