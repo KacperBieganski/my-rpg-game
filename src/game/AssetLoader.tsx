@@ -41,6 +41,7 @@ export class AssetLoader {
     this.loadAssets(scene, this.buildingSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.otherImages, "image");
     this.loadAssets(scene, this.itemsImages, "image");
+    this.loadAssets(scene, this.itemsSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.treeSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.bushSpriteSheets, "spritesheet");
     this.loadAssets(scene, this.rockSpriteSheets, "spritesheet");
@@ -422,6 +423,46 @@ export class AssetLoader {
       frameWidth: 192,
       frameHeight: 192,
     },
+
+    // Snake
+    {
+      key: "Snake_Idle",
+      path: "/assets/Units/Animals/Snake/Snake_Idle.png",
+      frameWidth: 160,
+      frameHeight: 160,
+    },
+    {
+      key: "Snake_Run",
+      path: "/assets/Units/Animals/Snake/Snake_Run.png",
+      frameWidth: 160,
+      frameHeight: 160,
+    },
+    {
+      key: "Snake_Attack",
+      path: "/assets/Units/Animals/Snake/Snake_Attack.png",
+      frameWidth: 160,
+      frameHeight: 160,
+    },
+
+    // Bear
+    {
+      key: "Bear_Idle",
+      path: "/assets/Units/Animals/Bear/Bear_Idle.png",
+      frameWidth: 224,
+      frameHeight: 224,
+    },
+    {
+      key: "Bear_Run",
+      path: "/assets/Units/Animals/Bear/Bear_Run.png",
+      frameWidth: 224,
+      frameHeight: 224,
+    },
+    {
+      key: "Bear_Attack",
+      path: "/assets/Units/Animals/Bear/Bear_Attack.png",
+      frameWidth: 224,
+      frameHeight: 224,
+    },
   ];
 
   private static enemyAudios: AudioConfig[] = [
@@ -435,6 +476,12 @@ export class AssetLoader {
     { key: "throw", path: "/assets/sounds/throw.ogg" },
     { key: "openBox", path: "/assets/sounds/open-box.ogg" },
     { key: "closeBox", path: "/assets/sounds/open-box.ogg" },
+    { key: "attackSnake", path: "/assets/sounds/attack-snake.ogg" },
+    { key: "deathSnake", path: "/assets/sounds/death-snake.ogg" },
+    { key: "attackBear1", path: "/assets/sounds/attack-bear1.ogg" },
+    { key: "attackBear2", path: "/assets/sounds/attack-bear2.ogg" },
+    { key: "attackBear3", path: "/assets/sounds/attack-bear3.ogg" },
+    { key: "deathBear", path: "/assets/sounds/death-bear.ogg" },
   ];
 
   private static environmentImages: ImageConfig[] = [
@@ -542,6 +589,15 @@ export class AssetLoader {
     { key: "wooden_armor", path: "/assets/Items/wooden_armor.png" },
     { key: "wooden_helmet", path: "/assets/Items/wooden_helmet.png" },
     { key: "amulet_of_crit", path: "/assets/Items/amulet_of_crit.png" },
+  ];
+
+  private static itemsSpriteSheets: SpriteSheetConfig[] = [
+    {
+      key: "LootBag_Spawn",
+      path: "/assets/Resources/LootBag_Spawn_Sprite.png",
+      frameWidth: 128,
+      frameHeight: 128,
+    },
   ];
 
   private static treeSpriteSheets: SpriteSheetConfig[] = [

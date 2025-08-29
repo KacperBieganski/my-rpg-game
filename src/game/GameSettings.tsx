@@ -57,8 +57,8 @@ export const DefaultGameSettings = {
     },
   },
   npc: {
-    ChanceToDropLoot: 0.9, // 0.4
-    ChanceToDropItem: 0.9, // 0.3
+    ChanceToDropLoot: 0.4, // 0.4
+    ChanceToDropItem: 0.3, // 0.3
 
     GoblinTorch: {
       health: 100,
@@ -104,6 +104,26 @@ export const DefaultGameSettings = {
       attackRange: 80,
       attackRate: 1000,
       expGain: 10,
+    },
+    Snake: {
+      health: 50,
+      maxHealth: 50,
+      speed: 70,
+      damage: 10,
+      detectionRange: 250,
+      attackRange: 80,
+      attackRate: 1000,
+      expGain: 10,
+    },
+    Bear: {
+      health: 300,
+      maxHealth: 300,
+      speed: 90,
+      damage: 50,
+      detectionRange: 280,
+      attackRange: 100,
+      attackRate: 2000,
+      expGain: 30,
     },
   },
 };

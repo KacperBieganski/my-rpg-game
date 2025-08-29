@@ -366,6 +366,68 @@ export function createPlayerAnimations(scene: Phaser.Scene) {
       frameRate: 10,
       repeat: -1,
     },
+
+    // Snake
+    {
+      key: "Snake_Idle",
+      sprite: "Snake_Idle",
+      start: 0,
+      end: 7,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Snake_Run",
+      sprite: "Snake_Run",
+      start: 0,
+      end: 7,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Snake_Attack",
+      sprite: "Snake_Attack",
+      start: 0,
+      end: 7,
+      frameRate: 15,
+      repeat: 0,
+    },
+
+    // Bear
+    {
+      key: "Bear_Idle",
+      sprite: "Bear_Idle",
+      start: 0,
+      end: 7,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Bear_Run",
+      sprite: "Bear_Run",
+      start: 0,
+      end: 4,
+      frameRate: 10,
+      repeat: -1,
+    },
+    {
+      key: "Bear_Attack",
+      sprite: "Bear_Attack",
+      start: 0,
+      end: 10,
+      frameRate: 15,
+      repeat: 0,
+    },
+
+    // Items
+    {
+      key: "LootBag_Spawn",
+      sprite: "LootBag_Spawn",
+      start: 0,
+      end: 6,
+      frameRate: 10,
+      repeat: 0,
+    },
   ];
 
   for (const anim of animations) {

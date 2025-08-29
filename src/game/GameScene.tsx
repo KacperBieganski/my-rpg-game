@@ -59,8 +59,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    // this.physics.world.drawDebug = true;
-    // this.physics.world.debugGraphic.clear();
+    this.physics.world.drawDebug = true;
+    this.physics.world.debugGraphic.clear();
+
+    if (this.physics.world.debugGraphic) {
+      this.physics.world.debugGraphic.setDepth(9999);
+    }
 
     this.setupEventListeners();
     new MainMenu(this);
@@ -204,6 +208,9 @@ export default class GameScene extends Phaser.Scene {
       .setRoundPixels(true);
 
     cam.setZoom(1);
+
+    this.physics.world.createDebugGraphic();
+    this.physics.world.drawDebug = true;
 
     // 5. NPC
     this.npcManager = new NpcManager(

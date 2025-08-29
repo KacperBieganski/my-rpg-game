@@ -17357,8 +17357,8 @@
                  "type":"Static",
                  "visible":true,
                  "width":50,
-                 "x":772.666666666667,
-                 "y":3976.66666666667
+                 "x":668.666666666667,
+                 "y":3922
                 }, 
                 {
                  "ellipse":true,
@@ -17431,18 +17431,6 @@
                  "width":50,
                  "x":1471,
                  "y":3561.66666666667
-                }, 
-                {
-                 "ellipse":true,
-                 "height":50,
-                 "id":323,
-                 "name":"RedGoblinTNT",
-                 "rotation":0,
-                 "type":"Walkable",
-                 "visible":true,
-                 "width":50,
-                 "x":2359,
-                 "y":3660
                 }, 
                 {
                  "ellipse":true,
@@ -18019,6 +18007,78 @@
                  "width":52,
                  "x":950,
                  "y":1656
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":1778,
+                 "name":"Snake",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2308.33333333333,
+                 "y":3645.66666666667
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":1779,
+                 "name":"Snake",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2195,
+                 "y":3725.66666666667
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":1780,
+                 "name":"Snake",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2419.66666666667,
+                 "y":3665
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":1781,
+                 "name":"Snake",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2309,
+                 "y":3710.33333333333
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":1782,
+                 "name":"Snake",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2409,
+                 "y":3743.66666666667
+                }, 
+                {
+                 "ellipse":true,
+                 "height":50,
+                 "id":1785,
+                 "name":"Bear",
+                 "rotation":0,
+                 "type":"Walkable",
+                 "visible":true,
+                 "width":50,
+                 "x":2016,
+                 "y":2030
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -18140,7 +18200,7 @@
          "y":0
         }],
  "nextlayerid":24,
- "nextobjectid":1776,
+ "nextobjectid":1786,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.11.2",

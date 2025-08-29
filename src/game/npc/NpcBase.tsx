@@ -262,7 +262,7 @@ export abstract class NpcBase {
     const dropChance = Phaser.Math.FloatBetween(0, 1);
 
     if (dropChance < DefaultGameSettings.npc.ChanceToDropLoot) {
-      const goldAmount = Phaser.Math.Between(2, 10);
+      const goldAmount = Phaser.Math.Between(1, 5);
       const items: Item[] = [];
 
       const itemsData = this.scene.cache.json.get("items");
